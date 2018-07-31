@@ -11,7 +11,8 @@
                 "-g", "-std=c++11", 
                 "src/OneSteinerTreeProblem.cpp", 
                 "-o", "OneSteinerTreeProblem",
-                 "-lCGAL", "-lgmp", "-lmpfr"
+                 "-lCGAL", "-lgmp", "-lmpfr",
+                 "-DCGAL_DONT_USE_LAZY_KERNEL=1", "-DCGAL_USE_GMP=1"
             ],
             "group": {
                 "kind": "build",
