@@ -13,7 +13,10 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
+            //"console": "internalConsole",
+            //"console": "integratedTerminal",
             "externalConsole": true,
+            //"externalConsole": false, //doesn't send output to debug... = (
             "MIMode": "gdb",
             "setupCommands": [
                 {

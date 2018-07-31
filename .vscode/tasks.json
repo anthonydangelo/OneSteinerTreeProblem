@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "-std=c++11", "src/OneSteinerTreeProblem.cpp", "-o OneSteinerTreeProblem"
+                "-g", "-std=c++11", "src/OneSteinerTreeProblem.cpp", "-o", "OneSteinerTreeProblem"
             ],
             "group": {
                 "kind": "build",

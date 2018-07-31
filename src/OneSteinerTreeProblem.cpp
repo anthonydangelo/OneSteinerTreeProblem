@@ -21,38 +21,41 @@ using namespace std;
 
 void PrintHelp()
 {
-	ostringstream msg;
-	msg <<
-			"--onlyPoints:        Only create new random points and return\n"
-            "--numPoints <int>:   Number of random points to generate (between "
-					<< MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
-					<< MIN_NUM_INPUT_POINTS << ")\n"
-            "--trueRandom:        Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
-					<< TRUE_RANDOM_DEFAULT << ")\n"
-            "--randSeed <int>:    Use the following fixed seed for the rand. num. gen. (default is " << RAND_SEED << ")\n"
-            "--help:              Show help\n";
+    ostringstream msg;
+    msg << "--onlyPoints (-p):        Only create new random points and return\n"
+           "--numPoints (-n) <int>:   Number of random points to generate (between "
+                        << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
+                        << DEFAULT_NUM_INPUT_POINTS << ")\n"
+           "--trueRandom (-r):        Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
+                        << TRUE_RANDOM_DEFAULT << ")\n"
+           "--randSeed (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
+                        << RAND_SEED_DEFAULT << ")\n"
+           "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
+                        << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
+           "--help (-h):              Show help\n";
 
-	cout << msg.str();
+    cout << msg.str();
     exit(1);
 }
 
-int numPoints = MIN_NUM_INPUT_POINTS;
-int randSeed = RAND_SEED;
+int numPoints = DEFAULT_NUM_INPUT_POINTS;
+int randSeed = RAND_SEED_DEFAULT;
+int gridLength = GRID_LENGTH_DEFAULT;
 bool trueRandom = TRUE_RANDOM_DEFAULT;
 bool onlyPoints = ONLY_POINTS_DEFAULT;
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-void ProcessArgs(int argc, char** argv)
+void ProcessArgs(int argc, char **argv)
 {
-    const char* const short_opts = "pn:rs:h";
+    const char *const short_opts = "pn:rs:g:h";
     const option long_opts[] = {
-            {"onlyPoints", no_argument, nullptr, 'p'},
-            {"numPoints", required_argument, nullptr, 'n'},
-            {"trueRandom", no_argument, nullptr, 'r'},
-            {"randSeed", required_argument, nullptr, 's'},
-            {"help", no_argument, nullptr, 'h'},
-            {nullptr, no_argument, nullptr, 0}
-    };
+        {"onlyPoints", no_argument, nullptr, 'p'},
+        {"numPoints", required_argument, nullptr, 'n'},
+        {"trueRandom", no_argument, nullptr, 'r'},
+        {"randSeed", required_argument, nullptr, 's'},
+        {"gridLength", required_argument, nullptr, 'g'},
+        {"help", no_argument, nullptr, 'h'},
+        {nullptr, no_argument, nullptr, 0}};
 
     //note: string(optarg) is to take in and make a string
     while (true)
@@ -65,24 +68,61 @@ void ProcessArgs(int argc, char** argv)
         switch (opt)
         {
         case 'p':
-        	onlyPoints = true;
-        	break;
+            onlyPoints = true;
+            break;
 
         case 'n':
-        	if(optarg){
-        		numPoints = stoi(optarg);
-        	}
+            if (optarg)
+            {
+                try
+                {
+                    int temp = stoi(optarg);
+                    if (intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
+                    {
+                        numPoints = temp;
+                    }
+                }
+                catch (...)
+                {
+                    numPoints = DEFAULT_NUM_INPUT_POINTS;
+                    cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                }
+            }
             break;
 
         case 'r':
-        	trueRandom = true;
+            trueRandom = true;
             break;
 
         case 's':
-        	if(optarg){
-        		//note: also stof exists
-        		randSeed = stoi(optarg);
-        	}
+            if (optarg)
+            {
+                try
+                {
+                    //note: also stof exists
+                    randSeed = stoi(optarg);
+                }
+                catch (...)
+                {
+                    randSeed = RAND_SEED_DEFAULT;
+                    cerr << "Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
+                }
+            }
+            break;
+
+        case 'g':
+            if (optarg)
+            {
+                try
+                {
+                    gridLength = stoi(optarg);
+                }
+                catch (...)
+                {
+                    gridLength = GRID_LENGTH_DEFAULT;
+                    cerr << "Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
+                }
+            }
             break;
 
         case 'h': // -h or --help
@@ -95,11 +135,12 @@ void ProcessArgs(int argc, char** argv)
     return;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
-	 ProcessArgs(argc, argv);
+    ProcessArgs(argc, argv);
 
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
-	return 0;
-
+    cout << "!!!Hello World!!!\n"
+         << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
+    return 0;
 }
