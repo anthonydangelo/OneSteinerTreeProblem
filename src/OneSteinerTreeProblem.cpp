@@ -10,12 +10,38 @@
 #include <iostream>
 #include <sstream> // for ostringstream
 #include <string>
+//#include <unordered_set> //need to provide a hasher or something for this...
+#include <set>
 
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
 
 #include "1ST-Constants-Utilities.h"
+
+//https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
+//https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/point_generators_2.h>
+#include <CGAL/Random.h>
+#include <CGAL/algorithm.h>
+
+using namespace CGAL;
+
+
+//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
+//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
+//https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
+typedef Exact_predicates_exact_constructions_kernel Kernel;
+typedef Kernel::Point_2 MyPoint_2;
+typedef Kernel::Segment_2 Segment_2;
+typedef Kernel::Line_2 Line_2;
+typedef Kernel::Intersect_2 Intersect_2;
+
+//https://doc.cgal.org/latest/Generator/index.html
+typedef Creator_uniform_2<double, MyPoint_2>             Creator;
+typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
+
 
 using namespace std;
 
@@ -80,6 +106,9 @@ void ProcessArgs(int argc, char **argv)
                     if (intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
                     {
                         numPoints = temp;
+                    } else 
+                    {
+                        cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
                     }
                 }
                 catch (...)
@@ -139,6 +168,34 @@ int main(int argc, char **argv)
 {
 
     ProcessArgs(argc, argv);
+
+    Random rand(randSeed);
+/*  //might leave me with less than n points... also, copy-n-unique -s from random-polygon-2.h...
+    list<MyPoint_2> point_set;
+    CGAL::copy_n_unique(Point_generator(gridLength, rand), numPoints,
+                       back_inserter(point_set));    
+*/
+    //unordered_set<MyPoint_2> pointSet;
+    set<MyPoint_2> pointSet;
+    //pointSet.reserve(numPoints); //apparently only unordered sets reserve...
+    //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
+    Point_generator randPointGen(gridLength, rand);
+    //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
+    while(pointSet.size() < numPoints)
+    {
+        pointSet.insert(*randPointGen++);
+    } 
+
+#if (MY_VERBOSE)    
+/*
+std::ostream_iterator< Point_2 > out( std::cout, " " );
+ std::copy(point_set.begin(), point_set.end(), out);
+*/
+    for(auto pt : pointSet)
+    {
+        cout << " " << pt << endl;
+    }
+#endif    
 
     cout << "!!!Hello World!!!\n"
          << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!

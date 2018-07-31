@@ -1,6 +1,8 @@
 #ifndef ONE_ST_CONSTANTS_UTILITIES
 #define ONE_ST_CONSTANTS_UTILITIES
 
+#define MY_VERBOSE                  (1)
+
 //magic numbers
 #define MIN_NUM_INPUT_POINTS        (3)
 #define MAX_NUM_INPUT_POINTS        (10)
