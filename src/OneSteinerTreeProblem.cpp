@@ -12,6 +12,7 @@
 #include <string>
 //#include <unordered_set> //need to provide a hasher or something for this...
 #include <set>
+#include <vector>
 
 #include <iostream>
 #include <unistd.h>
@@ -19,31 +20,6 @@
 
 #include "1ST-Constants-Utilities.h"
 
-//https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
-//https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
-#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include <CGAL/point_generators_2.h>
-#include <CGAL/Random.h>
-#include <CGAL/algorithm.h>
-
-using namespace CGAL;
-
-
-//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
-//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
-//https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
-typedef Exact_predicates_exact_constructions_kernel Kernel;
-typedef Kernel::Point_2 MyPoint_2;
-typedef Kernel::Segment_2 Segment_2;
-typedef Kernel::Line_2 Line_2;
-typedef Kernel::Intersect_2 Intersect_2;
-
-//https://doc.cgal.org/latest/Generator/index.html
-typedef Creator_uniform_2<double, MyPoint_2>             Creator;
-typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
-
-
-using namespace std;
 
 void PrintHelp()
 {
@@ -164,6 +140,12 @@ void ProcessArgs(int argc, char **argv)
     return;
 }
 
+void computeConvexHull(set<MyPoint_2> &pointSet, vector<MyPoint_2> &result)
+{
+    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(result));
+    return;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -186,6 +168,7 @@ int main(int argc, char **argv)
         pointSet.insert(*randPointGen++);
     } 
 
+
 #if (MY_VERBOSE)    
 
 /* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
@@ -196,6 +179,22 @@ int main(int argc, char **argv)
         cout << " " << pt << endl;
     }
 #endif    
+
+
+    vector<MyPoint_2> convexHullList;
+
+    computeConvexHull(pointSet, convexHullList);
+
+#if (MY_VERBOSE)    
+
+/* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
+ std::copy(pointSet.begin(), pointSet.end(), out); */
+    cout << "Convex Hull\n";
+    for(auto pt : convexHullList)
+    {
+        cout << " " << pt << endl;
+    }
+#endif     
 
     cout << "!!!Hello World!!!\n"
          << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
