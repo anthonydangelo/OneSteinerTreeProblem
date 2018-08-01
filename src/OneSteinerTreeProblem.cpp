@@ -180,6 +180,14 @@ int main(int argc, char **argv)
     }
 #endif    
 
+    if(onlyPoints){
+        //Strange stuff is going on. The ch vector is somehow asked to be destroyed or something if we jump to the end, giving us a segfault.
+        //This means some weird stuff is going on implicitly, either by cgal or c++. I (think I) hate when people presume to know what I want...
+//        goto TEMP_END;
+        cout << "!!!Hello World!!!\n"
+            << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
+        return 0;
+    }
 
     vector<MyPoint_2> convexHullList;
 
@@ -196,6 +204,8 @@ int main(int argc, char **argv)
     }
 #endif     
 
+
+//TEMP_END: Can't use labels reliably
     cout << "!!!Hello World!!!\n"
          << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
     return 0;
