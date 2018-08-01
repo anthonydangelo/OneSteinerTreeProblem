@@ -9,7 +9,7 @@
             "command": "g++",
             "args": [
                 "-g", "-std=c++11", 
-                "src/OneSteinerTreeProblem.cpp", 
+                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", 
                 "-o", "OneSteinerTreeProblem",
 //                "-fpermissive",
                 "-static",

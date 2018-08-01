@@ -1,6 +1,17 @@
 #ifndef ONE_ST_CONSTANTS_UTILITIES
 #define ONE_ST_CONSTANTS_UTILITIES
 
+#include <iostream>
+#include <sstream> // for ostringstream
+#include <string>
+//#include <unordered_set> //need to provide a hasher or something for this...
+#include <set>
+#include <vector>
+
+#include <unistd.h>
+#include <cstdlib>
+#include <fstream>
+
 
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
 //https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
@@ -44,9 +55,26 @@ using namespace std;
 
 #define ONLY_POINTS_DEFAULT  (false)
 
-bool intInRangeInclusive(int x, int lowEnd, int highEnd){
+#define OUTPUT_FILE          ("result.json")
+
+
+/* bool intInRangeInclusive(int x, int lowEnd, int highEnd){
     return ((x >= lowEnd) && (x <= highEnd));
 }
 
+string stringAsJSONString(string s)
+{
+    return ("\"" + s + "\"");
+} */
+
+//why do these need to be static?
+static bool intInRangeInclusive(int x, int lowEnd, int highEnd){
+    return ((x >= lowEnd) && (x <= highEnd));
+}
+
+static string stringAsJSONString(string s)
+{
+    return ("\"" + s + "\"");
+}
 
 #endif

@@ -7,18 +7,9 @@
 //============================================================================
 
 #include <getopt.h>
-#include <iostream>
-#include <sstream> // for ostringstream
-#include <string>
-//#include <unordered_set> //need to provide a hasher or something for this...
-#include <set>
-#include <vector>
-
-#include <iostream>
-#include <unistd.h>
-#include <cstdlib>
 
 #include "1ST-Constants-Utilities.h"
+#include "ComputationResult.hpp"
 
 
 void PrintHelp()
@@ -140,72 +131,15 @@ void ProcessArgs(int argc, char **argv)
     return;
 }
 
-void computeConvexHull(set<MyPoint_2> &pointSet, vector<MyPoint_2> &result)
-{
-    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(result));
-    return;
-}
 
 int main(int argc, char **argv)
 {
 
     ProcessArgs(argc, argv);
 
-    Random rand(randSeed);
-/*  //might leave me with less than n points... also, copy-n-unique -s from random-polygon-2.h...
-    list<MyPoint_2> point_set;
-    CGAL::copy_n_unique(Point_generator(gridLength, rand), numPoints,
-                       back_inserter(point_set));    
-*/
-    //unordered_set<MyPoint_2> pointSet;
-    set<MyPoint_2> pointSet;
-    //pointSet.reserve(numPoints); //apparently only unordered sets reserve...
-    //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
-    Point_generator randPointGen(gridLength, rand);
-    //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
-    while(pointSet.size() < numPoints)
-    {
-        pointSet.insert(*randPointGen++);
-    } 
+    ComputationResult myCompResult(numPoints, randSeed, gridLength, trueRandom, onlyPoints);
 
 
-#if (MY_VERBOSE)    
-
-/* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
- std::copy(pointSet.begin(), pointSet.end(), out); */
-
-    for(auto pt : pointSet)
-    {
-        cout << " " << pt << endl;
-    }
-#endif    
-
-    if(onlyPoints){
-        //Strange stuff is going on. The ch vector is somehow asked to be destroyed or something if we jump to the end, giving us a segfault.
-        //This means some weird stuff is going on implicitly, either by cgal or c++. I (think I) hate when people presume to know what I want...
-//        goto TEMP_END;
-        cout << "!!!Hello World!!!\n"
-            << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
-        return 0;
-    }
-
-    vector<MyPoint_2> convexHullList;
-
-    computeConvexHull(pointSet, convexHullList);
-
-#if (MY_VERBOSE)    
-
-/* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
- std::copy(pointSet.begin(), pointSet.end(), out); */
-    cout << "Convex Hull\n";
-    for(auto pt : convexHullList)
-    {
-        cout << " " << pt << endl;
-    }
-#endif     
-
-
-//TEMP_END: Can't use labels reliably
     cout << "!!!Hello World!!!\n"
          << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
     return 0;
