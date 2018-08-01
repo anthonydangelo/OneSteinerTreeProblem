@@ -187,10 +187,10 @@ int main(int argc, char **argv)
     } 
 
 #if (MY_VERBOSE)    
-/*
-std::ostream_iterator< Point_2 > out( std::cout, " " );
- std::copy(point_set.begin(), point_set.end(), out);
-*/
+
+/* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
+ std::copy(pointSet.begin(), pointSet.end(), out); */
+
     for(auto pt : pointSet)
     {
         cout << " " << pt << endl;

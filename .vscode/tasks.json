@@ -11,7 +11,10 @@
                 "-g", "-std=c++11", 
                 "src/OneSteinerTreeProblem.cpp", 
                 "-o", "OneSteinerTreeProblem",
-                 "-lCGAL", "-lgmp", "-lmpfr",
+                "-static",
+                "-Wl,--whole-archive", "-lpthread", "-Wl,--no-whole-archive",
+                 "-lCGAL", "-lgmp", "-lmpfr", 
+                 "-lboost_thread", "-lboost_system",
                  "-DCGAL_DONT_USE_LAZY_KERNEL=1", "-DCGAL_USE_GMP=1"
             ],
             "group": {
