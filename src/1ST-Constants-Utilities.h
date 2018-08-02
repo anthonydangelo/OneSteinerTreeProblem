@@ -55,7 +55,8 @@ using namespace std;
 
 #define ONLY_POINTS_DEFAULT  (false)
 
-#define OUTPUT_FILE          ("result.json")
+#define OUTPUT_FILE                 ("result.json")
+#define INPUT_POINTS_NAME_STRING    ("inputPoints")
 
 
 /* bool intInRangeInclusive(int x, int lowEnd, int highEnd){
@@ -68,13 +69,32 @@ string stringAsJSONString(string s)
 } */
 
 //why do these need to be static?
-static bool intInRangeInclusive(int x, int lowEnd, int highEnd){
+static inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
+{
     return ((x >= lowEnd) && (x <= highEnd));
 }
 
-static string stringAsJSONString(string s)
+//static inline string stringAsJSONString(string s)
+static inline string wrapStringInQuotes(const string &s)
 {
     return ("\"" + s + "\"");
+}
+
+static inline string point2ToJSON(const MyPoint_2 &p)
+{
+    ostringstream sStream;
+
+    sStream << "{\"x\":\"" << p.x() << "\", " << "\"y\":\"" << p.y() << "\"}";
+    return sStream.str();
+}
+
+static inline string insertTabs(int level)
+{   
+    ostringstream sStream;
+    for(int i = 0; i < level; ++i){
+        sStream << "\t";
+    }
+    return sStream.str();
 }
 
 #endif

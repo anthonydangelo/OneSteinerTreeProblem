@@ -28,6 +28,8 @@ ComputationResult::ComputationResult(int numInputPoints,
     {
         cout << " " << pt << endl;
     }
+
+    cout << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet, 1);
 #endif
 
     if(onlyPoints){
@@ -47,7 +49,8 @@ ComputationResult::ComputationResult(int numInputPoints,
 #endif     
 
     return;
-}
+} //constructor
+
 
 void ComputationResult::computeConvexHull(const set<MyPoint_2> &pointSet, vector<MyPoint_2> &result)
 {
@@ -58,17 +61,17 @@ void ComputationResult::computeConvexHull(const set<MyPoint_2> &pointSet, vector
 
 
 
-void ComputationResult::outputResultToJSONFile()
+void ComputationResult::outputResultToJSONFile() const
 {
     ofstream myfile;
 
     myfile.open (OUTPUT_FILE);
     myfile << "{\n";
-//    myfile << outputCollectionToJSONFile("inputPoints", );
+    myfile << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){
 
     }
-    myfile << "}"; 
+    myfile << "\n}"; 
     myfile.close();   
 
     return;
@@ -76,13 +79,47 @@ void ComputationResult::outputResultToJSONFile()
 
 
 
-//https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
+/* //https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
 //https://stackoverflow.com/questions/34561190/pass-a-std-container-to-a-function
 template <typename Container>
-string ComputationResult::outputCollectionToJSONFile(string name, const Container &myColl)
+string ComputationResult::outputCollectionToJSONFile(string name, const Container &myColl) const
 {
     ostringstream sStream;
-    sStream << stringAsJSONString(name) << ":"; 
+    sStream << wrapStringInQuotes(name) << ": [";
+    
+    if(!myColl.empty()){
+        for (auto it = begin(myColl); it != end(vec); ++it) {
+            typedef decltype(*it) T; // if needed
+            sStream << *it << " "; 
+        }    
+    }
+
+    sStream << "]" << endl; 
+    
+    return sStream.str();
+} */
+
+
+string ComputationResult::outputCollectionToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(name) << ": [";
+    
+    if(!myColl.empty()){
+        auto endIt = end(myColl);
+        for (auto it = begin(myColl); it != endIt; ++it) {
+            sStream << point2ToJSON(*it); 
+            if(next(it) != endIt){
+                sStream << ",\n";
+                sStream << insertTabs(tabLevel + 2);
+            } else {
+                sStream << "\n" << insertTabs(tabLevel);
+            }
+        }    
+    }
+
+    sStream << "]" << endl; 
     
     return sStream.str();
 }

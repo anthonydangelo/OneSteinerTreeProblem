@@ -26,12 +26,13 @@ class ComputationResult
                       bool trueRandomSeed = TRUE_RANDOM_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT);
     
-    void outputResultToJSONFile();
-    template <typename Container>
-    string outputCollectionToJSONFile(string name, const Container &myColl);
+    void outputResultToJSONFile() const;
 
   protected:
     void computeConvexHull(const set<MyPoint_2> &pointSet, vector<MyPoint_2> &result);
+//    template <typename Container>
+//    string outputCollectionToJSONFile(string name, const Container &myColl) const;
+    string outputCollectionToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;    
 };
 
 #endif
