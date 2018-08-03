@@ -4,14 +4,16 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int randomSeed,
                                      int inputGridLength,
                                      bool trueRandomSeed,
-                                     bool onlyProducePoints) : numPoints(numInputPoints),
+                                     bool onlyProducePoints,
+                                     string outputFilePrefix) : numPoints(numInputPoints),
                                                                randSeed(randomSeed),
                                                                gridLength(inputGridLength),
                                                                trueRandom(trueRandomSeed),
                                                                onlyPoints(onlyProducePoints),
                                                                rand(Random(randSeed)),
                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
-                                                               randPointGen(Point_generator(gridLength, rand))
+                                                               randPointGen(Point_generator(gridLength, rand)),
+                                                               outFilePrefix(outputFilePrefix)
 {
     //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
     while (pointSet.size() < numPoints)
@@ -65,7 +67,7 @@ void ComputationResult::outputResultToJSONFile() const
 {
     ofstream myfile;
 
-    myfile.open (OUTPUT_FILE);
+    myfile.open (outFilePrefix + OUTPUT_FILE);
     myfile << "{\n";
     myfile << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){

@@ -13,6 +13,7 @@ class ComputationResult
     int gridLength;
     bool trueRandom;
     bool onlyPoints;
+    string outFilePrefix;
 
     Random rand;
     set<MyPoint_2> pointSet;
@@ -24,7 +25,8 @@ class ComputationResult
                       int randomSeed = RAND_SEED_DEFAULT,
                       int inputGridLength = GRID_LENGTH_DEFAULT,
                       bool trueRandomSeed = TRUE_RANDOM_DEFAULT,
-                      bool onlyProducePoints = ONLY_POINTS_DEFAULT);
+                      bool onlyProducePoints = ONLY_POINTS_DEFAULT,
+                      string outFilePrefix = "");
     
     void outputResultToJSONFile() const;
 

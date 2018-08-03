@@ -25,6 +25,7 @@ void PrintHelp()
                         << RAND_SEED_DEFAULT << ")\n"
            "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
                         << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
+           "--outFilePrefix (-f) <string s>: The results will be written to \'s\'-" << OUTPUT_FILE << "\n"
            "--help (-h):              Show help\n";
 
     cout << msg.str();
@@ -36,17 +37,19 @@ int randSeed = RAND_SEED_DEFAULT;
 int gridLength = GRID_LENGTH_DEFAULT;
 bool trueRandom = TRUE_RANDOM_DEFAULT;
 bool onlyPoints = ONLY_POINTS_DEFAULT;
+string outfilePrefix = "";
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
 void ProcessArgs(int argc, char **argv)
 {
-    const char *const short_opts = "pn:rs:g:h";
+    const char *const short_opts = "pn:rs:g:f:h";
     const option long_opts[] = {
         {"onlyPoints", no_argument, nullptr, 'p'},
         {"numPoints", required_argument, nullptr, 'n'},
         {"trueRandom", no_argument, nullptr, 'r'},
         {"randSeed", required_argument, nullptr, 's'},
         {"gridLength", required_argument, nullptr, 'g'},
+        {"outFilePrefix", required_argument, nullptr, 'f'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, no_argument, nullptr, 0}};
 
@@ -120,6 +123,12 @@ void ProcessArgs(int argc, char **argv)
                 }
             }
             break;
+
+        case 'f':
+            if(optarg)
+            {
+                outfilePrefix = string(optarg);
+            }
 
         case 'h': // -h or --help
         case '?': // Unrecognized option
