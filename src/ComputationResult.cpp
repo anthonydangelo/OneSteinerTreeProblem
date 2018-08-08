@@ -63,20 +63,17 @@ void ComputationResult::computeConvexHull(const set<MyPoint_2> &pointSet, vector
 
 
 
-void ComputationResult::outputResultToJSONFile() const
+string ComputationResult::outputResultToJSONString() const
 {
-    ofstream myfile;
-
-    myfile.open (outFilePrefix + OUTPUT_FILE);
-    myfile << "{\n";
-    myfile << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
+    ostringstream sStream;
+    sStream << "{\n";  
+    sStream << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){
 
     }
-    myfile << "\n}"; 
-    myfile.close();   
+    sStream << "\n}";
 
-    return;
+    return sStream.str();
 }
 
 

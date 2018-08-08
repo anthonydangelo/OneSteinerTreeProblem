@@ -1,6 +1,7 @@
 #ifndef ONE_ST_CONSTANTS_UTILITIES
 #define ONE_ST_CONSTANTS_UTILITIES
 
+//#include <ostream>
 #include <iostream>
 #include <sstream> // for ostringstream
 #include <string>
@@ -41,7 +42,7 @@ typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 using namespace std;
 
 
-#define MY_VERBOSE                  (1)
+#define MY_VERBOSE                  (0)
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS        (3)
@@ -55,7 +56,7 @@ using namespace std;
 
 #define ONLY_POINTS_DEFAULT  (false)
 
-#define OUTPUT_FILE                 ("result.json")
+#define OUTPUT_FILE                 ("-result.json")
 #define INPUT_POINTS_NAME_STRING    ("inputPoints")
 
 

@@ -129,6 +129,7 @@ void ProcessArgs(int argc, char **argv)
             {
                 outfilePrefix = string(optarg);
             }
+            break;
 
         case 'h': // -h or --help
         case '?': // Unrecognized option
@@ -146,10 +147,19 @@ int main(int argc, char **argv)
 
     ProcessArgs(argc, argv);
 
-    ComputationResult myCompResult(numPoints, randSeed, gridLength, trueRandom, onlyPoints);
+    ComputationResult myCompResult(numPoints, randSeed, gridLength, trueRandom, onlyPoints, outfilePrefix);
+    string compResult = myCompResult.outputResultToJSONString();
+    cout << compResult;
+/*     ofstream myfile;
+    myfile.open (outfilePrefix + OUTPUT_FILE);
+    myfile << compResult;
+    myfile.close();  */
 
 
+#if (MY_VERBOSE)
     cout << "!!!Hello World!!!\n"
-         << trueRandom << onlyPoints << numPoints << randSeed << gridLength << endl; // prints !!!Hello World!!!
+         << trueRandom << onlyPoints << numPoints << randSeed << gridLength << outfilePrefix << endl; // prints !!!Hello World!!!
+#endif
+         
     return 0;
 }

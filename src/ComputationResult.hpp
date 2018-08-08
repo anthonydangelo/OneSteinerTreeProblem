@@ -28,7 +28,7 @@ class ComputationResult
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
                       string outFilePrefix = "");
     
-    void outputResultToJSONFile() const;
+    string outputResultToJSONString() const;
 
   protected:
     void computeConvexHull(const set<MyPoint_2> &pointSet, vector<MyPoint_2> &result);
