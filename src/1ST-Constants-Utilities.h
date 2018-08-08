@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <fstream>
+#include <ctime>
 
 
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp

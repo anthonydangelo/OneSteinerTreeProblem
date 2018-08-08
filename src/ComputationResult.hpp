@@ -11,7 +11,6 @@ class ComputationResult
     int numPoints;
     int randSeed;
     int gridLength;
-    bool trueRandom;
     bool onlyPoints;
     string outFilePrefix;
 
@@ -24,7 +23,6 @@ class ComputationResult
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
                       int randomSeed = RAND_SEED_DEFAULT,
                       int inputGridLength = GRID_LENGTH_DEFAULT,
-                      bool trueRandomSeed = TRUE_RANDOM_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
                       string outFilePrefix = "");
     

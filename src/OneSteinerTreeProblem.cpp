@@ -147,7 +147,11 @@ int main(int argc, char **argv)
 
     ProcessArgs(argc, argv);
 
-    ComputationResult myCompResult(numPoints, randSeed, gridLength, trueRandom, onlyPoints, outfilePrefix);
+    //http://www.cplusplus.com/reference/cstdlib/srand/
+    if(trueRandom) {
+        randSeed = time(nullptr);
+    }
+    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix);
     string compResult = myCompResult.outputResultToJSONString();
     cout << compResult;
 /*     ofstream myfile;
@@ -160,6 +164,6 @@ int main(int argc, char **argv)
     cout << "!!!Hello World!!!\n"
          << trueRandom << onlyPoints << numPoints << randSeed << gridLength << outfilePrefix << endl; // prints !!!Hello World!!!
 #endif
-         
+
     return 0;
 }

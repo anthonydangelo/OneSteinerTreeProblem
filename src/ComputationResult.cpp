@@ -3,12 +3,10 @@
 ComputationResult::ComputationResult(int numInputPoints,
                                      int randomSeed,
                                      int inputGridLength,
-                                     bool trueRandomSeed,
                                      bool onlyProducePoints,
                                      string outputFilePrefix) : numPoints(numInputPoints),
                                                                randSeed(randomSeed),
                                                                gridLength(inputGridLength),
-                                                               trueRandom(trueRandomSeed),
                                                                onlyPoints(onlyProducePoints),
                                                                rand(Random(randSeed)),
                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
