@@ -15,6 +15,8 @@
 #include <ctime>
 #include <cstddef>        // std::size_t
 
+#include <math.h>       /* fabs */
+
 
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
 //https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
@@ -31,6 +33,8 @@ using namespace CGAL;
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
 //https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
 typedef Exact_predicates_exact_constructions_kernel Kernel;
+//https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
+typedef Kernel::FT My_Number_type;
 typedef Kernel::Point_2 MyPoint_2;
 typedef Kernel::Segment_2 Segment_2;
 typedef Kernel::Line_2 Line_2;
@@ -60,6 +64,8 @@ using namespace std;
 
 #define OUTPUT_FILE                 ("-result.json")
 #define INPUT_POINTS_NAME_STRING    ("inputPoints")
+
+#define DOUBLE_EPSILON (0.000001)
 
 
 /* bool intInRangeInclusive(int x, int lowEnd, int highEnd){
@@ -116,7 +122,8 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
                 strIndex = inputString.find_first_of(",", stodIndex + strIndex);
                 if(strIndex != string::npos){
                     double secondD = stod(inputString.substr(strIndex + 1));
-                    result.push_back(MyPoint_2(firstD, secondD));
+                    result.push_back(MyPoint_2(My_Number_type(firstD), My_Number_type(secondD) ));
+//                    result.push_back(MyPoint_2(firstD, secondD ));
                 }
             }
             catch (...) {

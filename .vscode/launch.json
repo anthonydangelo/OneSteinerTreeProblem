@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/OneSteinerTreeProblem",
-            "args": ["-n", "9", "-p", "-f", "tmp/123", "-i", "[[3.2, 1],[0, 1.25],[ 0.3, 0.55]"],
+            "args": ["-n", "4", "-p", "-f", "tmp/123", "-i", "[[-0.383454, 5.91613],[0, 1.25],[ 0.3, 0.55]"],
 //            "args": ["-n", "9"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

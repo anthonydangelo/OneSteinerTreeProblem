@@ -18,7 +18,11 @@ ComputationResult::ComputationResult(int numInputPoints,
     for (const auto pt : userPointList)
     {
         if(pointSet.size() < numPoints){
-            pointSet.insert(pt);
+            std::pair<std::set<MyPoint_2>::iterator,bool> ret;
+            ret = pointSet.insert(pt);
+            if (ret.second == false){
+                cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl; 
+            }            
         } else {
             break;
         }
@@ -27,7 +31,48 @@ ComputationResult::ComputationResult(int numInputPoints,
     //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
     while (pointSet.size() < numPoints)
     {
-        pointSet.insert(*randPointGen++);
+        std::pair<std::set<MyPoint_2>::iterator,bool> ret;
+        MyPoint_2 temp = *randPointGen++;
+        bool inSet = false;
+        for(const auto pt : pointSet) 
+        {
+            string ptString = point2ToJSON(pt);
+            string tempString = point2ToJSON(temp);
+
+            std::size_t strIndex =  ptString.find_first_of(":");
+            ptString = ptString.substr(strIndex + 1);
+            strIndex = ptString.find_first_of("\"");
+            ptString = ptString.substr(strIndex + 1);
+            double ptX = stod(ptString);
+            strIndex =  ptString.find_first_of(":");
+            ptString = ptString.substr(strIndex + 1);
+            strIndex = ptString.find_first_of("\"");
+            ptString = ptString.substr(strIndex + 1);            
+            double ptY = stod(ptString);
+
+            strIndex =  tempString.find_first_of(":");
+            tempString = tempString.substr(strIndex + 1);
+            strIndex = tempString.find_first_of("\"");
+            tempString = tempString.substr(strIndex + 1);
+            double tempX = stod(tempString);
+            strIndex =  tempString.find_first_of(":");
+            tempString = tempString.substr(strIndex + 1);
+            strIndex = tempString.find_first_of("\"");
+            tempString = tempString.substr(strIndex + 1);                 
+            double tempY = stod(tempString);
+
+            if( (fabs(ptX - tempX) < DOUBLE_EPSILON) && (fabs(ptY - tempY) < DOUBLE_EPSILON)){
+                inSet = true;
+                break;
+            }
+        }
+        if (inSet){
+            continue;
+        }
+        ret = pointSet.insert(temp);
+        if (ret.second == false){
+            cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl; 
+        }
     }
 
 #if (MY_VERBOSE)
