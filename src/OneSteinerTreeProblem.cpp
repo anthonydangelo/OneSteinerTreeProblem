@@ -26,6 +26,7 @@ void PrintHelp()
            "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
                         << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
            "--outFilePrefix (-f) <string s>: The results will be written to \'s\'-" << OUTPUT_FILE << "\n"
+           "--inputList (-i) <string s = [[x,y],[u,v],...]>: Use these points (comes out of numPoints' budget)\n"
            "--help (-h):              Show help\n";
 
     cout << msg.str();
@@ -38,11 +39,13 @@ int gridLength = GRID_LENGTH_DEFAULT;
 bool trueRandom = TRUE_RANDOM_DEFAULT;
 bool onlyPoints = ONLY_POINTS_DEFAULT;
 string outfilePrefix = "";
+string inputListString = "";
+vector<MyPoint_2> inputListVec;
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
 void ProcessArgs(int argc, char **argv)
 {
-    const char *const short_opts = "pn:rs:g:f:h";
+    const char *const short_opts = "pn:rs:g:f:i:h";
     const option long_opts[] = {
         {"onlyPoints", no_argument, nullptr, 'p'},
         {"numPoints", required_argument, nullptr, 'n'},
@@ -50,6 +53,7 @@ void ProcessArgs(int argc, char **argv)
         {"randSeed", required_argument, nullptr, 's'},
         {"gridLength", required_argument, nullptr, 'g'},
         {"outFilePrefix", required_argument, nullptr, 'f'},
+        {"inputList", required_argument, nullptr, 'i'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, no_argument, nullptr, 0}};
 
@@ -131,6 +135,20 @@ void ProcessArgs(int argc, char **argv)
             }
             break;
 
+        case 'i':
+            if(optarg)
+            {
+                inputListString = string(optarg);
+                extractPointsFromJSON2DArrayString(inputListString, inputListVec);
+#if (MY_VERBOSE)
+                for (const auto pt : inputListVec)
+                {
+                    cout << " " << pt << endl;
+                }
+#endif                
+            }
+            break;
+
         case 'h': // -h or --help
         case '?': // Unrecognized option
         default:
@@ -151,7 +169,7 @@ int main(int argc, char **argv)
     if(trueRandom) {
         randSeed = time(nullptr);
     }
-    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix);
+    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
     cout << compResult;
 /*     ofstream myfile;

@@ -24,7 +24,8 @@ class ComputationResult
                       int randomSeed = RAND_SEED_DEFAULT,
                       int inputGridLength = GRID_LENGTH_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
-                      string outFilePrefix = "");
+                      string outFilePrefix = "",
+                      vector<MyPoint_2> userPointList = vector<MyPoint_2>());
     
     string outputResultToJSONString() const;
 

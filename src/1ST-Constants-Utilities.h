@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ctime>
+#include <cstddef>        // std::size_t
 
 
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
@@ -97,6 +98,35 @@ static inline string insertTabs(int level)
         sStream << "\t";
     }
     return sStream.str();
+}
+
+static inline void extractPointsFromJSON2DArrayString(string &inputString, vector<MyPoint_2> &result){
+    //I'd like to use a regex here, but I don't know how to write the grammar...
+    //http://www.cplusplus.com/reference/string/string/find_first_of/
+    std::size_t strIndex = inputString.find_first_of("[");
+    //I don't like the way I'm doing this parsing!    
+    while (strIndex != std::string::npos)
+    {
+        strIndex = inputString.find_first_of("[", strIndex + 1);
+        if(strIndex != string::npos){
+            try{
+                //http://www.cplusplus.com/reference/string/stod/
+                string::size_type stodIndex;
+                double firstD = stod(inputString.substr(strIndex + 1), &stodIndex);
+                strIndex = inputString.find_first_of(",", stodIndex + strIndex);
+                if(strIndex != string::npos){
+                    double secondD = stod(inputString.substr(strIndex + 1));
+                    result.push_back(MyPoint_2(firstD, secondD));
+                }
+            }
+            catch (...) {
+                cerr << "Input point list string malformed" <<endl;
+                result.clear();
+                return;
+            }
+        }
+    }
+    return;
 }
 
 #endif

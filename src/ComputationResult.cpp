@@ -4,7 +4,8 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int randomSeed,
                                      int inputGridLength,
                                      bool onlyProducePoints,
-                                     string outputFilePrefix) : numPoints(numInputPoints),
+                                     string outputFilePrefix,
+                                     vector<MyPoint_2> userPointList) : numPoints(numInputPoints),
                                                                randSeed(randomSeed),
                                                                gridLength(inputGridLength),
                                                                onlyPoints(onlyProducePoints),
@@ -13,6 +14,16 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                randPointGen(Point_generator(gridLength, rand)),
                                                                outFilePrefix(outputFilePrefix)
 {
+
+    for (const auto pt : userPointList)
+    {
+        if(pointSet.size() < numPoints){
+            pointSet.insert(pt);
+        } else {
+            break;
+        }
+    }
+
     //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
     while (pointSet.size() < numPoints)
     {
