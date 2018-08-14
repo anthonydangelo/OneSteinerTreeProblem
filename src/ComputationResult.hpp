@@ -19,6 +19,8 @@ class ComputationResult
     Point_generator randPointGen;
     vector<MyPoint_2> convexHullList;
 
+    vector<MyDirection_2> rays;
+
   public:
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
                       int randomSeed = RAND_SEED_DEFAULT,

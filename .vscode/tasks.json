@@ -8,15 +8,23 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "-std=c++11", 
+                "-g", "-frounding-math", "-std=c++11", 
                 "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", 
                 "-o", "OneSteinerTreeProblem",
 //                "-fpermissive",
                 "-static",
-                "-Wl,--whole-archive", "-lpthread", "-Wl,--no-whole-archive",
-                 "-lCGAL", "-lgmp", "-lmpfr", 
-                 "-lboost_thread", "-lboost_system",
-                 "-DCGAL_DONT_USE_LAZY_KERNEL=1", "-DCGAL_USE_GMP=1"
+                "-L/home/anthonydangelo/CGAL-4.11.2/lib",
+//                "-Wl,--whole-archive", "-lpthread", "-Wl,--no-whole-archive",
+                "-lCGAL_Core", 
+                "-lCGAL", 
+                "-lmpfr", 
+                 "-lgmp", 
+//                 "-lCGAL_Core", "-lCGAL", 
+                 "-lboost_thread", 
+                 "-lboost_system",
+                 "-lpthread" 
+//                 ,"-DCGAL_DONT_USE_LAZY_KERNEL=1", "-DCGAL_USE_GMP=1"
+//                 ,"-DCGAL_USE_GMP", "-DCGAL_USE_MPFR"
             ],
             "group": {
                 "kind": "build",

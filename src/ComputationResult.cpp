@@ -12,7 +12,8 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                rand(Random(randSeed)),
                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
                                                                randPointGen(Point_generator(gridLength, rand)),
-                                                               outFilePrefix(outputFilePrefix)
+                                                               outFilePrefix(outputFilePrefix),
+                                                               rays(6)
 {
 
     for (const auto pt : userPointList)
@@ -36,32 +37,7 @@ ComputationResult::ComputationResult(int numInputPoints,
         bool inSet = false;
         for(const auto pt : pointSet) 
         {
-            string ptString = point2ToJSON(pt);
-            string tempString = point2ToJSON(temp);
-
-            std::size_t strIndex =  ptString.find_first_of(":");
-            ptString = ptString.substr(strIndex + 1);
-            strIndex = ptString.find_first_of("\"");
-            ptString = ptString.substr(strIndex + 1);
-            double ptX = stod(ptString);
-            strIndex =  ptString.find_first_of(":");
-            ptString = ptString.substr(strIndex + 1);
-            strIndex = ptString.find_first_of("\"");
-            ptString = ptString.substr(strIndex + 1);            
-            double ptY = stod(ptString);
-
-            strIndex =  tempString.find_first_of(":");
-            tempString = tempString.substr(strIndex + 1);
-            strIndex = tempString.find_first_of("\"");
-            tempString = tempString.substr(strIndex + 1);
-            double tempX = stod(tempString);
-            strIndex =  tempString.find_first_of(":");
-            tempString = tempString.substr(strIndex + 1);
-            strIndex = tempString.find_first_of("\"");
-            tempString = tempString.substr(strIndex + 1);                 
-            double tempY = stod(tempString);
-
-            if( (fabs(ptX - tempX) < DOUBLE_EPSILON) && (fabs(ptY - tempY) < DOUBLE_EPSILON)){
+            if( pointsAreTooClose(pt, temp) ){
                 inSet = true;
                 break;
             }

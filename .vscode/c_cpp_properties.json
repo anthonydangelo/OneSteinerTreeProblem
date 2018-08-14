@@ -4,17 +4,21 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**", 
-                "${env:PATH}/**"
+                "${env:PATH}/**",
+                "/usr/local/include",
+                "/usr/local/lib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
-            "cppStandard": "c++17",
+            "cppStandard": "c++11",
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
                     "${workspaceFolder}",
-                    "${env:PATH}/**"
+                    "${env:PATH}/**",
+                    "/usr/local/include",
+                    "/usr/local/lib"
                 ]
             }
         }
