@@ -59,9 +59,9 @@ class ComputationResult
     void computeConvexHull();
 //    template <typename Container>
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
-    string outputCollectionToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
-    string outputCollectionToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
-    string outputConvexHullToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
+    string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
+    string pointVectorToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
+    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
     void computeConeRays();    
     bool findPointIndex(const MyPoint_2 &pt, size_t &myIndex) const; 
 };

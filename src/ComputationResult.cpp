@@ -120,10 +120,10 @@ string ComputationResult::outputResultToJSONString() const
 {
     ostringstream sStream;
     sStream << "{\n";  
-    sStream << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
+    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){
         sStream << "," << endl;
-        sStream << outputConvexHullToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList);
+        sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList);
     }
     sStream << "\n}";
 
@@ -153,7 +153,7 @@ string ComputationResult::outputCollectionToJSONFile(string name, const Containe
 } */
 
 
-string ComputationResult::outputCollectionToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel) const
+string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel) const
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
@@ -177,7 +177,7 @@ string ComputationResult::outputCollectionToJSONString(string name, const set<My
     return sStream.str();
 }
 
-string ComputationResult::outputCollectionToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
+string ComputationResult::pointVectorToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
@@ -215,8 +215,9 @@ bool ComputationResult::findPointIndex(const MyPoint_2 &pt, size_t &myIndex) con
     return false;
 }
 
-string ComputationResult::outputConvexHullToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
+string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
 {
+
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
     sStream << wrapStringInQuotes(name) << ": [";
