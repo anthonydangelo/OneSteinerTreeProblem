@@ -19,14 +19,10 @@
 
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
 //https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
-////https://doc.cgal.org/latest/Cone_spanners_2/index.html
+//https://doc.cgal.org/latest/Cone_spanners_2/index.html
 //#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Exact_predicates_exact_constructions_kernel_with_root_of.h>
-#include <CGAL/Compute_cone_boundaries_2.h>
-#include <CGAL/point_generators_2.h>
-#include <CGAL/Random.h>
 #include <CGAL/algorithm.h>
-#include <CGAL/ch_akl_toussaint.h>
 
 using namespace CGAL;
 
@@ -42,11 +38,7 @@ typedef Kernel::Point_2 MyPoint_2;
 typedef Kernel::Segment_2 MySegment_2;
 typedef Kernel::Line_2 MyLine_2;
 typedef Kernel::Intersect_2 MyIntersect_2;
-typedef Kernel::Direction_2 MyDirection_2;
 
-//https://doc.cgal.org/latest/Generator/index.html
-typedef Creator_uniform_2<double, MyPoint_2> Creator;
-typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
 using namespace std;
 
@@ -66,6 +58,7 @@ using namespace std;
 
 #define OUTPUT_FILE ("-result.json")
 #define INPUT_POINTS_NAME_STRING ("inputPoints")
+#define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
 
 #define DOUBLE_EPSILON (0.000001)
 
@@ -144,7 +137,7 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
     return;
 }
 
-static inline bool pointsAreTooClose(MyPoint_2 first, MyPoint_2 second)
+static inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
 {
     string ptString = point2ToJSON(first);
     string tempString = point2ToJSON(second);

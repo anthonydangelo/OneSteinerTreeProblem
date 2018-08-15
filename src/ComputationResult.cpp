@@ -13,7 +13,7 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
                                                                randPointGen(Point_generator(gridLength, rand)),
                                                                outFilePrefix(outputFilePrefix),
-                                                               rays(6)
+                                                               coneRays(6)
 {
 
     for (const auto pt : userPointList)
@@ -68,7 +68,11 @@ ComputationResult::ComputationResult(int numInputPoints,
         return;
     }
 
-    computeConvexHull(pointSet, convexHullList);
+
+    computeConeRays();
+
+    computeConvexHull();
+    
 #if (MY_VERBOSE)    
 
 /* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
@@ -84,9 +88,28 @@ ComputationResult::ComputationResult(int numInputPoints,
 } //constructor
 
 
-void ComputationResult::computeConvexHull(const set<MyPoint_2> &pointSet, vector<MyPoint_2> &result)
+void ComputationResult::computeConvexHull()
 {
-    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(result));
+    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(convexHullList));
+
+    MyPolygon_2 tempHull(convexHullList.begin(), convexHullList.end());
+
+    convexHull.insert(tempHull);
+
+#if (MY_VERBOSE)
+    cout << "convex hull arrangement: " << convexHull.arrangement() << endl;
+#endif
+
+    return;
+}
+
+void ComputationResult::computeConeRays()
+{
+    //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
+    MyDirection_2 initialDirection = MyDirection_2(1, 0);
+    // construct the functor
+    Compute_cone_boundaries_2<Kernel> cones;    
+    cones(6, initialDirection, coneRays.begin());
 
     return;
 }
@@ -99,7 +122,8 @@ string ComputationResult::outputResultToJSONString() const
     sStream << "{\n";  
     sStream << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){
-
+        sStream << "," << endl;
+        sStream << outputConvexHullToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList);
     }
     sStream << "\n}";
 
@@ -139,6 +163,70 @@ string ComputationResult::outputCollectionToJSONString(string name, const set<My
         auto endIt = end(myColl);
         for (auto it = begin(myColl); it != endIt; ++it) {
             sStream << point2ToJSON(*it); 
+            if(next(it) != endIt){
+                sStream << ",\n";
+                sStream << insertTabs(tabLevel + 2);
+            } else {
+                sStream << "\n" << insertTabs(tabLevel);
+            }
+        }    
+    }
+
+    sStream << "]" << endl; 
+    
+    return sStream.str();
+}
+
+string ComputationResult::outputCollectionToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(name) << ": [";
+    
+    if(!myColl.empty()){
+        auto endIt = end(myColl);
+        for (auto it = begin(myColl); it != endIt; ++it) {
+            sStream << point2ToJSON(*it); 
+            if(next(it) != endIt){
+                sStream << ",\n";
+                sStream << insertTabs(tabLevel + 2);
+            } else {
+                sStream << "\n" << insertTabs(tabLevel);
+            }
+        }    
+    }
+
+    sStream << "]" << endl; 
+    
+    return sStream.str();
+}
+
+bool ComputationResult::findPointIndex(const MyPoint_2 &pt, size_t &myIndex) const
+{
+    myIndex = 0;
+    if(!pointSet.empty()){
+        auto endIt = end(pointSet);
+        for (auto it = begin(pointSet); it != endIt; ++it, ++myIndex) {
+            if(pointsAreTooClose(*it, pt)){
+                return true;
+            }
+        }    
+    }
+    return false;
+}
+
+string ComputationResult::outputConvexHullToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(name) << ": [";
+    
+    if(!myColl.empty()){
+        auto endIt = end(myColl);
+        for (auto it = begin(myColl); it != endIt; ++it) {
+            size_t index = 0;
+            assert(findPointIndex(*it, index));
+            sStream << "{\"index\":\"" << index << "\"}"; 
             if(next(it) != endIt){
                 sStream << ",\n";
                 sStream << insertTabs(tabLevel + 2);
