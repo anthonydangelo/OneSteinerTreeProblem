@@ -3,27 +3,14 @@
 
 #include "1ST-Constants-Utilities.h"
 
-#include <CGAL/Polygon_2.h>
-#include <CGAL/Polygon_with_holes_2.h>
-#include <CGAL/Polygon_set_2.h>
 #include <CGAL/ch_akl_toussaint.h>
-#include <CGAL/Compute_cone_boundaries_2.h>
 #include <CGAL/point_generators_2.h>
 #include <CGAL/Random.h>
 
-#include <CGAL/Polygon_2.h>
-#include <CGAL/Polygon_with_holes_2.h>
-#include <CGAL/Polygon_set_2.h>
 
 //https://doc.cgal.org/latest/Generator/index.html
 typedef Creator_uniform_2<double, MyPoint_2> Creator;
 typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
-
-typedef Kernel::Direction_2 MyDirection_2;
-
-typedef CGAL::Polygon_2<Kernel>                           MyPolygon_2;
-typedef CGAL::Polygon_with_holes_2<Kernel>                MyPolygon_with_holes_2;
-typedef CGAL::Polygon_set_2<Kernel>                       MyPolygon_set_2;
 
 
 class ComputationResult

@@ -24,6 +24,13 @@
 #include <CGAL/Exact_predicates_exact_constructions_kernel_with_root_of.h>
 #include <CGAL/algorithm.h>
 
+#include <CGAL/Lazy_exact_nt.h>
+
+#include <CGAL/Polygon_2.h>
+#include <CGAL/Polygon_with_holes_2.h>
+#include <CGAL/Polygon_set_2.h>
+#include <CGAL/Compute_cone_boundaries_2.h>
+
 using namespace CGAL;
 
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
@@ -38,6 +45,13 @@ typedef Kernel::Point_2 MyPoint_2;
 typedef Kernel::Segment_2 MySegment_2;
 typedef Kernel::Line_2 MyLine_2;
 typedef Kernel::Intersect_2 MyIntersect_2;
+
+typedef Kernel::Direction_2 MyDirection_2;
+
+typedef CGAL::Polygon_2<Kernel>                           MyPolygon_2;
+typedef CGAL::Polygon_with_holes_2<Kernel>                MyPolygon_with_holes_2;
+typedef CGAL::Polygon_set_2<Kernel>                       MyPolygon_set_2;
+
 
 
 using namespace std;
