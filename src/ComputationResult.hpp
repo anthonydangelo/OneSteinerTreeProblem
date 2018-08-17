@@ -25,12 +25,12 @@ class ComputationResult
     string outFilePrefix;
 
     Random rand;
-    set<MyPoint_2> pointSet;
-    Point_generator randPointGen;
-    vector<MyPoint_2> convexHullList;
+    set<MyPoint_2>      pointSet;
+    Point_generator     randPointGen;
+    vector<MyPoint_2>   convexHullList;
 
     vector<MyDirection_2> coneRays;
-    MyPolygon_set_2 convexHull;
+    MyPolygon_set_2       convexHull;
 
   public:
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,

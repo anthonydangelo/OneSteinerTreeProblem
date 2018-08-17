@@ -73,6 +73,12 @@ ComputationResult::ComputationResult(int numInputPoints,
 
     computeConvexHull();
     
+    vector< reference_wrapper<const MyPoint_2> > inputPtVector;
+    for(set<MyPoint_2>::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
+    {
+        inputPtVector.push_back(*it);
+    }
+
 #if (MY_VERBOSE)    
 
 /* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
@@ -108,7 +114,7 @@ void ComputationResult::computeConeRays()
     //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
     MyDirection_2 initialDirection = MyDirection_2(1, 0);
     // construct the functor
-    Compute_cone_boundaries_2<Kernel> cones;    
+    Compute_cone_boundaries_2<MyKernel> cones;    
     cones(6, initialDirection, coneRays.begin());
 
     return;

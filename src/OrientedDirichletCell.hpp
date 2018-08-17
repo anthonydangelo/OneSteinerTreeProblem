@@ -22,7 +22,8 @@ class OrientedDirichletCell
 
   public:
     OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
-                          const MyPoint_2 &cellOrigin, const set<MyPoint_2> &pointSet,
+                          const MyPoint_2 &cellOrigin, 
+                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
                           const vector<MyPoint_2> &clippingPolygonList);
 };
 

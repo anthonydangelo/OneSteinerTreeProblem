@@ -17,6 +17,8 @@
 
 #include <math.h> /* fabs */
 
+#include <functional>   // std::reference_wrapper
+
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
 //https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
 //https://doc.cgal.org/latest/Cone_spanners_2/index.html
@@ -38,20 +40,30 @@ using namespace CGAL;
 //https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
 //https://doc.cgal.org/latest/Cone_spanners_2/index.html
 //typedef Exact_predicates_exact_constructions_kernel Kernel;
-typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of Kernel;
+typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
 //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
-typedef Kernel::FT My_Number_type;
-typedef Kernel::Point_2 MyPoint_2;
-typedef Kernel::Segment_2 MySegment_2;
-typedef Kernel::Line_2 MyLine_2;
-typedef Kernel::Intersect_2 MyIntersect_2;
+typedef MyKernel::FT                                                        My_Number_type;
+typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;
 
-typedef Kernel::Direction_2 MyDirection_2;
+typedef MyTraits_2::Point_2                                                 MyPoint_2;
+typedef MyTraits_2::Segment_2                                               MySegment_2;
+typedef MyTraits_2::Line_2                                                  MyLine_2;
+typedef MyTraits_2::Intersect_2                                             MyIntersect_2;
 
-typedef CGAL::Polygon_2<Kernel>                           MyPolygon_2;
-typedef CGAL::Polygon_with_holes_2<Kernel>                MyPolygon_with_holes_2;
-typedef CGAL::Polygon_set_2<Kernel>                       MyPolygon_set_2;
+typedef MyTraits_2::Direction_2                                             MyDirection_2;
 
+typedef CGAL::Polygon_2<MyKernel>                                           MyPolygon_2;
+typedef CGAL::Polygon_with_holes_2<MyKernel>                                MyPolygon_with_holes_2;
+typedef CGAL::Polygon_set_2<MyKernel>                                       MyPolygon_set_2;
+
+enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
+typedef struct {
+    vector< size_t > myInputPointIndices;
+    //TODO augment with something that lets us do a colouring of the faces
+} MyFaceData;
+
+typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
+typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
 
 
 using namespace std;
