@@ -8,8 +8,9 @@
 #include <CGAL/Nef_polyhedron_2.h>
 
 typedef CORE::Expr Nef_FT;
-typedef Lazy_exact_nt<Nef_FT> Lazy_Nef_FT;
-typedef Extended_cartesian<Lazy_Nef_FT> Nef_Extended_kernel;
+//typedef Lazy_exact_nt<Nef_FT> Lazy_Nef_FT; //compiler can't convert non-lazy expr into lazy expr...
+//typedef Extended_cartesian<Lazy_Nef_FT> Nef_Extended_kernel;
+typedef Extended_cartesian<Nef_FT> Nef_Extended_kernel;
 typedef Nef_polyhedron_2<Nef_Extended_kernel> MyNef_polyhedron;
 
 typedef MyNef_polyhedron::Point Nef_Point;
@@ -25,6 +26,12 @@ class OrientedDirichletCell
                           const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
                           const vector<MyPoint_2> &clippingPolygonList);
+
+  protected:
+    bool findOriginIndex(const MyPoint_2 &cellOrigin, 
+                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
+                          size_t &resultIndex);
+    MyArrangement_2 extractArrangement(const Nef_Explorer &myExplorer, const size_t &originIndex) const;
 };
 
 #endif

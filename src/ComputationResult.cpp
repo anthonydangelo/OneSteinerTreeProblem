@@ -70,14 +70,9 @@ ComputationResult::ComputationResult(int numInputPoints,
 
 
     computeConeRays();
+    assert(coneRays.size() == 6);
 
     computeConvexHull();
-    
-    vector< reference_wrapper<const MyPoint_2> > inputPtVector;
-    for(set<MyPoint_2>::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
-    {
-        inputPtVector.push_back(*it);
-    }
 
 #if (MY_VERBOSE)    
 
@@ -89,6 +84,14 @@ ComputationResult::ComputationResult(int numInputPoints,
         cout << " " << pt << endl;
     }
 #endif     
+
+    vector< reference_wrapper<const MyPoint_2> > inputPtVector;
+    for(set<MyPoint_2>::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
+    {
+        inputPtVector.push_back(*it);
+    }
+
+    OrientedDirichletCell temp(coneRays.at(0), coneRays.at(1), inputPtVector.at(0), inputPtVector, convexHullList);
 
     return;
 } //constructor

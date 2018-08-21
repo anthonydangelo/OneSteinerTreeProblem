@@ -7,6 +7,8 @@
 #include <CGAL/point_generators_2.h>
 #include <CGAL/Random.h>
 
+#include "OrientedDirichletCell.hpp"
+
 
 //https://doc.cgal.org/latest/Generator/index.html
 typedef Creator_uniform_2<double, MyPoint_2> Creator;

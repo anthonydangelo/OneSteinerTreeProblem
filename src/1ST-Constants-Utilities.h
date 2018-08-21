@@ -34,6 +34,7 @@
 #include <CGAL/Compute_cone_boundaries_2.h>
 
 using namespace CGAL;
+using namespace std;
 
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
@@ -56,17 +57,57 @@ typedef CGAL::Polygon_2<MyKernel>                                           MyPo
 typedef CGAL::Polygon_with_holes_2<MyKernel>                                MyPolygon_with_holes_2;
 typedef CGAL::Polygon_set_2<MyKernel>                                       MyPolygon_set_2;
 
-enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
+//enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
 typedef struct {
-    vector< size_t > myInputPointIndices;
+//    vector< size_t > myInputPointIndices;
+    set< size_t > myInputPointIndices;
     //TODO augment with something that lets us do a colouring of the faces
 } MyFaceData;
 
-typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
-typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
+//https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
+//https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
+//Might only be able to use extended faces 
+//typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
+//typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
+typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
+typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
+// Define a functor for creating a label from a character and an integer.
+struct Overlay_faces
+{
+  MyFaceData operator() (MyFaceData first, MyFaceData second) const
+  {
+      //This should work out since the outer faces of the arrangements will have empty sets //vectors
+        MyFaceData result;
+//        set<size_t> resSet;
+/*         copy(first.myInputPointIndices.begin(), first.myInputPointIndices.end(), back_inserter(result.myInputPointIndices) );
+        
+        for(const auto ind : second.myInputPointIndices)
+        {
+            bool addMe = false;
+            for(const auto resInd : result.myInputPointIndices)
+            {
+            }
+        } 
+*/
+        for(const auto ind : first.myInputPointIndices)
+        {
+            //resSet.insert(ind);
+            result.myInputPointIndices.insert(ind);
+        }
+        for(const auto ind : second.myInputPointIndices)
+        {
+            //resSet.insert(ind);
+            result.myInputPointIndices.insert(ind);
+        }        
+/*         for(const auto ind : resSet)
+        {
+            result.myInputPointIndices.push_back(ind);
+        }  */       
+        return result;
+  }
+};
+typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrangement_2, Overlay_faces>  MyOverlay_Traits;
 
-
-using namespace std;
 
 #define MY_VERBOSE (0)
 

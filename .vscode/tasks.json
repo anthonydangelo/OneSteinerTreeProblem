@@ -9,7 +9,7 @@
             "command": "g++",
             "args": [
                 "-g", "-frounding-math", "-std=c++11", 
-                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", 
+                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
                 "-o", "OneSteinerTreeProblem",
 //                "-fpermissive",
                 "-static",
