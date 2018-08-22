@@ -4,12 +4,16 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,
                                              const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
-                                             const vector<MyPoint_2> &clippingPolygonList)
+                                             const vector<MyPoint_2> &clippingPolygonList) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
+                                                                                             secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
+                                                                                             cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
 {
     MyNef_polyhedron myPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
-    Nef_Point sitePoint(cellOrigin.x(), cellOrigin.y());
-    myPolygon = myPolygon.intersection(MyNef_polyhedron(Nef_Line(sitePoint, Nef_Direction(dirA.dx(), dirA.dy())), MyNef_polyhedron::INCLUDED));
-    myPolygon = myPolygon.intersection(MyNef_polyhedron(Nef_Line(sitePoint, Nef_Direction(-dirB.dx(), -dirB.dy())), MyNef_polyhedron::INCLUDED));
+    MyNef_polyhedron clippedPolygon(myPolygon);
+    Nef_Line firstDirLineThroughCellOrigin = Nef_Line(cellOriginPoint, firstDir);
+    Nef_Line secondDirLineThroughCellOrigin = Nef_Line(cellOriginPoint, secondDir);
+    myPolygon = myPolygon.intersection(MyNef_polyhedron(firstDirLineThroughCellOrigin, MyNef_polyhedron::INCLUDED));
+    myPolygon = myPolygon.intersection(MyNef_polyhedron(secondDirLineThroughCellOrigin, MyNef_polyhedron::INCLUDED));
 
     Nef_Explorer myExplorer = myPolygon.explorer();
 
@@ -19,35 +23,68 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 #if (MY_VERBOSE)
     cout << "input pt is: " << cellOrigin.x() << ", " << cellOrigin.y() << endl;
 #endif
-    MyArrangement_2 odcArr = extractArrangement(myExplorer, originPtIndex);
-#if (1)        
-    cout << odcArr << endl;
-    for(auto fit = odcArr.faces_begin(); fit != odcArr.faces_end(); ++fit)
+
+    Nef_Line oppositeFirstLine = firstDirLineThroughCellOrigin.opposite();
+    Nef_Line oppositeSecondLine = secondDirLineThroughCellOrigin.opposite();
+    MyNef_polyhedron stencil(oppositeFirstLine, MyNef_polyhedron::INCLUDED);
+    stencil = stencil.join(MyNef_polyhedron(oppositeSecondLine, MyNef_polyhedron::INCLUDED));
+    for (size_t i = 0; i < inputPointSet.size(); ++i)
     {
-        if(!fit->is_unbounded())
+        if (i == originPtIndex)
+        {
+            continue;
+        }
+        const MyPoint_2 &otherSite = inputPointSet.at(i);
+        Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
+        MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
+                                                                        MyNef_polyhedron::INCLUDED);
+        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
+                                                                        MyNef_polyhedron::INCLUDED));
+        MyKernel ker;
+        MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite); 
+        Nef_Point nefMP(midPoint.x(), midPoint.y());
+        Nef_Line supportLine(cellOriginPoint, otherSitePoint);
+        Nef_Line perpBi = supportLine.perpendicular(nefMP);
+        //We assume the points are different, so neither point lies on the bisector...
+        if(!perpBi.has_on_positive_side(otherSitePoint))
+        {
+            perpBi = perpBi.opposite();
+        }
+        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, MyNef_polyhedron::INCLUDED));
+        stencil = stencil.join(polygonToRemove);
+    }
+
+    stencil = stencil.complement();
+    stencil = stencil.intersection(clippedPolygon);
+
+    MyArrangement_2 odcArr = extractArrangement(myExplorer, originPtIndex);
+#if (MY_VERBOSE)
+    cout << odcArr << endl;
+    for (auto fit = odcArr.faces_begin(); fit != odcArr.faces_end(); ++fit)
+    {
+        if (!fit->is_unbounded())
         {
             //static cast instead?
             MyFaceData tempStruct = (MyFaceData)(fit->data());
             cout << "face data contains the following indices: [" << endl;
-            for(size_t temp : tempStruct.myInputPointIndices)
+            for (size_t temp : tempStruct.myInputPointIndices)
             {
                 cout << temp << endl;
             }
-            cout << "]" << endl;            
+            cout << "]" << endl;
         }
     }
-#endif     
-
+#endif
 }
 
 bool OrientedDirichletCell::findOriginIndex(const MyPoint_2 &cellOrigin,
                                             const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
-                                            size_t &resultIndex) 
+                                            size_t &resultIndex)
 {
     resultIndex = 0;
-    for(auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
+    for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
     {
-        if(pointsAreTooClose(*it, cellOrigin))
+        if (pointsAreTooClose(*it, cellOrigin))
         {
             return true;
         }
@@ -55,6 +92,24 @@ bool OrientedDirichletCell::findOriginIndex(const MyPoint_2 &cellOrigin,
     return false;
 }
 
+void OrientedDirichletCell::shaveOffOtherSiteCone(MyNef_polyhedron &polygonToChange,
+                                                  const Nef_Line &oppFirstDirLine,
+                                                  const Nef_Line &oppSecondDirLine,
+                                                  const MyNef_polyhedron &clippingPolygon,
+                                                  const MyPoint_2 &otherSite)
+{
+    Nef_Point sitePoint(otherSite.x(), otherSite.y());
+    MyNef_polyhedron polygonToRemove(clippingPolygon);
+    polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(sitePoint, firstDir),
+                                                                    MyNef_polyhedron::INCLUDED));
+    polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(sitePoint, secondDir),
+                                                                    MyNef_polyhedron::INCLUDED));
+
+    MyNef_polyhedron stencil(MyNef_polyhedron(Nef_Line(sitePoint, firstDir),
+                                              MyNef_polyhedron::INCLUDED));
+
+    return;
+}
 
 MyArrangement_2 OrientedDirichletCell::extractArrangement(const Nef_Explorer &myExplorer, const size_t &originIndex) const
 {
@@ -64,55 +119,56 @@ MyArrangement_2 OrientedDirichletCell::extractArrangement(const Nef_Explorer &my
 #if (MY_VERBOSE)
     //You really have to dig to find it, but apparently mark signifies set exclusion/inclusion
     cout << "face 'mark': " << myExplorer.mark(fit) << endl;
-    cout << "num faces: " << myExplorer.number_of_faces() <<endl;    
+    cout << "num faces: " << myExplorer.number_of_faces() << endl;
 #endif
-//https://doc.cgal.org/latest/Nef_2/Nef_2_2nef_2_polylines_8cpp-example.html#_a2
-//    assert(myExplorer.number_of_faces() == 2); //should be 2 but it's not...
-    while(!myExplorer.mark(fit) && (fit != myExplorer.faces_end()))
+    //https://doc.cgal.org/latest/Nef_2/Nef_2_2nef_2_polylines_8cpp-example.html#_a2
+    //    assert(myExplorer.number_of_faces() == 2); //should be 2 but it's not...
+    while (!myExplorer.mark(fit) && (fit != myExplorer.faces_end()))
     {
-#if (MY_VERBOSE)   
+#if (MY_VERBOSE)
         auto hafc = myExplorer.face_cycle(fit), done(hafc);
-        if(hafc != nullptr)
+        if (hafc != nullptr)
         {
-            do{
+            do
+            {
                 auto sourceVH = myExplorer.source(hafc);
                 auto targetVH = myExplorer.target(hafc);
-                if(myExplorer.is_standard(sourceVH) && myExplorer.is_standard(targetVH))  
-                {   
+                if (myExplorer.is_standard(sourceVH) && myExplorer.is_standard(targetVH))
+                {
                     cout << myExplorer.point(sourceVH) << ", " << myExplorer.point(targetVH) << endl;
                 }
                 ++hafc;
-            }while(hafc != done);
+            } while (hafc != done);
         }
-#endif          
+#endif
         ++fit;
     }
 
-    if(fit != myExplorer.faces_end())
+    if (fit != myExplorer.faces_end())
     {
         auto hafc = myExplorer.face_cycle(fit), done(hafc), nextHC(hafc);
-        if(hafc != nullptr)
+        if (hafc != nullptr)
         {
             ++nextHC;
-            vector< MyPoint_2 > boundaryList;
+            vector<MyPoint_2> boundaryList;
             bool firstTime = true;
             do
             {
                 auto sourceVH = myExplorer.source(hafc);
                 auto targetVH = myExplorer.target(hafc);
-                if(myExplorer.is_standard(sourceVH) && myExplorer.is_standard(targetVH))  
-                {                
-#if (MY_VERBOSE)        
+                if (myExplorer.is_standard(sourceVH) && myExplorer.is_standard(targetVH))
+                {
+#if (MY_VERBOSE)
                     cout << myExplorer.point(sourceVH) << ", " << myExplorer.point(targetVH) << endl;
-#endif        
-                    if(firstTime)
+#endif
+                    if (firstTime)
                     {
                         //auto sourcePt = sourceVH->point();
                         auto sourcePt = myExplorer.point(sourceVH);
-                        boundaryList.push_back(MyPoint_2(sourcePt.x(), sourcePt.y()) );
+                        boundaryList.push_back(MyPoint_2(sourcePt.x(), sourcePt.y()));
                         firstTime = false;
                     }
-                    if(nextHC != done)
+                    if (nextHC != done)
                     {
                         //auto targetPt = targetVH->point();
                         auto targetPt = myExplorer.point(targetVH);
@@ -121,24 +177,26 @@ MyArrangement_2 OrientedDirichletCell::extractArrangement(const Nef_Explorer &my
                 }
                 ++hafc;
                 ++nextHC;
-            }while(hafc != done);
-            vector< MyArrangement_2::Vertex_handle > vertexHandles;
-            MyArrangement_2::Face_handle    unboundedFace = result.unbounded_face();
-            for(MyPoint_2 pt : boundaryList)
+            } while (hafc != done);
+            vector<MyArrangement_2::Vertex_handle> vertexHandles;
+            MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
+            for (MyPoint_2 pt : boundaryList)
             {
-                vertexHandles.push_back( result.insert_in_face_interior(pt, unboundedFace) );
+                vertexHandles.push_back(result.insert_in_face_interior(pt, unboundedFace));
             }
             auto endBLIt = boundaryList.end();
             size_t handleIndex = 0, nextHandleIndex = 1;
-            for(auto it = boundaryList.begin(); it != endBLIt; ++it)
+            for (auto it = boundaryList.begin(); it != endBLIt; ++it)
             {
                 MyPoint_2 first = *it;
                 MyPoint_2 second;
-                if(next(it) == endBLIt)
+                if (next(it) == endBLIt)
                 {
                     second = *(boundaryList.begin());
                     nextHandleIndex = 0;
-                } else {
+                }
+                else
+                {
                     second = *(it + 1);
                 }
                 result.insert_at_vertices(MySegment_2(first, second), vertexHandles.at(handleIndex), vertexHandles.at(nextHandleIndex));
@@ -146,13 +204,13 @@ MyArrangement_2 OrientedDirichletCell::extractArrangement(const Nef_Explorer &my
                 ++nextHandleIndex;
             }
         } /* if(hafc != nullptr) */
-    } /* if(fit != myExplorer.faces_end()) */
+    }     /* if(fit != myExplorer.faces_end()) */
 
     assert(result.number_of_faces() == 2);
 
-    for(auto fit = result.faces_begin(); fit != result.faces_end(); ++fit)
+    for (auto fit = result.faces_begin(); fit != result.faces_end(); ++fit)
     {
-        if( ! fit->is_unbounded() )
+        if (!fit->is_unbounded())
         {
             //unclear if the struct already exists...
             MyFaceData temp;

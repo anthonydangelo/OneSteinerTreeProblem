@@ -20,6 +20,11 @@ typedef MyNef_polyhedron::Explorer Nef_Explorer;
 
 class OrientedDirichletCell
 {
+  protected: 
+    //member initialization order depends on the order we list them here, apparently
+    Nef_Direction firstDir;
+    Nef_Direction secondDir;
+    Nef_Point     cellOriginPoint;
 
   public:
     OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
@@ -31,6 +36,11 @@ class OrientedDirichletCell
     bool findOriginIndex(const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
                           size_t &resultIndex);
+    void shaveOffOtherSiteCone( MyNef_polyhedron &polygonToChange, 
+                                const Nef_Line &oppFirstDirLine,
+                                const Nef_Line &oppSecondDirLine,
+                                const MyNef_polyhedron &clippingPolygon,
+                                const MyPoint_2 &otherSite);
     MyArrangement_2 extractArrangement(const Nef_Explorer &myExplorer, const size_t &originIndex) const;
 };
 
