@@ -190,7 +190,8 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
         } /* if(hafc != nullptr) */
     }     /* if(fit != myExplorer.faces_end()) */
 
-    assert(result.number_of_faces() == 2);
+    size_t numFaces = result.number_of_faces();
+    assert(numFaces <= 2);
 
     for (auto fit = result.faces_begin(); fit != result.faces_end(); ++fit)
     {

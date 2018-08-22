@@ -91,7 +91,13 @@ ComputationResult::ComputationResult(int numInputPoints,
         inputPtVector.push_back(*it);
     }
 
-    OrientedDirichletCell temp(coneRays.at(0), coneRays.at(1), inputPtVector.at(0), inputPtVector, convexHullList);
+    vector <OrientedDirichletCell> myFirstODCs;
+    for(size_t i = 0; i < inputPtVector.size(); ++i)
+    {
+        //TODO alter constructor to take index as arg
+        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), inputPtVector.at(i), inputPtVector, convexHullList));
+    }
+    
 
     return;
 } //constructor
