@@ -31,7 +31,7 @@ class OrientedDirichletCell
     OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
                           const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
-                          const vector<MyPoint_2> &clippingPolygonList);
+                          const MyNef_polyhedron &clippingPolygon);
 
   protected:
     bool findOriginIndex(const MyPoint_2 &cellOrigin, 

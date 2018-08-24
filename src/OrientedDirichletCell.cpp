@@ -4,11 +4,10 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,
                                              const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
-                                             const vector<MyPoint_2> &clippingPolygonList) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
+                                             const MyNef_polyhedron &clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                              secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                              cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
 {
-    MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
     size_t originPtIndex;
     //TODO throw an error or something instead
     assert(findOriginIndex(cellOrigin, inputPointSet, originPtIndex));
@@ -16,6 +15,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
     cout << "input pt is: " << cellOrigin.x() << ", " << cellOrigin.y() << endl;
 #endif
 
+//    MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
     MyNef_polyhedron myCell;
     computeCell(myCell, clippingPolygon, inputPointSet, originPtIndex);
 
@@ -62,8 +62,12 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
 {
     Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
     Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
-    MyNef_polyhedron stencil(oppositeFirstDirLine, MyNef_polyhedron::INCLUDED);
-    stencil = stencil.join(MyNef_polyhedron(oppositeSecondDirLine, MyNef_polyhedron::INCLUDED));
+    auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
+#if (EXCLUDE_CELL_BOUNDARY)  
+    cellBoundaryInclusion = MyNef_polyhedron::EXCLUDED;
+#endif
+    MyNef_polyhedron stencil(oppositeFirstDirLine, cellBoundaryInclusion);
+    stencil = stencil.join(MyNef_polyhedron(oppositeSecondDirLine, cellBoundaryInclusion));
     for (size_t i = 0; i < inputPointSet.size(); ++i)
     {
         if (i == originPtIndex)
@@ -73,9 +77,9 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
         const MyPoint_2 &otherSite = inputPointSet.at(i);
         Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
         MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
-                                         MyNef_polyhedron::INCLUDED);
+                                         cellBoundaryInclusion);
         polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
-                                                                        MyNef_polyhedron::INCLUDED));
+                                                                        cellBoundaryInclusion));
         MyKernel ker;
         MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
         Nef_Point nefMP(midPoint.x(), midPoint.y());
@@ -86,7 +90,7 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
         {
             perpBi = perpBi.opposite();
         }
-        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, MyNef_polyhedron::INCLUDED));
+        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, cellBoundaryInclusion));
         stencil = stencil.join(polygonToRemove);
     }
 

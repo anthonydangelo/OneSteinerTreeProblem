@@ -110,6 +110,8 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 
 
 #define MY_VERBOSE (0)
+#define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
+#define DEBUG_W_MY_BOUNDING_BOX (1)
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS (3)
