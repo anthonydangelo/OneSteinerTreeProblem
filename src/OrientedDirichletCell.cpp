@@ -3,14 +3,13 @@
 OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,
+                                             const size_t &originPtIndex,
                                              const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
                                              const MyNef_polyhedron &clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                              secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                              cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
 {
-    size_t originPtIndex;
-    //TODO throw an error or something instead
-    assert(findOriginIndex(cellOrigin, inputPointSet, originPtIndex));
+
 #if (MY_VERBOSE)
     cout << "input pt is: " << cellOrigin.x() << ", " << cellOrigin.y() << endl;
 #endif
@@ -40,21 +39,6 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
         }
     }
 #endif
-}
-
-bool OrientedDirichletCell::findOriginIndex(const MyPoint_2 &cellOrigin,
-                                            const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
-                                            size_t &resultIndex)
-{
-    resultIndex = 0;
-    for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
-    {
-        if (pointsAreTooClose(*it, cellOrigin))
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,

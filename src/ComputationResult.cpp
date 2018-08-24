@@ -103,9 +103,13 @@ ComputationResult::ComputationResult(int numInputPoints,
     vector <OrientedDirichletCell> myFirstODCs;
     for(size_t i = 0; i < inputPtVector.size(); ++i)
     {
-        //TODO alter constructor to take index as arg
-//        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), inputPtVector.at(i), inputPtVector, convexHullList));
-        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(1), coneRays.at(2), inputPtVector.at(i), inputPtVector, clippingPolygon));
+        const MyPoint_2 &cellOrigin = inputPtVector.at(i);
+        size_t originPtIndex;
+        //TODO throw an error or something instead
+        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex));        
+//      myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, originPtIndex, inputPtVector, convexHullList));
+        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, originPtIndex, inputPtVector, clippingPolygon));
+        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(1), coneRays.at(2), cellOrigin, originPtIndex, inputPtVector, clippingPolygon));
     }
     
 

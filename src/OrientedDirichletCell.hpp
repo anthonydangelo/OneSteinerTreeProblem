@@ -33,13 +33,11 @@ class OrientedDirichletCell
   public:
     OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
                           const MyPoint_2 &cellOrigin, 
+                          const size_t &originPtIndex,
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
                           const MyNef_polyhedron &clippingPolygon);
 
   protected:
-    bool findOriginIndex(const MyPoint_2 &cellOrigin, 
-                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                          size_t &resultIndex);
     void computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon, 
                       const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, size_t originPtIndex);  
     void extractArrangement( MyArrangement_2 &result, const Nef_Explorer &myExplorer, const size_t &originIndex);

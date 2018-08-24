@@ -243,4 +243,19 @@ static inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &se
     return ( (fabs(ptX - tempX) < DOUBLE_EPSILON) && (fabs(ptY - tempY) < DOUBLE_EPSILON) );
 }
 
+static inline bool findOriginIndex(const MyPoint_2 &cellOrigin, 
+                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
+                          size_t &resultIndex)
+{
+    resultIndex = 0;
+    for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
+    {
+        if (pointsAreTooClose(*it, cellOrigin))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 #endif
