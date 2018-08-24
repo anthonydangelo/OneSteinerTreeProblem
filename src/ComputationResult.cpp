@@ -104,12 +104,12 @@ ComputationResult::ComputationResult(int numInputPoints,
     for(size_t i = 0; i < inputPtVector.size(); ++i)
     {
         const MyPoint_2 &cellOrigin = inputPtVector.at(i);
-        size_t originPtIndex;
-        //TODO throw an error or something instead
-        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex));        
-//      myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, originPtIndex, inputPtVector, convexHullList));
-        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, originPtIndex, inputPtVector, clippingPolygon));
-        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(1), coneRays.at(2), cellOrigin, originPtIndex, inputPtVector, clippingPolygon));
+//        size_t originPtIndex;
+//        //TODO throw an error or something instead
+//        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex));        
+//      myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, convexHullList));
+        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, clippingPolygon));
+        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(1), coneRays.at(2), cellOrigin, i, inputPtVector, clippingPolygon));
     }
     
 
