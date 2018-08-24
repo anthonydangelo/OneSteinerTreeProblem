@@ -91,11 +91,11 @@ ComputationResult::ComputationResult(int numInputPoints,
         inputPtVector.push_back(*it);
     }
 #if (DEBUG_W_MY_BOUNDING_BOX)    
-vector<MyPoint_2> clippingPolygonList;
-clippingPolygonList.push_back(MyPoint_2(20.0,-2.0));
-clippingPolygonList.push_back(MyPoint_2(20.0,34.0));
-clippingPolygonList.push_back(MyPoint_2(-10.0,34.0));
-clippingPolygonList.push_back(MyPoint_2(-10.0,-2.0)); 
+    vector<MyPoint_2> clippingPolygonList;
+    clippingPolygonList.push_back(MyPoint_2(20.0,-2.0));
+    clippingPolygonList.push_back(MyPoint_2(20.0,34.0));
+    clippingPolygonList.push_back(MyPoint_2(-10.0,34.0));
+    clippingPolygonList.push_back(MyPoint_2(-10.0,-2.0)); 
 #else
     const vector< MyPoint_2 > &clippingPolygonList = convexHullList;
 #endif
