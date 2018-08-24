@@ -36,12 +36,19 @@
 using namespace CGAL;
 using namespace std;
 
+#define MY_LAZY_COMPS   (1)
+
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
 //https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
 //https://doc.cgal.org/latest/Cone_spanners_2/index.html
 //typedef Exact_predicates_exact_constructions_kernel Kernel;
-typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
+#if (MY_LAZY_COMPS)
+    typedef Lazy_exact_nt<CORE::Expr> Lazy_FT;
+    typedef Simple_cartesian< Lazy_FT >  MyKernel;
+#else
+    typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
+#endif
 //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
 typedef MyKernel::FT                                                        My_Number_type;
 typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;
