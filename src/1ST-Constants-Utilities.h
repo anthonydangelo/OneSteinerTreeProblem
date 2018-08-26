@@ -119,6 +119,9 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define MY_VERBOSE (0)
 #define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
 #define DEBUG_W_MY_BOUNDING_BOX (0)
+#define TIME_PROGRAM (1)
+#define DEBUG_OVERLAY (0)
+#define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS (3)
@@ -202,8 +205,9 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
                     //                    result.push_back(MyPoint_2(firstD, secondD ));
                 }
             }
-            catch (...)
+            catch (exception &e)
             {
+                cerr << e.what() << endl;
                 cerr << "Input point list string malformed" << endl;
                 result.clear();
                 return;

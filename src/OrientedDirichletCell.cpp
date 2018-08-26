@@ -22,7 +22,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 
     extractArrangement(odcArr, myExplorer, originPtIndex);
     
-#if (1)
+#if (MY_VERBOSE)
     cout << odcArr << endl;
     for (auto fit = odcArr.faces_begin(); fit != odcArr.faces_end(); ++fit)
     {
@@ -44,12 +44,13 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,
                                         const vector<reference_wrapper<const MyPoint_2>> &inputPointSet, size_t originPtIndex)
 {
+   
     Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
     Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
     auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
-#if (EXCLUDE_CELL_BOUNDARY)  
-    cellBoundaryInclusion = MyNef_polyhedron::EXCLUDED;
-#endif
+#   if (EXCLUDE_CELL_BOUNDARY)  
+        cellBoundaryInclusion = MyNef_polyhedron::EXCLUDED;
+#   endif
     MyNef_polyhedron stencil(oppositeFirstDirLine, cellBoundaryInclusion);
     stencil = stencil.join(MyNef_polyhedron(oppositeSecondDirLine, cellBoundaryInclusion));
     for (size_t i = 0; i < inputPointSet.size(); ++i)
@@ -64,6 +65,7 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
                                          cellBoundaryInclusion);
         polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
                                                                         cellBoundaryInclusion));
+        //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
         MyKernel ker;
         MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
         Nef_Point nefMP(midPoint.x(), midPoint.y());
@@ -80,6 +82,7 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
 
     stencil = stencil.complement();
     result = stencil.intersection(clippingPolygon);
+
 
     return;
 }
@@ -195,4 +198,9 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
     }
 
     return;
+}
+
+const MyArrangement_2 & OrientedDirichletCell::getCellArrangement() const
+{
+    return odcArr;
 }

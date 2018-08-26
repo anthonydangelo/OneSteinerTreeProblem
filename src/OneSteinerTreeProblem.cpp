@@ -11,6 +11,7 @@
 #include "1ST-Constants-Utilities.h"
 #include "ComputationResult.hpp"
 
+#include <chrono>  // for high_resolution_clock
 
 void PrintHelp()
 {
@@ -40,10 +41,9 @@ bool trueRandom = TRUE_RANDOM_DEFAULT;
 bool onlyPoints = ONLY_POINTS_DEFAULT;
 string outfilePrefix = "";
 string inputListString = "";
-vector<MyPoint_2> inputListVec;
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-void ProcessArgs(int argc, char **argv)
+void ProcessArgs(int argc, char **argv, vector<MyPoint_2> &inputListVec)
 {
     const char *const short_opts = "pn:rs:g:f:i:h";
     const option long_opts[] = {
@@ -163,15 +163,33 @@ void ProcessArgs(int argc, char **argv)
 int main(int argc, char **argv)
 {
 
-    ProcessArgs(argc, argv);
+    vector<MyPoint_2> inputListVec;
+
+    //There's some kind of CGAL destructor bug that blows up if we have this vector as a global...
+    ProcessArgs(argc, argv, inputListVec);
 
     //http://www.cplusplus.com/reference/cstdlib/srand/
     if(trueRandom) {
         randSeed = time(nullptr);
     }
+
+#if (TIME_PROGRAM)
+//https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
+    // Record start time
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
+{
     ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
     cout << compResult;
+}
+#if (TIME_PROGRAM)
+    // Record end time
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+#endif
+
 /*     ofstream myfile;
     myfile.open (outfilePrefix + OUTPUT_FILE);
     myfile << compResult;

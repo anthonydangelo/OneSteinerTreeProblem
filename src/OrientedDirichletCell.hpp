@@ -36,6 +36,7 @@ class OrientedDirichletCell
                           const size_t &originPtIndex,
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
                           const MyNef_polyhedron &clippingPolygon);
+    const MyArrangement_2 & getCellArrangement() const;
 
   protected:
     void computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon, 

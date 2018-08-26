@@ -70,7 +70,9 @@ ComputationResult::ComputationResult(int numInputPoints,
 
 
     computeConeRays();
-    assert(coneRays.size() == 6);
+    size_t coneRaysSize = coneRays.size();
+    assert(coneRaysSize == 6);
+    
 
     computeConvexHull();
 
@@ -100,18 +102,68 @@ ComputationResult::ComputationResult(int numInputPoints,
     const vector< MyPoint_2 > &clippingPolygonList = convexHullList;
 #endif
     MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
-    vector <OrientedDirichletCell> myFirstODCs;
+    MyOverlay_Traits overlayTraits;
+    //The arrangements and their overlays are the same type...
+    array<MyArrangement_2, 2> myTempArrangements;
+    size_t arrIndex = 0;
+    //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
     for(size_t i = 0; i < inputPtVector.size(); ++i)
     {
         const MyPoint_2 &cellOrigin = inputPtVector.at(i);
 //        size_t originPtIndex;
 //        //TODO throw an error or something instead
-//        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex));        
-//      myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, convexHullList));
-        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, clippingPolygon));
-        myFirstODCs.push_back(OrientedDirichletCell(coneRays.at(1), coneRays.at(2), cellOrigin, i, inputPtVector, clippingPolygon));
+//        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
+#if (!DEBUG_OVERLAY)
+         for (size_t j = 0; j < coneRaysSize; ++j)
+        {
+            size_t nextJ = j + 1;
+            if(nextJ == coneRaysSize)
+            {
+                nextJ = 0;
+            }
+            //https://doc.cgal.org/latest/Arrangement_on_surface_2/group__PkgArrangement2Funcs.html#ga339cdba93f54001be303595689002396
+            //Self-overlay is not supported, so we need two temp arrangements to alternate between, and a reference to the solution...
+            //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#a6
+            OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, inputPtVector, clippingPolygon);
+            overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
+            ++arrIndex;
+#   if (MY_VERBOSE)               
+            cout << "size of temp: " << sizeof(temp) << endl;
+            cout << "size of arrangements: " << sizeof(myTempArrangements.at(0)) << ", " << sizeof(myTempArrangements.at(1)) << endl;                                 
+#   endif            
+        }
+#else           
+            //https://doc.cgal.org/latest/Arrangement_on_surface_2/group__PkgArrangement2Funcs.html#ga339cdba93f54001be303595689002396
+            //Self-overlay is not supported, so we need two temp arrangements to alternate between, and a reference to the solution...
+            //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#a6
+            OrientedDirichletCell temp(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, clippingPolygon);
+            overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
+            ++arrIndex;
+            OrientedDirichletCell tempB(coneRays.at(1), coneRays.at(2), cellOrigin, i, inputPtVector, clippingPolygon);
+            overlay( myTempArrangements.at(arrIndex % 2), tempB.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
+            ++arrIndex;     
+            cout << "size of temp and tempB: " << sizeof(temp) << ", " << sizeof(tempB) << endl;
+            cout << "size of arrangements: " << sizeof(myTempArrangements.at(0)) << ", " << sizeof(myTempArrangements.at(1)) << endl;            
+#endif                
     }
     
+#if (1)
+    cout << myTempArrangements.at(arrIndex % 2) << endl;
+    for (auto fit = myTempArrangements.at(arrIndex % 2).faces_begin(); fit != myTempArrangements.at(arrIndex % 2).faces_end(); ++fit)
+    {
+        if (!fit->is_unbounded())
+        {
+            //static cast instead?
+            MyFaceData tempStruct = (MyFaceData)(fit->data());
+            cout << "face data contains the following indices: [" << endl;
+            for (size_t temp : tempStruct.myInputPointIndices)
+            {
+                cout << temp << endl;
+            }
+            cout << "]" << endl;
+        }
+    }
+#endif    
 
     return;
 } //constructor
