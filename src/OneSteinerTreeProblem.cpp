@@ -187,7 +187,7 @@ int main(int argc, char **argv)
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+    std::cout << endl << "Elapsed time: " << elapsed.count() << " s\n";
 #endif
 
 /*     ofstream myfile;

@@ -352,9 +352,9 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
 
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
+    sStream << "{ " << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
     
-    sStream << "\"name\":\"" << wrapStringInQuotes(faceName) << "\"," << endl;
+    sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ," << endl;
     ////////////////////
     sStream << insertTabs(tabLevel + 1);
     sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [";
@@ -399,7 +399,7 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
     //////////////////////
 
     sStream << insertTabs(tabLevel);
-    sStream << "}" << endl; 
+    sStream << "} }" << endl; 
     
     return sStream.str();
 }
