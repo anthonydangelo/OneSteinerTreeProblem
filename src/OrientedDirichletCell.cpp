@@ -121,6 +121,7 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
         stencil = stencil.difference(polygonToRemove);
     }
 
+    result = stencil;
 #endif
 
     return;
