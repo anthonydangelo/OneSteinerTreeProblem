@@ -423,15 +423,21 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
 
 
     size_t faceIndex = 0;
+    auto endFit = resultODCArrangement.faces_end();
 //    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
-    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit)
+    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
     {
         if (!fit->is_unbounded())
         {
             ostringstream faceSStream;
 //            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
             faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-            arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+            if(next(fit) != endFit) 
+            {
+                sStream << insertTabs(tabLevel + 1);
+                sStream << "," << endl;
+            }
         }
     }
 
