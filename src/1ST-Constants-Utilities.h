@@ -123,6 +123,7 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define TIME_PROGRAM (1)
 #define DEBUG_OVERLAY (0)
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
+#define BUILD_ODCELL_BY_DIFFERENCES   (1)
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS (3)

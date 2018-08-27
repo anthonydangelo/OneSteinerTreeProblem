@@ -44,7 +44,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,
                                         const vector<reference_wrapper<const MyPoint_2>> &inputPointSet, size_t originPtIndex)
 {
-   
+#if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
     Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
     Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
     auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
@@ -83,6 +83,45 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
     stencil = stencil.complement();
     result = stencil.intersection(clippingPolygon);
 
+#else
+
+    Nef_Line firstDirLine = Nef_Line(cellOriginPoint, firstDir);
+    Nef_Line secondDirLine = Nef_Line(cellOriginPoint, secondDir);
+    auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
+    MyNef_polyhedron stencil(firstDirLine, cellBoundaryInclusion);
+    stencil = stencil.intersection(MyNef_polyhedron(secondDirLine, cellBoundaryInclusion));
+    //does clipping here speed it up?
+    stencil = stencil.intersection(clippingPolygon);
+    for (size_t i = 0; i < inputPointSet.size(); ++i)
+    {
+        if (i == originPtIndex)
+        {
+            continue;
+        }
+        const MyPoint_2 &otherSite = inputPointSet.at(i);
+        Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
+        MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
+                                         cellBoundaryInclusion);
+        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
+                                                                        cellBoundaryInclusion));
+        //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
+        MyKernel ker;
+        MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
+        Nef_Point nefMP(midPoint.x(), midPoint.y());
+        Nef_Line supportLine(cellOriginPoint, otherSitePoint);
+        Nef_Line perpBi = supportLine.perpendicular(nefMP);
+        //We assume the points are different, so neither point lies on the bisector...
+        if (!perpBi.has_on_positive_side(otherSitePoint))
+        {
+            perpBi = perpBi.opposite();
+        }
+        polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, cellBoundaryInclusion));
+        //should i bother to clip the polygonToRemove?
+
+        stencil = stencil.difference(polygonToRemove);
+    }
+
+#endif
 
     return;
 }
