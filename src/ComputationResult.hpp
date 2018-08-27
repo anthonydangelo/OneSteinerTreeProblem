@@ -33,6 +33,7 @@ class ComputationResult
 
     vector<MyDirection_2> coneRays;
     MyPolygon_set_2       convexHull;
+    MyArrangement_2       resultODCArrangement;
 
   public:
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
@@ -50,9 +51,13 @@ class ComputationResult
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
     string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
     string pointVectorToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
-    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel=0) const;
+    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, const set<MyPoint_2> &myPtSet, int tabLevel=0) const;
+    void insertArrangementPointsIntoPointSet(set<MyPoint_2> &arrPoints) const;
+    string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                        const set<MyPoint_2> &myPtSet, int tabLevel) const;
+    string arrangementToJSONString(int tabLevel=0) const;
     void computeConeRays();    
-    bool findPointIndex(const MyPoint_2 &pt, size_t &myIndex) const; 
+    bool findPointIndex(const MyPoint_2 &pt, const set<MyPoint_2> &myColl, size_t &myIndex) const; 
 };
 
 #endif

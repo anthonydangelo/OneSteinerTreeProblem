@@ -78,7 +78,8 @@ typedef struct {
 //typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
 typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
 typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
-// Define a functor for creating a label from a character and an integer.
+
+// Define a functor for creating a label.
 struct Overlay_faces
 {
   MyFaceData operator() (MyFaceData first, MyFaceData second) const
@@ -138,6 +139,16 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define OUTPUT_FILE ("-result.json")
 #define INPUT_POINTS_NAME_STRING ("inputPoints")
 #define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
+//////////////////////////////
+#define ARR_NAME_STRING ("odcArrangement")
+#define ARR_POINTS_NAME_STRING ("arrangementPoints")
+///////
+#define ARR_FACES_NAME_STRING ("arrangementFaces")
+#define ARR_IND_FACE_NAME_STRING ("arrFace")
+#define ARR_FACE_NAME_PREFIX_NAME_STRING ("arrFace__")
+#define ARR_FACE_CCW_V_INDICES_NAME_STRING ("arrangementFaceCCWVIndices")
+#define ARR_OODC_INPUT_SITE_INDICES_NAME_STRING ("arrangementOODCSiteIndices")
+//////////////////////////////
 
 #define DOUBLE_EPSILON (0.000001)
 
@@ -217,6 +228,7 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
     return;
 }
 
+//Assume the numbers aren't too large or small for doubles
 static inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
 {
     string ptString = point2ToJSON(first);
@@ -260,6 +272,22 @@ static inline bool findOriginIndex(const MyPoint_2 &cellOrigin,
         }
     }
     return false;
+}
+
+
+//https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html#title6 
+//&& examples/Arrangement_on_surface_2/bgl_dual_adapter.cpp 
+//&& examples/Arrangement_on_surface_2/arr_print.h
+static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
+{
+  MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
+  std::cout << "(" << curr->source()->point() << ")";
+  do {
+    MyArrangement_2::Halfedge_const_handle he = curr;
+    std::cout << " [" << he->curve() << "] "
+              << "(" << he->target()->point() << ")";
+  } while (++curr != circ);
+  std::cout << std::endl;
 }
 
 #endif
