@@ -139,6 +139,7 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define OUTPUT_FILE ("-result.json")
 #define INPUT_POINTS_NAME_STRING ("inputPoints")
 #define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
+#define RAND_SEED_NAME_STRING ("randSeed")
 //////////////////////////////
 #define ARR_NAME_STRING ("odcArrangement")
 #define ARR_POINTS_NAME_STRING ("arrangementPoints")

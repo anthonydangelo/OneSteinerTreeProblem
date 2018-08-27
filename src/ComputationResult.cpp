@@ -147,8 +147,8 @@ ComputationResult::ComputationResult(int numInputPoints,
 #endif                
     }
     resultODCArrangement = myTempArrangements.at(arrIndex % 2);
-#if (1)
-//    cout << myTempArrangements.at(arrIndex % 2) << endl;
+#if (MY_VERBOSE)
+    cout << myTempArrangements.at(arrIndex % 2) << endl;
     size_t faceIndex = 0;
     for (auto fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
     {
@@ -204,6 +204,8 @@ string ComputationResult::outputResultToJSONString() const
 {
     ostringstream sStream;
     sStream << "{\n";  
+    sStream << wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
+    sStream << "," << endl;
     sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     if(!onlyPoints){
         sStream << "," << endl;
