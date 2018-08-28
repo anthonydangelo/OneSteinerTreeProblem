@@ -32,36 +32,13 @@ MyEMSTData DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
         vertex_id_map[vd] = idMapIndex++;
     }
 
-    MyVertexIdPropertyMap vertex_index_pmap(vertex_id_map);
-    // We use the default edge weight which is the squared length of the edge
-    // This property map is defined in graph_traits_Triangulation_2.h
-
-    // In the function call you can see a named parameter: vertex_index_map
-    
-    boost::kruskal_minimum_spanning_tree(finiteDT,
-                                         std::back_inserter(emstData.mstEdgeList),
-                                         vertex_index_map(vertex_index_pmap));
-
-    auto endELIt = emstData.mstEdgeList.end();
-    for (auto it = emstData.mstEdgeList.begin(); it != endELIt; ++it)
-    {
-        MyEdge_descriptor ed = *it;
-        //MyVertex_descriptor and MyTriangulation::Vertex_handle seem to have the same interface...
-        MyVertex_descriptor tempSource = source(ed, delaunayTri);
-        MyVertex_descriptor tempTarget = target(ed, delaunayTri);
-        MyTriangulation::Vertex_handle vhSource = tempSource;
-        MyTriangulation::Vertex_handle vhTarget = tempTarget;
-        //todo throw error if this fails...
-        size_t sourceIndex, targetIndex;
-        findPointIndex(vhSource->point(),  *cpInitialPointSet, sourceIndex);
-        findPointIndex(vhTarget->point(),  *cpInitialPointSet, targetIndex);
-        emstData.mstEdgePointIndices.push_back( std::pair<size_t, size_t>(sourceIndex, targetIndex) );
-        emstData.length += CGAL::sqrt(squared_distance(vhSource->point(), vhTarget->point()));
-    }
+    findMST(emstData);
     
     return emstData;
 }
-//TODO Most of these two functions can be extracted into one that comps the MST and struct data and returns that...
+
+
+//!!!IMPORTANT!!! addPointSet first, otherwise you'll get a null ptr exception...
 MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint)
 {
     MyEMSTData result;
@@ -81,6 +58,11 @@ MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint)
 void DelaunayTriEMST::findMST(MyEMSTData &fillMe)
 {
     MyVertexIdPropertyMap vertex_index_pmap(vertex_id_map);
+    //from cgal example comments: " We use the default edge weight which is the squared length of the edge
+    // This property map is defined in graph_traits_Triangulation_2.h "
+
+    // In the function call you can see a named parameter: vertex_index_map
+
     boost::kruskal_minimum_spanning_tree(finiteDT,
                                          std::back_inserter(fillMe.mstEdgeList),
                                          vertex_index_map(vertex_index_pmap));

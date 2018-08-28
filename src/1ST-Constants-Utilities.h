@@ -33,6 +33,9 @@
 #include <CGAL/Polygon_set_2.h>
 #include <CGAL/Compute_cone_boundaries_2.h>
 
+#include <CGAL/squared_distance_2.h> //for 2D functions
+#include <CGAL/number_utils.h>       //for cgal::sqrt
+
 using namespace CGAL;
 using namespace std;
 
@@ -290,6 +293,22 @@ static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator cir
               << "(" << he->target()->point() << ")";
   } while (++curr != circ);
   std::cout << std::endl;
+}
+
+
+//Blows up if I try to have reference_wrapper for const points in the set... don't know how to fix that...
+static inline bool findPointIndex(const MyPoint_2 &pt, const set< MyPoint_2 > &myColl, size_t &myIndex)
+{
+    myIndex = 0;
+    if(!myColl.empty()){
+        auto endIt = end(myColl);
+        for (auto it = begin(myColl); it != endIt; ++it, ++myIndex) {
+            if(pointsAreTooClose(*it, pt)){
+                return true;
+            }
+        }    
+    }
+    return false;
 }
 
 #endif

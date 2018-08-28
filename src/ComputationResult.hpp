@@ -8,7 +8,7 @@
 #include <CGAL/Random.h>
 
 #include "OrientedDirichletCell.hpp"
-
+#include "DelaunayTriEMST.hpp"
 
 //https://doc.cgal.org/latest/Generator/index.html
 typedef Creator_uniform_2<double, MyPoint_2> Creator;
@@ -35,6 +35,8 @@ class ComputationResult
     MyPolygon_set_2       convexHull;
     MyArrangement_2       resultODCArrangement;
 
+    DelaunayTriEMST       myEMST;
+
   public:
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
                       int randomSeed = RAND_SEED_DEFAULT,
@@ -57,7 +59,6 @@ class ComputationResult
                                         const set<MyPoint_2> &myPtSet, int tabLevel) const;
     string arrangementToJSONString(int tabLevel=0) const;
     void computeConeRays();    
-    bool findPointIndex(const MyPoint_2 &pt, const set<MyPoint_2> &myColl, size_t &myIndex) const; 
 };
 
 #endif

@@ -13,7 +13,8 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
                                                                randPointGen(Point_generator(gridLength, rand)),
                                                                outFilePrefix(outputFilePrefix),
-                                                               coneRays(6)
+                                                               coneRays(6),
+                                                               myEMST(DelaunayTriEMST())
 {
 
     for (const auto pt : userPointList)
@@ -168,6 +169,8 @@ ComputationResult::ComputationResult(int numInputPoints,
     }
 #endif    
 
+    myEMST.addPointSet(pointSet);
+    
     return;
 } //constructor
 
@@ -289,20 +292,6 @@ string ComputationResult::pointVectorToJSONString(string name, const vector<MyPo
     sStream << "]" << endl; 
     
     return sStream.str();
-}
-
-bool ComputationResult::findPointIndex(const MyPoint_2 &pt, const set<MyPoint_2> &myColl, size_t &myIndex) const
-{
-    myIndex = 0;
-    if(!myColl.empty()){
-        auto endIt = end(myColl);
-        for (auto it = begin(myColl); it != endIt; ++it, ++myIndex) {
-            if(pointsAreTooClose(*it, pt)){
-                return true;
-            }
-        }    
-    }
-    return false;
 }
 
 string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, const set<MyPoint_2> &myPtSet, int tabLevel) const
@@ -449,3 +438,4 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     
     return sStream.str();
 }
+
