@@ -41,7 +41,8 @@ typedef boost::associative_property_map<MyVertexIndexMap>     MyVertexIdProperty
 
 typedef struct {
     vector<MyEdge_descriptor>       mstEdgeList;
-    vector<pair<size_t, size_t>>    mstEdgePointIndices;
+    vector< pair< pair<size_t, size_t>, 
+                  pair<bool, bool> > >    mstEdgePointIndices;
     My_Number_type                  length = 0.0;
 } MyEMSTData;
 
@@ -60,10 +61,11 @@ class DelaunayTriEMST
     DelaunayTriEMST();
     //adds point set and computes emst
     MyEMSTData addPointSet(const set< MyPoint_2 > &pointSet);
-    MyEMSTData testPointInsertion(const MyPoint_2& myPoint);
+    MyEMSTData testPointInsertion(const MyPoint_2& myPoint, size_t steinerPointIndex);
 
   protected:
     void findMST(MyEMSTData &fillMe);
+    void findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint = false, size_t steinerPointIndex = 0);
 };
 
 #endif

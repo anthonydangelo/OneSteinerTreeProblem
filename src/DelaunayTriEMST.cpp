@@ -33,13 +33,14 @@ MyEMSTData DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
     }
 
     findMST(emstData);
+    findEdgePointIndices(emstData);
     
     return emstData;
 }
 
 
 //!!!IMPORTANT!!! addPointSet first, otherwise you'll get a null ptr exception...
-MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint)
+MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint, size_t steinerPointIndex)
 {
     MyEMSTData result;
 
@@ -49,6 +50,7 @@ MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint)
     vertex_id_map[sPointHandle] = idMapIndex; //no need to post-increment, we'd just decrement it later...
 
     findMST(result);    
+    findEdgePointIndices(result, true, steinerPointIndex);
 
     vertex_id_map.erase(sPointHandle);
 
@@ -76,14 +78,51 @@ void DelaunayTriEMST::findMST(MyEMSTData &fillMe)
         //the cgal example has us use an intermediary MyVertex_descriptor...
         MyTriangulation::Vertex_handle vhSource = source(ed, delaunayTri);
         MyTriangulation::Vertex_handle vhTarget = target(ed, delaunayTri);
-        //todo throw error if this fails...
-        size_t sourceIndex, targetIndex;
-        findPointIndex(vhSource->point(),  *cpInitialPointSet, sourceIndex);
-        findPointIndex(vhTarget->point(),  *cpInitialPointSet, targetIndex);
-        fillMe.mstEdgePointIndices.push_back( std::pair<size_t, size_t>(sourceIndex, targetIndex) );
         fillMe.length += CGAL::sqrt(squared_distance(vhSource->point(), vhTarget->point()));
     }    
 
     return;
 }
 
+
+//We assume an unfound point is the steiner point... probably okay...
+void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint, size_t steinerPointIndex)
+{
+    auto endELIt = fillMe.mstEdgeList.end();
+    for (auto it = fillMe.mstEdgeList.begin(); it != endELIt; ++it)
+    {
+        MyEdge_descriptor ed = *it;
+        //vertex handles and vertex descriptors are typedef'd to the same thing...
+        //MyVertex_descriptor and MyTriangulation::Vertex_handle seem to have the same interface...
+        //the cgal example has us use an intermediary MyVertex_descriptor...
+        MyTriangulation::Vertex_handle vhSource = source(ed, delaunayTri);
+        MyTriangulation::Vertex_handle vhTarget = target(ed, delaunayTri);
+
+        size_t sourceIndex, targetIndex;
+        bool foundSrc = findPointIndex(vhSource->point(),  *cpInitialPointSet, sourceIndex);
+        bool firstIsStPt = false;
+        bool secondIsStPt = false;
+        if( !foundSrc && containsSteinerPoint)
+        {
+            //this must be the steiner point
+            sourceIndex = steinerPointIndex;
+            foundSrc = true;
+            firstIsStPt = true;
+        }
+        bool foundTarget = findPointIndex(vhTarget->point(),  *cpInitialPointSet, targetIndex);
+        if( !foundTarget && containsSteinerPoint && !firstIsStPt)
+        {
+            //this must be the steiner point
+            targetIndex = steinerPointIndex;
+            foundTarget = true;
+            secondIsStPt = true;
+        }        
+        assert(foundSrc && foundTarget);
+
+        fillMe.mstEdgePointIndices.push_back( std::pair< std::pair<size_t, size_t>, 
+                                                            std::pair<bool, bool> > (std::pair<size_t, size_t>(sourceIndex, targetIndex),
+                                                                                        std::pair<bool, bool>(firstIsStPt, secondIsStPt) ));
+    }  
+
+    return;    
+}
