@@ -19,6 +19,8 @@
 
 #include <functional>   // std::reference_wrapper
 
+#include <algorithm> //std::next_permutation, std::sort
+
 //https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
 //https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
 //https://doc.cgal.org/latest/Cone_spanners_2/index.html
@@ -35,6 +37,10 @@
 
 #include <CGAL/squared_distance_2.h> //for 2D functions
 #include <CGAL/number_utils.h>       //for cgal::sqrt
+
+#include <CGAL/ch_akl_toussaint.h>
+
+#include <CGAL/Kernel/global_functions.h>
 
 using namespace CGAL;
 using namespace std;
@@ -127,6 +133,7 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define DEBUG_OVERLAY (0)
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
 #define BUILD_ODCELL_BY_DIFFERENCES   (1)
+#define DEBUG_CIRCLES (1)
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS (3)
@@ -309,6 +316,22 @@ static inline bool findPointIndex(const MyPoint_2 &pt, const set< MyPoint_2 > &m
         }    
     }
     return false;
+}
+
+static inline void computeConvexHull(set<MyPoint_2>& pointSet, vector<MyPoint_2>& convexHullList)
+{
+    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(convexHullList));
+
+/*
+    MyPolygon_2 tempHull(convexHullList.begin(), convexHullList.end());
+
+    convexHull.insert(tempHull);
+
+#if (MY_VERBOSE)
+    cout << "convex hull arrangement: " << convexHull.arrangement() << endl;
+#endif
+*/
+    return;
 }
 
 #endif

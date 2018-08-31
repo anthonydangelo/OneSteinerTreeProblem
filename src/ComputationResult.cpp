@@ -75,7 +75,7 @@ ComputationResult::ComputationResult(int numInputPoints,
     assert(coneRaysSize == 6);
     
 
-    computeConvexHull();
+    computeConvexHull(pointSet, convexHullList);
 
 #if (MY_VERBOSE)    
 
@@ -173,22 +173,6 @@ ComputationResult::ComputationResult(int numInputPoints,
     
     return;
 } //constructor
-
-
-void ComputationResult::computeConvexHull()
-{
-    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(convexHullList));
-
-    MyPolygon_2 tempHull(convexHullList.begin(), convexHullList.end());
-
-    convexHull.insert(tempHull);
-
-#if (MY_VERBOSE)
-    cout << "convex hull arrangement: " << convexHull.arrangement() << endl;
-#endif
-
-    return;
-}
 
 void ComputationResult::computeConeRays()
 {

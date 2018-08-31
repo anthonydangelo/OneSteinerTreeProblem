@@ -3,7 +3,6 @@
 
 #include "1ST-Constants-Utilities.h"
 
-#include <CGAL/ch_akl_toussaint.h>
 #include <CGAL/point_generators_2.h>
 #include <CGAL/Random.h>
 
@@ -32,7 +31,7 @@ class ComputationResult
     vector<MyPoint_2>   convexHullList;
 
     vector<MyDirection_2> coneRays;
-    MyPolygon_set_2       convexHull;
+    //MyPolygon_set_2       convexHull;
     MyArrangement_2       resultODCArrangement;
 
     DelaunayTriEMST       myEMST;
@@ -48,7 +47,6 @@ class ComputationResult
     string outputResultToJSONString() const;
 
   protected:
-    void computeConvexHull();
 //    template <typename Container>
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
     string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
