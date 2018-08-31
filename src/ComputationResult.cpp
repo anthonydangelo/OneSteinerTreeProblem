@@ -69,8 +69,7 @@ ComputationResult::ComputationResult(int numInputPoints,
         return;
     }
 
-
-    computeConeRays();
+    computeConeRays(MyDirection_2(1, 0), coneRays);
     size_t coneRaysSize = coneRays.size();
     assert(coneRaysSize == 6);
     
@@ -173,18 +172,6 @@ ComputationResult::ComputationResult(int numInputPoints,
     
     return;
 } //constructor
-
-void ComputationResult::computeConeRays()
-{
-    //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
-    MyDirection_2 initialDirection = MyDirection_2(1, 0);
-    // construct the functor
-    Compute_cone_boundaries_2<MyKernel> cones;    
-    cones(6, initialDirection, coneRays.begin());
-
-    return;
-}
-
 
 
 string ComputationResult::outputResultToJSONString() const

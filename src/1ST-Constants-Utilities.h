@@ -41,6 +41,8 @@
 #include <CGAL/ch_akl_toussaint.h>
 
 #include <CGAL/Kernel/global_functions.h>
+#include <CGAL/enum.h>
+#include <CGAL/intersections.h>
 
 using namespace CGAL;
 using namespace std;
@@ -133,7 +135,6 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define DEBUG_OVERLAY (0)
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
 #define BUILD_ODCELL_BY_DIFFERENCES   (1)
-#define DEBUG_CIRCLES (1)
 
 //magic numbers
 #define MIN_NUM_INPUT_POINTS (3)
@@ -331,6 +332,16 @@ static inline void computeConvexHull(set<MyPoint_2>& pointSet, vector<MyPoint_2>
     cout << "convex hull arrangement: " << convexHull.arrangement() << endl;
 #endif
 */
+    return;
+}
+
+static inline void computeConeRays(const MyDirection_2& initialDirection, vector<MyDirection_2>& coneRays)
+{
+    //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
+    // construct the functor
+    Compute_cone_boundaries_2<MyKernel> cones;    
+    cones(6, initialDirection, coneRays.begin());
+
     return;
 }
 

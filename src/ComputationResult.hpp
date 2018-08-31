@@ -55,8 +55,7 @@ class ComputationResult
     void insertArrangementPointsIntoPointSet(set<MyPoint_2> &arrPoints) const;
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
                                         const set<MyPoint_2> &myPtSet, int tabLevel) const;
-    string arrangementToJSONString(int tabLevel=0) const;
-    void computeConeRays();    
+    string arrangementToJSONString(int tabLevel=0) const;    
 };
 
 #endif
