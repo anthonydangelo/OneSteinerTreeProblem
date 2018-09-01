@@ -42,7 +42,7 @@ typedef boost::associative_property_map<MyVertexIndexMap>     MyVertexIdProperty
 typedef struct {
     vector<MyEdge_descriptor>       mstEdgeList;
     vector< pair< pair<size_t, size_t>, 
-                  pair<bool, bool> > >    mstEdgePointIndices;
+                  pair<bool, bool> > >    mstEdgePointIndices;  //indices for the endpoints of an edge, and whether or not the end pt is a st pt
     My_Number_type                  length = 0.0;
 } MyEMSTData;
 

@@ -52,6 +52,7 @@ MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint, size_t 
     findMST(result);    
     findEdgePointIndices(result, true, steinerPointIndex);
 
+    delaunayTri.remove(sPointHandle);
     vertex_id_map.erase(sPointHandle);
 
     return result;
