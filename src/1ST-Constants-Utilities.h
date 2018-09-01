@@ -335,6 +335,13 @@ static inline void computeConvexHull(set<MyPoint_2>& pointSet, vector<MyPoint_2>
     return;
 }
 
+static inline void computeConvexHull(const vector<MyPoint_2>& pointVec, vector<MyPoint_2>& convexHullList)
+{
+    ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
+    return;
+}
+
+
 static inline void computeConeRays(const MyDirection_2& initialDirection, vector<MyDirection_2>& coneRays)
 {
     //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
