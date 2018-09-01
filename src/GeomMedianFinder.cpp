@@ -69,13 +69,6 @@ MyPoint_2 GeomMedianFinder::findEqTriIntPoint(const MyPoint_2& pointA, const MyP
     MyDirection_2 initialDirection = MyDirection_2(baseLine);
     computeConeRays(initialDirection, coneRays);
     
-    return findEqTriIntPoint(pointA, pointB, avoidMe, baseLine, coneRays);
-}
-
-MyPoint_2 GeomMedianFinder::findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe, 
-                                                const MyLine_2& baseLine, const vector<MyDirection_2>& coneRays) const
-{
-    MyPoint_2 intersectionPoint;
     MyLine_2 firstEqTriSide, secondEqTriSide;
     if (baseLine.has_on_negative_side(avoidMe))
     {
