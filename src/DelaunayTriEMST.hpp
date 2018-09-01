@@ -57,7 +57,7 @@ typedef struct MyEMSTData
   {
     return length < other.length;
   }
-  
+
 } MyEMSTData;
 
 class DelaunayTriEMST
@@ -75,11 +75,11 @@ class DelaunayTriEMST
     DelaunayTriEMST();
     //adds point set and computes emst
     const MyEMSTData& addPointSet(const set< MyPoint_2 > &pointSet);
-    MyEMSTData testPointInsertion(const MyPoint_2& myPoint, size_t steinerPointIndex);
+    MyEMSTData testPointInsertion(const MyPoint_2& myPoint);
 
   protected:
     void findMST(MyEMSTData &fillMe);
-    void findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint = false, size_t steinerPointIndex = 0);
+    void findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint = false);
 };
 
 #endif

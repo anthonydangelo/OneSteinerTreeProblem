@@ -180,7 +180,7 @@ ComputationResult::ComputationResult(int numInputPoints,
         }
         else
         {
-            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint, ptIndex);
+            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
             steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
         }
     }

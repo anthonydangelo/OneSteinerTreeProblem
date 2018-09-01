@@ -40,7 +40,7 @@ const MyEMSTData& DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
 
 
 //!!!IMPORTANT!!! addPointSet first, otherwise you'll get a null ptr exception...
-MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint, size_t steinerPointIndex)
+MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint)
 {
     MyEMSTData result;
 
@@ -50,7 +50,7 @@ MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2& myPoint, size_t 
     vertex_id_map[sPointHandle] = idMapIndex; //no need to post-increment, we'd just decrement it later...
 
     findMST(result);    
-    findEdgePointIndices(result, true, steinerPointIndex);
+    findEdgePointIndices(result, true);
 
     delaunayTri.remove(sPointHandle);
     vertex_id_map.erase(sPointHandle);
@@ -87,7 +87,7 @@ void DelaunayTriEMST::findMST(MyEMSTData &fillMe)
 
 
 //We assume an unfound point is the steiner point... probably okay...
-void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint, size_t steinerPointIndex)
+void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint)
 {
     auto endELIt = fillMe.mstEdgeList.end();
     for (auto it = fillMe.mstEdgeList.begin(); it != endELIt; ++it)
@@ -106,7 +106,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         if( !foundSrc && containsSteinerPoint)
         {
             //this must be the steiner point
-            sourceIndex = steinerPointIndex;
+            sourceIndex = 0; //won't be used
             foundSrc = true;
             firstIsStPt = true;
         }
@@ -114,7 +114,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         if( !foundTarget && containsSteinerPoint && !firstIsStPt)
         {
             //this must be the steiner point
-            targetIndex = steinerPointIndex;
+            targetIndex = 0; //won't be used
             foundTarget = true;
             secondIsStPt = true;
         }        
