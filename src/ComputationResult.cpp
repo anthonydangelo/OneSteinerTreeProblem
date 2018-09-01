@@ -184,6 +184,7 @@ ComputationResult::ComputationResult(int numInputPoints,
             steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
         }
     }
+    sort(steinerPoints.begin(), steinerPoints.end());
     
     return;
 } //constructor
