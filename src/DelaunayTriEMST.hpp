@@ -42,17 +42,19 @@ typedef boost::associative_property_map<MyVertexIndexMap>     MyVertexIdProperty
 
 //Interesting read about typedef'ing structs in c++, though apparently unnecessary in most situations:
 //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
-typedef struct MyEMSTData {
-    vector<MyEdge_descriptor>             mstEdgeList;
-    vector< pair< pair<size_t, size_t>, 
-                  pair<bool, bool> > >    mstEdgePointIndices;  //indices for the endpoints of an edge, and whether or not the end pt is a st pt
-    My_Number_type                        length = 0.0;
-    //The answer here says pulling the overload outside is 'best practice', though no explanation why...
-    //https://stackoverflow.com/questions/3882467/defining-operator-for-a-struct
-    bool operator<(const MyEMSTData &other)
-    {
-      return length < other.length;
-    }    
+typedef struct MyEMSTData
+{
+  vector<MyEdge_descriptor> mstEdgeList;
+  vector<pair<pair<size_t, size_t>,
+              pair<bool, bool>>>
+      mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+  My_Number_type length = 0.0;
+  //The answer here says pulling the overload outside is 'best practice', though no explanation why...
+  //https://stackoverflow.com/questions/3882467/defining-operator-for-a-struct
+  bool operator<(const MyEMSTData &other)
+  {
+    return length < other.length;
+  }
 } MyEMSTData;
 
 class DelaunayTriEMST

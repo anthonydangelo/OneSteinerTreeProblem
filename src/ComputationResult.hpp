@@ -5,6 +5,7 @@
 
 #include <CGAL/point_generators_2.h>
 #include <CGAL/Random.h>
+#include "CGAL/Combination_enumerator.h"
 
 #include "OrientedDirichletCell.hpp"
 #include "DelaunayTriEMST.hpp"
@@ -14,6 +15,17 @@
 typedef Creator_uniform_2<double, MyPoint_2> Creator;
 typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
+typedef struct CandidateSteinerPointData
+{
+  GeomMedianData steinerPt;
+  MyEMSTData mstData;
+
+  bool operator<(const CandidateSteinerPointData &other)
+  {
+    return mstData < other.mstData; //compares lengths
+  }
+
+} CandidateSteinerPointData;
 
 class ComputationResult
 {

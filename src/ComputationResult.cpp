@@ -108,7 +108,7 @@ ComputationResult::ComputationResult(int numInputPoints,
     //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
     for(size_t i = 0; i < inputPtVector.size(); ++i)
     {
-        const MyPoint_2 &cellOrigin = inputPtVector.at(i);
+        const MyPoint_2 &cellOrigin = inputPtVector[i];
 //        size_t originPtIndex;
 //        //TODO throw an error or something instead
 //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
@@ -412,13 +412,13 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
 vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
 {
     vector<GeomMedianData> results;
+    set< vector<size_t> > seenList;
 
     auto endFit = resultODCArrangement.faces_end();
     for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
     {
         if (!fit->is_unbounded())
         {
-            vector< reference_wrapper<const MyPoint_2> > cellSites;
             vector<size_t> siteIndices;
             //static cast instead?
             MyFaceData myFaceStruct = (MyFaceData)(fit->data());
@@ -426,17 +426,60 @@ vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
             for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it)
             {
                 siteIndices.push_back(*it);
-                cellSites.push_back(inputPtVector.at(*it));
             }
-            //TODO enumerate all triples and quadruples
-            vector< reference_wrapper<const MyPoint_2> > siteTriples;
-            vector<size_t> siteTriplesIndices;
-            results.push_back(GeomMedianFinder::computeGeomMedian_3Pts(siteTriples, siteTriplesIndices));
-            vector<reference_wrapper<const MyPoint_2>> siteQuads;
-            vector<size_t> siteQuadsIndices;
-            results.push_back(GeomMedianFinder::computeGeomMedian_4Pts(siteQuads, siteQuadsIndices));
-        }
-    }
+            //These can be extracted into a function...
+            if (siteIndices.size() >= 3)
+            {
+                Combination_enumerator<vector<size_t>::iterator> combi_3(3, siteIndices.begin(), siteIndices.end());
+                while (!combi_3.finished())
+                {
+                    vector<size_t> siteTriplesIndices;
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        size_t myInd = *combi_3[i];
+                        siteTriplesIndices.push_back(myInd);
+                    }
+                    sort(siteTriplesIndices.begin(), siteTriplesIndices.end());
+                    pair< set< vector<size_t> >::iterator, bool> ret = seenList.insert(siteTriplesIndices);
+                    if (ret.second)
+                    {
+                        vector<reference_wrapper<const MyPoint_2>> siteTriples;
+                        for (int i = 0; i < 3; ++i)
+                        {
+                            siteTriples.push_back(inputPtVector.at(siteTriplesIndices[i]));
+                        }
+                        results.push_back(GeomMedianFinder::computeGeomMedian_3Pts(siteTriples, siteTriplesIndices));
+                    }
+                    ++combi_3;
+                }
+            }
+            if (siteIndices.size() >= 4)
+            {
+                Combination_enumerator<vector<size_t>::iterator> combi_4(4, siteIndices.begin(), siteIndices.end());
+                while (!combi_4.finished())
+                {
+                    vector<size_t> siteQuadsIndices;
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        size_t myInd = *combi_4[i];
+                        siteQuadsIndices.push_back(myInd);
+                    }
+                    sort(siteQuadsIndices.begin(), siteQuadsIndices.end());
+                    pair< set< vector<size_t> >::iterator, bool> ret = seenList.insert(siteQuadsIndices);   
+                    if (ret.second)
+                    {
+                        vector<reference_wrapper<const MyPoint_2>> siteQuads;
+                        for (int i = 0; i < 4; ++i)
+                        {
+                            siteQuads.push_back(inputPtVector.at(siteQuadsIndices[i]));
+                        }
+                        results.push_back(GeomMedianFinder::computeGeomMedian_4Pts(siteQuads, siteQuadsIndices));
+                    }                 
+                    ++combi_4;
+                }
+            }   
+        } // if (!fit->is_unbounded())
+    } // for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
 
     return results;
 }
