@@ -27,7 +27,6 @@ class GeomMedianFinder
     MyPoint_2 findEqTriIntPoint(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &avoidMe,
                                 const MyLine_2 &baseLine, const vector<MyDirection_2> &coneRays) const;
     bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
-                                         MyLine_2 &baseLineToFill, vector<MyDirection_2> &coneRaysToFill,
                                          DegeneratePointIndex &degenPt) const;
     void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                                   const vector<size_t>& originalInputPtIndices, GeomMedianData &fillMe) const;

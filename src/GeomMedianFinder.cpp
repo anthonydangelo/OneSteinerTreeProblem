@@ -21,11 +21,9 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector<MyPoint_2>&
     }
     else
     {
-        vector<MyDirection_2> coneRays;
-        MyLine_2 baseLine;
         DegeneratePointIndex degenPt;
         //Test for an angle of 120 degrees or greater
-        if (testForDegenerateGeomMedian3Pts(myPts[0], myPts[1], myPts[2], baseLine, coneRays, degenPt))
+        if (testForDegenerateGeomMedian3Pts(myPts[0], myPts[1], myPts[2], degenPt))
         {
             result.coincidesWithInputPt = true;
             switch (degenPt)
@@ -102,27 +100,25 @@ MyPoint_2 GeomMedianFinder::findEqTriIntPoint(const MyPoint_2& pointA, const MyP
 }
 
 bool GeomMedianFinder::testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
-                                                       MyLine_2 &baseLineToFill, vector<MyDirection_2> &coneRaysToFill, 
                                                        DegeneratePointIndex& degenPt) const
 {
     //Assume non-collinear points a,b,c
-    baseLineToFill = MyLine_2(pointA, pointB);
-    MyDirection_2 initialDirection = MyDirection_2(baseLineToFill);
-    computeConeRays(initialDirection, coneRaysToFill);
-    MyDirection_2 bttmRightDir = coneRaysToFill[5];
-    MyDirection_2 bttmLeftDir = coneRaysToFill[4];
+    vector<MyDirection_2> coneRays;
+    MyLine_2 baseLine = MyLine_2(pointA, pointB);
+    MyDirection_2 initialDirection = MyDirection_2(baseLine);
+    computeConeRays(initialDirection, coneRays);
+    MyDirection_2 bttmRightDir = coneRays[5];
+    MyDirection_2 bttmLeftDir = coneRays[4];
     MyPoint_2 leftPoint = pointA;
     MyPoint_2 rightPoint = pointB;
     bool switchSides = false;
     
-    MyLine_2 effectiveBaseLine = baseLineToFill;
-    if ( ! effectiveBaseLine.has_on_negative_side(pointC))
+    if ( ! baseLine.has_on_negative_side(pointC))
     {
         //Flip everything around
         //Now we know c is on the 'negative' side, i.e. the right-hand side
-        effectiveBaseLine = effectiveBaseLine.opposite();
-        bttmRightDir = coneRaysToFill[2];
-        bttmLeftDir = coneRaysToFill[1];
+        bttmRightDir = coneRays[2];
+        bttmLeftDir = coneRays[1];
         leftPoint = pointB;
         rightPoint = pointA;
         switchSides = true;
