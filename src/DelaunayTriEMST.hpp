@@ -68,18 +68,19 @@ class DelaunayTriEMST
     MyFinite_triangulation finiteDT;  
     MyVertexIndexMap vertex_id_map;
     int idMapIndex;
-    const set< MyPoint_2 >* cpInitialPointSet;
+    const vector< reference_wrapper<const MyPoint_2> >& initialPointSet;
     MyEMSTData      emstData;
 
   public:
-    DelaunayTriEMST();
+    DelaunayTriEMST(const vector< reference_wrapper<const MyPoint_2> >& pointSet);
     //adds point set and computes emst
-    const MyEMSTData& addPointSet(const set< MyPoint_2 > &pointSet);
+    const MyEMSTData& getEMSTData();
     MyEMSTData testPointInsertion(const MyPoint_2& myPoint);
 
   protected:
     void findMST(MyEMSTData &fillMe);
     void findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint = false);
+    void addPointSet();
 };
 
 #endif

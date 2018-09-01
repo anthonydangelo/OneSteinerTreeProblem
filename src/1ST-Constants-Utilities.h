@@ -205,7 +205,7 @@ static inline string insertTabs(int level)
     return sStream.str();
 }
 
-static inline void extractPointsFromJSON2DArrayString(string &inputString, vector<MyPoint_2> &result)
+static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result)
 {
     //I'd like to use a regex here, but I don't know how to write the grammar...
     //http://www.cplusplus.com/reference/string/string/find_first_of/
@@ -304,8 +304,7 @@ static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator cir
 }
 
 
-//Blows up if I try to have reference_wrapper for const points in the set... don't know how to fix that...
-static inline bool findPointIndex(const MyPoint_2 &pt, const set< MyPoint_2 > &myColl, size_t &myIndex)
+static inline bool findPointIndex(const MyPoint_2 &pt, const vector< reference_wrapper<const MyPoint_2> >& myColl, size_t &myIndex)
 {
     myIndex = 0;
     if(!myColl.empty()){
@@ -317,22 +316,6 @@ static inline bool findPointIndex(const MyPoint_2 &pt, const set< MyPoint_2 > &m
         }    
     }
     return false;
-}
-
-static inline void computeConvexHull(set<MyPoint_2>& pointSet, vector<MyPoint_2>& convexHullList)
-{
-    ch_akl_toussaint(pointSet.begin(), pointSet.end(), back_inserter(convexHullList));
-
-/*
-    MyPolygon_2 tempHull(convexHullList.begin(), convexHullList.end());
-
-    convexHull.insert(tempHull);
-
-#if (MY_VERBOSE)
-    cout << "convex hull arrangement: " << convexHull.arrangement() << endl;
-#endif
-*/
-    return;
 }
 
 static inline void computeConvexHull(const vector< reference_wrapper<const MyPoint_2> >& pointVec, vector<MyPoint_2>& convexHullList)

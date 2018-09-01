@@ -5,65 +5,18 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int inputGridLength,
                                      bool onlyProducePoints,
                                      string outputFilePrefix,
-                                     vector<MyPoint_2> userPointList) : numPoints(numInputPoints),
-                                                               randSeed(randomSeed),
-                                                               gridLength(inputGridLength),
-                                                               onlyPoints(onlyProducePoints),
-                                                               rand(Random(randSeed)),
-                                                               //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
-                                                               randPointGen(Point_generator(gridLength, rand)),
-                                                               outFilePrefix(outputFilePrefix),
-                                                               coneRays(6),
-                                                               myEMST(DelaunayTriEMST())
+                                     const vector<MyPoint_2> &userPointList) : numPoints(numInputPoints),
+                                                                               randSeed(randomSeed),
+                                                                               gridLength(inputGridLength),
+                                                                               onlyPoints(onlyProducePoints),
+                                                                               rand(Random(randSeed)),
+                                                                               //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
+                                                                               randPointGen(Point_generator(gridLength, rand)),
+                                                                               outFilePrefix(outputFilePrefix),
+                                                                               coneRays(6)
 {
 
-    for (const auto pt : userPointList)
-    {
-        if(pointSet.size() < numPoints){
-            std::pair<std::set<MyPoint_2>::iterator,bool> ret;
-            ret = pointSet.insert(pt);
-            if (ret.second == false){
-                cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl; 
-            }            
-        } else {
-            break;
-        }
-    }
-
-    //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
-    while (pointSet.size() < numPoints)
-    {
-        std::pair<std::set<MyPoint_2>::iterator,bool> ret;
-        MyPoint_2 temp = *randPointGen++;
-        bool inSet = false;
-        for(const auto pt : pointSet) 
-        {
-            if( pointsAreTooClose(pt, temp) ){
-                inSet = true;
-                break;
-            }
-        }
-        if (inSet){
-            continue;
-        }
-        ret = pointSet.insert(temp);
-        if (ret.second == false){
-            cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl; 
-        }
-    }
-
-#if (MY_VERBOSE)
-
-    /* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
- std::copy(pointSet.begin(), pointSet.end(), out); */
-
-    for (const auto pt : pointSet)
-    {
-        cout << " " << pt << endl;
-    }
-
-    cout << outputCollectionToJSONString(INPUT_POINTS_NAME_STRING, pointSet, 1);
-#endif
+    preparePointSet(userPointList);
 
     if(onlyPoints){
         return;
@@ -74,23 +27,8 @@ ComputationResult::ComputationResult(int numInputPoints,
     assert(coneRaysSize == 6);
     
 
-    computeConvexHull(pointSet, convexHullList);
+    computeConvexHull(inputPtVector, convexHullList);
 
-#if (MY_VERBOSE)    
-
-/* std::ostream_iterator< MyPoint_2 > out( std::cout, " " );
- std::copy(pointSet.begin(), pointSet.end(), out); */
-    cout << "Convex Hull\n";
-    for(const auto pt : convexHullList)
-    {
-        cout << " " << pt << endl;
-    }
-#endif     
-
-    for(set<MyPoint_2>::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
-    {
-        inputPtVector.push_back(*it);
-    }
 #if (DEBUG_W_MY_BOUNDING_BOX)    
     vector<MyPoint_2> clippingPolygonList;
     clippingPolygonList.push_back(MyPoint_2(20.0,-2.0));
@@ -167,7 +105,8 @@ ComputationResult::ComputationResult(int numInputPoints,
     }
 #endif    
 
-    const MyEMSTData& origMST = myEMST.addPointSet(pointSet);
+    DelaunayTriEMST myEMST(inputPtVector);
+    const MyEMSTData& origMST = myEMST.getEMSTData();
 
     vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
     for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
@@ -190,16 +129,71 @@ ComputationResult::ComputationResult(int numInputPoints,
 } //constructor
 
 
+void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList)
+{
+    set< reference_wrapper<const MyPoint_2> > pointSet;
+    //sanitize input a bit
+    for (const auto pt : userPointList)
+    {
+        if (pointSet.size() < numPoints)
+        {
+            std::pair<std::set< reference_wrapper<const MyPoint_2> >::iterator, bool> ret;
+            ret = pointSet.insert(pt);
+            if (ret.second == false)
+            { //Maybe we should disable this output... don't want it messing up the json
+                cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
+    while (pointSet.size() < numPoints)
+    {
+        std::pair<std::set< reference_wrapper<const MyPoint_2> >::iterator, bool> ret;
+        MyPoint_2 temp = *randPointGen++;
+        bool inSet = false;
+        for (const auto pt : pointSet)
+        {
+            if (pointsAreTooClose(pt, temp))
+            {
+                inSet = true;
+                break;
+            }
+        }
+        if (inSet)
+        {
+            continue;
+        }
+        ret = pointSet.insert(temp);
+        if (ret.second == false)
+        {
+            cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl;
+        }
+    }
+
+    for (set< reference_wrapper<const MyPoint_2> >::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
+    {
+        inputPtVector.push_back(*it);
+    }
+
+    return;
+}
+
 string ComputationResult::outputResultToJSONString() const
 {
     ostringstream sStream;
     sStream << "{\n";  
     sStream << wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
     sStream << "," << endl;
-    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
+//    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
+    sStream << pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
     if(!onlyPoints){
         sStream << "," << endl;
-        sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, pointSet);
+        sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
         sStream << "," << endl;
         sStream << arrangementToJSONString();
     }
@@ -256,7 +250,7 @@ string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2>
     return sStream.str();
 }
 
-string ComputationResult::pointVectorToJSONString(string name, const vector<MyPoint_2> &myColl, int tabLevel) const
+string ComputationResult::pointVectorToJSONString(string name, const vector< reference_wrapper<const MyPoint_2> >& myColl, int tabLevel) const
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
@@ -281,7 +275,8 @@ string ComputationResult::pointVectorToJSONString(string name, const vector<MyPo
     return sStream.str();
 }
 
-string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl, const set<MyPoint_2> &myPtSet, int tabLevel) const
+string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
+                                                    const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const
 {
 
     ostringstream sStream;
@@ -310,8 +305,9 @@ string ComputationResult::vertexIndicesToJSONString(string name, const vector<My
 }
 
 //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-void ComputationResult::insertArrangementPointsIntoPointSet(set<MyPoint_2> &arrPoints) const
+void ComputationResult::insertArrangementPointsIntoPointSet(vector<MyPoint_2>& arrPointsVec) const
 {
+    set<MyPoint_2> arrPoints;
     for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
     {
         if (! it->is_isolated() && ! it->is_at_open_boundary())
@@ -319,11 +315,15 @@ void ComputationResult::insertArrangementPointsIntoPointSet(set<MyPoint_2> &arrP
             arrPoints.insert(it->point());
         }
     }    
+    for (MyPoint_2 p : arrPoints)
+    {
+        arrPointsVec.push_back(p);
+    }
     return;
 }
 
 string ComputationResult::arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const set<MyPoint_2> &myPtSet, int tabLevel) const
+                                                        const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const
 {
 
     ostringstream sStream;
@@ -382,14 +382,21 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
 
 string ComputationResult::arrangementToJSONString(int tabLevel) const
 {
-    set<MyPoint_2> arrPoints;
+    vector<MyPoint_2> arrPoints;
     insertArrangementPointsIntoPointSet(arrPoints);
 
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
     sStream << wrapStringInQuotes(ARR_NAME_STRING) << ": {";
 
-    sStream << pointSetToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
+    //sStream << pointSetToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
+    vector<reference_wrapper<const MyPoint_2>> tempVec;
+    for (const MyPoint_2& p : arrPoints)
+    {
+        //this is annoying and should be unnecessary! god damn it.
+        tempVec.push_back(p);
+    }
+    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, tempVec, tabLevel + 1);
 
     sStream << insertTabs(tabLevel);
     sStream << "," << endl;
@@ -408,7 +415,8 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
             ostringstream faceSStream;
 //            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
             faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+//            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
             if(next(fit) != endFit) 
             {
                 sStream << insertTabs(tabLevel + 1);

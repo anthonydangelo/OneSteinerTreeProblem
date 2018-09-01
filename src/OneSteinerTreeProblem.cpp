@@ -43,7 +43,7 @@ string outfilePrefix = "";
 string inputListString = "";
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-void ProcessArgs(int argc, char **argv, vector<MyPoint_2> &inputListVec)
+void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
 {
     const char *const short_opts = "pn:rs:g:f:i:h";
     const option long_opts[] = {

@@ -2,22 +2,24 @@
 
 
 //https://doc.cgal.org/latest/BGL/index.html#title15 and cgal examples BGL_triangulation_2/emst.cpp
-DelaunayTriEMST::DelaunayTriEMST() : is_finite(MyTriFilter(delaunayTri)),
-                                     finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
-                                     idMapIndex(0),
-                                     cpInitialPointSet(nullptr)
+DelaunayTriEMST::DelaunayTriEMST(const vector<reference_wrapper<const MyPoint_2>>& pointSet) : initialPointSet(pointSet),
+                                                                                               is_finite(MyTriFilter(delaunayTri)),
+                                                                                               finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
+                                                                                               idMapIndex(0)
 {
+    addPointSet();
     return;
 }
 
-//adds point set and computes emst
-// Why use a pointer instead of a ref? refs have to be assigned on initialization, 
-// which means setting it to some kind of null since the pointset may not be available when the object is created...
-// !!!IMPORTANT!!! Because of the ptr, the set needs to continue to exist until such time as the obj is no longer used/destroyed
-const MyEMSTData& DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
+const MyEMSTData& DelaunayTriEMST::getEMSTData()
 {
-    cpInitialPointSet = &pointSet;
-    for(auto pt : *cpInitialPointSet)
+    return emstData;
+}
+
+//adds point set and computes emst
+void DelaunayTriEMST::addPointSet()
+{
+    for(auto pt : initialPointSet)
     {
         delaunayTri.insert(pt);
     }
@@ -35,7 +37,7 @@ const MyEMSTData& DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
     findMST(emstData);
     findEdgePointIndices(emstData);
     
-    return emstData;
+    return;
 }
 
 
@@ -100,7 +102,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         MyTriangulation::Vertex_handle vhTarget = target(ed, delaunayTri);
 
         size_t sourceIndex, targetIndex;
-        bool foundSrc = findPointIndex(vhSource->point(),  *cpInitialPointSet, sourceIndex);
+        bool foundSrc = findPointIndex(vhSource->point(),  initialPointSet, sourceIndex);
         bool firstIsStPt = false;
         bool secondIsStPt = false;
         if( !foundSrc && containsSteinerPoint)
@@ -110,7 +112,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
             foundSrc = true;
             firstIsStPt = true;
         }
-        bool foundTarget = findPointIndex(vhTarget->point(),  *cpInitialPointSet, targetIndex);
+        bool foundTarget = findPointIndex(vhTarget->point(),  initialPointSet, targetIndex);
         if( !foundTarget && containsSteinerPoint && !firstIsStPt)
         {
             //this must be the steiner point
