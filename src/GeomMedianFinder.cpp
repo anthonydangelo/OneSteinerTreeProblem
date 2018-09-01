@@ -10,6 +10,20 @@ bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &p
 void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                               const vector<size_t> &originalInputPtIndices, GeomMedianData &fillMe);
 
+GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<reference_wrapper<const MyPoint_2>> &myPts,
+                                                   const vector<size_t> &originalInputPtIndices)
+{
+    assert((myPts.size() == 3) || (myPts.size() == 4));
+    if (myPts.size() == 3)
+    {
+        return GeomMedianFinder::computeGeomMedian_3Pts(myPts, originalInputPtIndices);
+    }
+    else
+    {
+        return GeomMedianFinder::computeGeomMedian_4Pts(myPts, originalInputPtIndices);
+    }
+}
+
 GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(3 == myPts.size());

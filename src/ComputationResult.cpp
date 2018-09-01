@@ -409,6 +409,39 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     return sStream.str();
 }
 
+void ComputationResult::computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts,
+                                              vector<GeomMedianData>& results, set<vector<size_t>>& seenList) const
+{
+    if (numComboPts > siteIndices.size())
+    {
+        //TODO throw some kind of error...
+        return;
+    }
+    Combination_enumerator<vector<size_t>::const_iterator> combi(numComboPts, siteIndices.begin(), siteIndices.end());
+    while (!combi.finished())
+    {
+        vector<size_t> siteComboIndices;
+        for (int i = 0; i < numComboPts; ++i)
+        {
+            size_t myInd = *combi[i];
+            siteComboIndices.push_back(myInd);
+        }
+        sort(siteComboIndices.begin(), siteComboIndices.end());
+        pair<set<vector<size_t>>::iterator, bool> ret = seenList.insert(siteComboIndices);
+        if (ret.second)
+        {
+            vector<reference_wrapper<const MyPoint_2>> siteTuples;
+            for (int i = 0; i < numComboPts; ++i)
+            {
+                siteTuples.push_back(inputPtVector.at(siteComboIndices[i]));
+            }
+            results.push_back(GeomMedianFinder::computeGeomMedian(siteTuples, siteComboIndices));
+        }
+        ++combi;
+    }
+    return;
+}
+
 vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
 {
     vector<GeomMedianData> results;
@@ -430,53 +463,11 @@ vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
             //These can be extracted into a function...
             if (siteIndices.size() >= 3)
             {
-                Combination_enumerator<vector<size_t>::iterator> combi_3(3, siteIndices.begin(), siteIndices.end());
-                while (!combi_3.finished())
-                {
-                    vector<size_t> siteTriplesIndices;
-                    for (int i = 0; i < 3; ++i)
-                    {
-                        size_t myInd = *combi_3[i];
-                        siteTriplesIndices.push_back(myInd);
-                    }
-                    sort(siteTriplesIndices.begin(), siteTriplesIndices.end());
-                    pair< set< vector<size_t> >::iterator, bool> ret = seenList.insert(siteTriplesIndices);
-                    if (ret.second)
-                    {
-                        vector<reference_wrapper<const MyPoint_2>> siteTriples;
-                        for (int i = 0; i < 3; ++i)
-                        {
-                            siteTriples.push_back(inputPtVector.at(siteTriplesIndices[i]));
-                        }
-                        results.push_back(GeomMedianFinder::computeGeomMedian_3Pts(siteTriples, siteTriplesIndices));
-                    }
-                    ++combi_3;
-                }
+                computePotentialStPts(siteIndices, 3, results, seenList);
             }
             if (siteIndices.size() >= 4)
             {
-                Combination_enumerator<vector<size_t>::iterator> combi_4(4, siteIndices.begin(), siteIndices.end());
-                while (!combi_4.finished())
-                {
-                    vector<size_t> siteQuadsIndices;
-                    for (int i = 0; i < 4; ++i)
-                    {
-                        size_t myInd = *combi_4[i];
-                        siteQuadsIndices.push_back(myInd);
-                    }
-                    sort(siteQuadsIndices.begin(), siteQuadsIndices.end());
-                    pair< set< vector<size_t> >::iterator, bool> ret = seenList.insert(siteQuadsIndices);   
-                    if (ret.second)
-                    {
-                        vector<reference_wrapper<const MyPoint_2>> siteQuads;
-                        for (int i = 0; i < 4; ++i)
-                        {
-                            siteQuads.push_back(inputPtVector.at(siteQuadsIndices[i]));
-                        }
-                        results.push_back(GeomMedianFinder::computeGeomMedian_4Pts(siteQuads, siteQuadsIndices));
-                    }                 
-                    ++combi_4;
-                }
+                computePotentialStPts(siteIndices, 4, results, seenList);
             }   
         } // if (!fit->is_unbounded())
     } // for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)

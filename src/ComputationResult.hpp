@@ -69,7 +69,9 @@ class ComputationResult
     void insertArrangementPointsIntoPointSet(set<MyPoint_2> &arrPoints) const;
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
                                         const set<MyPoint_2> &myPtSet, int tabLevel) const;
-    string arrangementToJSONString(int tabLevel=0) const;    
+    string arrangementToJSONString(int tabLevel=0) const;   
+    void computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts, 
+                                vector<GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
     vector<GeomMedianData> computeStPtsForOODC() const;
 };
 
