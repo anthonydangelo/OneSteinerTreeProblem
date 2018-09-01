@@ -17,13 +17,16 @@ typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
 typedef struct CandidateSteinerPointData
 {
-  GeomMedianData steinerPt;
-  MyEMSTData mstData;
+  const GeomMedianData& steinerPt;
+  const MyEMSTData& mstData;
 
-  bool operator<(const CandidateSteinerPointData &other)
+  bool operator<(const CandidateSteinerPointData& other) const
   {
     return mstData < other.mstData; //compares lengths
   }
+
+  //need ctor because GeomMedData needs one for its reference
+  CandidateSteinerPointData(const GeomMedianData& myStPt, const MyEMSTData& myMstData) : steinerPt(myStPt), mstData(myMstData) {}
 
 } CandidateSteinerPointData;
 
@@ -48,7 +51,8 @@ class ComputationResult
     vector< reference_wrapper<const MyPoint_2> > inputPtVector;
     MyArrangement_2       resultODCArrangement;
 
-    DelaunayTriEMST       myEMST;
+    DelaunayTriEMST                   myEMST;
+    vector<CandidateSteinerPointData> steinerPoints;
 
   public:
     ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,

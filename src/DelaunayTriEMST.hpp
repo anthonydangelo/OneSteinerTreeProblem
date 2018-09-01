@@ -45,16 +45,19 @@ typedef boost::associative_property_map<MyVertexIndexMap>     MyVertexIdProperty
 typedef struct MyEMSTData
 {
   vector<MyEdge_descriptor> mstEdgeList;
+  
   vector<pair<pair<size_t, size_t>,
-              pair<bool, bool>>>
-      mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+              pair<bool, bool>>>  mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+  
   My_Number_type length = 0.0;
+
   //The answer here says pulling the overload outside is 'best practice', though no explanation why...
   //https://stackoverflow.com/questions/3882467/defining-operator-for-a-struct
-  bool operator<(const MyEMSTData &other)
+  bool operator<(const MyEMSTData& other) const
   {
     return length < other.length;
   }
+  
 } MyEMSTData;
 
 class DelaunayTriEMST
@@ -71,7 +74,7 @@ class DelaunayTriEMST
   public:
     DelaunayTriEMST();
     //adds point set and computes emst
-    MyEMSTData addPointSet(const set< MyPoint_2 > &pointSet);
+    const MyEMSTData& addPointSet(const set< MyPoint_2 > &pointSet);
     MyEMSTData testPointInsertion(const MyPoint_2& myPoint, size_t steinerPointIndex);
 
   protected:

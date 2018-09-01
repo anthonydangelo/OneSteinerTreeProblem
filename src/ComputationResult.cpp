@@ -167,7 +167,23 @@ ComputationResult::ComputationResult(int numInputPoints,
     }
 #endif    
 
-    myEMST.addPointSet(pointSet);
+    const MyEMSTData& origMST = myEMST.addPointSet(pointSet);
+
+    vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
+    for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
+    {
+        const GeomMedianData& s = rawStPtList[ptIndex];
+        //test its insertion into the pt set if it's not degenerate
+        if(s.coincidesWithInputPt)
+        {
+            steinerPoints.push_back(CandidateSteinerPointData(s, origMST));
+        }
+        else
+        {
+            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint, ptIndex);
+            steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
+        }
+    }
     
     return;
 } //constructor

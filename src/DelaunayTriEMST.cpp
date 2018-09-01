@@ -14,7 +14,7 @@ DelaunayTriEMST::DelaunayTriEMST() : is_finite(MyTriFilter(delaunayTri)),
 // Why use a pointer instead of a ref? refs have to be assigned on initialization, 
 // which means setting it to some kind of null since the pointset may not be available when the object is created...
 // !!!IMPORTANT!!! Because of the ptr, the set needs to continue to exist until such time as the obj is no longer used/destroyed
-MyEMSTData DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
+const MyEMSTData& DelaunayTriEMST::addPointSet(const set< MyPoint_2 >& pointSet)
 {
     cpInitialPointSet = &pointSet;
     for(auto pt : *cpInitialPointSet)
