@@ -87,7 +87,6 @@ ComputationResult::ComputationResult(int numInputPoints,
     }
 #endif     
 
-    vector< reference_wrapper<const MyPoint_2> > inputPtVector;
     for(set<MyPoint_2>::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
     {
         inputPtVector.push_back(*it);
@@ -410,3 +409,34 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     return sStream.str();
 }
 
+vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
+{
+    vector<GeomMedianData> results;
+
+    auto endFit = resultODCArrangement.faces_end();
+    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
+    {
+        if (!fit->is_unbounded())
+        {
+            vector< reference_wrapper<const MyPoint_2> > cellSites;
+            vector<size_t> siteIndices;
+            //static cast instead?
+            MyFaceData myFaceStruct = (MyFaceData)(fit->data());
+            auto endIt = end(myFaceStruct.myInputPointIndices);
+            for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it)
+            {
+                siteIndices.push_back(*it);
+                cellSites.push_back(inputPtVector.at(*it));
+            }
+            //TODO enumerate all triples and quadruples
+            vector< reference_wrapper<const MyPoint_2> > siteTriples;
+            vector<size_t> siteTriplesIndices;
+            results.push_back(GeomMedianFinder::computeGeomMedian_3Pts(siteTriples, siteTriplesIndices));
+            vector<reference_wrapper<const MyPoint_2>> siteQuads;
+            vector<size_t> siteQuadsIndices;
+            results.push_back(GeomMedianFinder::computeGeomMedian_4Pts(siteQuads, siteQuadsIndices));
+        }
+    }
+
+    return results;
+}

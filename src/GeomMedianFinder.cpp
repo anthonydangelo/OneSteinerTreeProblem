@@ -1,20 +1,23 @@
 #include "GeomMedianFinder.hpp"
 
 
-GeomMedianFinder::GeomMedianFinder()
-{
-    return;
-}
+//No one needs to see these file-level scoped functions and enums
+enum class DegeneratePointIndex {FIRST, SECOND, THIRD};
 
+MyPoint_2 findEqTriIntPoint(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &avoidMe);
+bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+                                     DegeneratePointIndex &degenPt);
+void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+                              const vector<size_t> &originalInputPtIndices, GeomMedianData &fillMe);
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector<MyPoint_2>& myPts, const vector<size_t>& originalInputPtIndices) const
+GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(3 == myPts.size());
 
     GeomMedianData result(originalInputPtIndices);
 
     //assume no input points are the same
-    if (collinear(myPts[0], myPts[1], myPts[2]))
+    if (collinear(myPts[0].get(), myPts[1].get(), myPts[2].get()))
     {
         //The middle is the geom median
         findCollinearMedian_3Pts(myPts[0], myPts[1], myPts[2], originalInputPtIndices, result);
@@ -61,7 +64,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector<MyPoint_2>&
     return result;
 }
 
-MyPoint_2 GeomMedianFinder::findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe) const
+MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe)
 {
     MyPoint_2 intersectionPoint;
     vector<MyDirection_2> coneRays;
@@ -92,8 +95,8 @@ MyPoint_2 GeomMedianFinder::findEqTriIntPoint(const MyPoint_2& pointA, const MyP
 
 }
 
-bool GeomMedianFinder::testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
-                                                       DegeneratePointIndex& degenPt) const
+bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+                                                       DegeneratePointIndex& degenPt)
 {
     //Assume non-collinear points a,b,c
     vector<MyDirection_2> coneRays;
@@ -164,7 +167,7 @@ bool GeomMedianFinder::testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, 
 }
 
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector<MyPoint_2>& myPts, const vector<size_t>& originalInputPtIndices) const
+GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(4 == myPts.size());
 
@@ -172,7 +175,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector<MyPoint_2>&
 
 
     //assume no input points are the same
-    if (collinear(myPts[0], myPts[1], myPts[2]) && collinear(myPts[3], myPts[1], myPts[2]))
+    if (collinear(myPts[0].get(), myPts[1].get(), myPts[2].get()) && collinear(myPts[3].get(), myPts[1].get(), myPts[2].get()))
     {
         //The middle (or anywhere on the middle segment) is the geom median
         //This still works for 4 pts.
@@ -223,8 +226,8 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector<MyPoint_2>&
     return result;
 }
 
-void GeomMedianFinder::findCollinearMedian_3Pts(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& pointC, 
-                                                const vector<size_t>& originalInputPtIndices, GeomMedianData& fillMe) const
+void findCollinearMedian_3Pts(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& pointC, 
+                                                const vector<size_t>& originalInputPtIndices, GeomMedianData& fillMe)
 {
     fillMe.coincidesWithInputPt = true;
     if (collinear_are_strictly_ordered_along_line(pointA, pointB, pointC))

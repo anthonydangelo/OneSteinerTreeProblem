@@ -8,6 +8,7 @@
 
 #include "OrientedDirichletCell.hpp"
 #include "DelaunayTriEMST.hpp"
+#include "GeomMedianFinder.hpp"
 
 //https://doc.cgal.org/latest/Generator/index.html
 typedef Creator_uniform_2<double, MyPoint_2> Creator;
@@ -32,6 +33,7 @@ class ComputationResult
 
     vector<MyDirection_2> coneRays;
     //MyPolygon_set_2       convexHull;
+    vector< reference_wrapper<const MyPoint_2> > inputPtVector;
     MyArrangement_2       resultODCArrangement;
 
     DelaunayTriEMST       myEMST;
@@ -56,6 +58,7 @@ class ComputationResult
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
                                         const set<MyPoint_2> &myPtSet, int tabLevel) const;
     string arrangementToJSONString(int tabLevel=0) const;    
+    vector<GeomMedianData> computeStPtsForOODC() const;
 };
 
 #endif
