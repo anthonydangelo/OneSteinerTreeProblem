@@ -2,12 +2,19 @@
 
 
 //No one needs to see these file-level scoped functions and enums
-enum class DegeneratePointIndex {FIRST, SECOND, THIRD};
+//My understanding is that the anon namespace makes this effectively a file-scoped enum
+namespace
+{
+    enum class DegeneratePointIndex {FIRST, SECOND, THIRD};
+}
 
-MyPoint_2 findEqTriIntPoint(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &avoidMe);
-bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+//My understanding is that the anon namespace could make these effectively file-scoped, but so can the static keyword. 
+//I like C... Plus, apparently the anon namespace is not exactly equivalent; e.g. it allows me to declare, e.g., int a both inside
+//and outside of the namespace.
+static MyPoint_2 findEqTriIntPoint(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &avoidMe);
+static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                                      DegeneratePointIndex &degenPt);
-void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+static void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                               const vector<size_t> &originalInputPtIndices, GeomMedianData &fillMe);
 
 GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<reference_wrapper<const MyPoint_2>> &myPts,
@@ -78,7 +85,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< reference_
     return result;
 }
 
-MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe)
+static MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe)
 {
     MyPoint_2 intersectionPoint;
     vector<MyDirection_2> coneRays;
@@ -109,7 +116,7 @@ MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, co
 
 }
 
-bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
+static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                                                        DegeneratePointIndex& degenPt)
 {
     //Assume non-collinear points a,b,c
@@ -240,7 +247,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< reference_
     return result;
 }
 
-void findCollinearMedian_3Pts(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& pointC, 
+static void findCollinearMedian_3Pts(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& pointC, 
                                                 const vector<size_t>& originalInputPtIndices, GeomMedianData& fillMe)
 {
     fillMe.coincidesWithInputPt = true;
