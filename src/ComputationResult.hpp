@@ -77,6 +77,8 @@ class ComputationResult
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
                                         const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const;
     string arrangementToJSONString(int tabLevel=0) const;   
+    string mstDataToJSONString(const MyEMSTData& mst, int tabLevel=0) const;
+    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const;
     void computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts, 
                                 vector<GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
     vector<GeomMedianData> computeStPtsForOODC() const;

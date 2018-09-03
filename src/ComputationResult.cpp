@@ -93,15 +93,8 @@ void ComputationResult::computeOODC()
     size_t coneRaysSize = coneRays.size();
     assert(coneRaysSize == 6);
     
-#if (DEBUG_W_MY_BOUNDING_BOX)    
-    vector<MyPoint_2> clippingPolygonList;
-    clippingPolygonList.push_back(MyPoint_2(20.0,-2.0));
-    clippingPolygonList.push_back(MyPoint_2(20.0,34.0));
-    clippingPolygonList.push_back(MyPoint_2(-10.0,34.0));
-    clippingPolygonList.push_back(MyPoint_2(-10.0,-2.0)); 
-#else
     const vector< MyPoint_2 > &clippingPolygonList = convexHullList;
-#endif
+
     MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
     MyOverlay_Traits overlayTraits;
     //The arrangements and their overlays are the same type...
@@ -114,7 +107,6 @@ void ComputationResult::computeOODC()
 //        size_t originPtIndex;
 //        //TODO throw an error or something instead
 //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
-#if (!DEBUG_OVERLAY)
          for (size_t j = 0; j < coneRaysSize; ++j)
         {
             size_t nextJ = j + 1;
@@ -128,24 +120,7 @@ void ComputationResult::computeOODC()
             OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, inputPtVector, clippingPolygon);
             overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
             ++arrIndex;
-#   if (MY_VERBOSE)               
-            cout << "size of temp: " << sizeof(temp) << endl;
-            cout << "size of arrangements: " << sizeof(myTempArrangements.at(0)) << ", " << sizeof(myTempArrangements.at(1)) << endl;                                 
-#   endif            
         }
-#else           
-            //https://doc.cgal.org/latest/Arrangement_on_surface_2/group__PkgArrangement2Funcs.html#ga339cdba93f54001be303595689002396
-            //Self-overlay is not supported, so we need two temp arrangements to alternate between, and a reference to the solution...
-            //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#a6
-            OrientedDirichletCell temp(coneRays.at(0), coneRays.at(1), cellOrigin, i, inputPtVector, clippingPolygon);
-            overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
-            ++arrIndex;
-            OrientedDirichletCell tempB(coneRays.at(1), coneRays.at(2), cellOrigin, i, inputPtVector, clippingPolygon);
-            overlay( myTempArrangements.at(arrIndex % 2), tempB.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
-            ++arrIndex;     
-            cout << "size of temp and tempB: " << sizeof(temp) << ", " << sizeof(tempB) << endl;
-            cout << "size of arrangements: " << sizeof(myTempArrangements.at(0)) << ", " << sizeof(myTempArrangements.at(1)) << endl;            
-#endif                
     }
     resultODCArrangement = myTempArrangements.at(arrIndex % 2);
 #if (MY_VERBOSE)
@@ -210,13 +185,75 @@ string ComputationResult::outputResultToJSONString() const
         sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
         sStream << "," << endl;
         sStream << arrangementToJSONString();
+        sStream << "," << endl;
+        sStream << mstDataToJSONString(origMST);
     }
     sStream << "\n}";
 
     return sStream.str();
 }
 
+string ComputationResult::mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(MST_EDGE_NAME_STRING) << ": { ";
 
+    sStream << insertTabs(tabLevel + 1);
+    sStream << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
+
+    sStream << insertTabs(tabLevel + 3);
+    sStream << "{\"index\":\"" << edgeData.first.first << "\"}," << endl;
+    sStream << "{\"index\":\"" << edgeData.first.second << "\"}" << endl;
+
+    sStream << insertTabs(tabLevel+3);
+    sStream << "]," << endl; 
+
+    sStream << insertTabs(tabLevel + 1);
+    sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.first << "\"," << endl;
+    sStream << insertTabs(tabLevel + 1);
+    sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"" << endl;
+
+    sStream << insertTabs(tabLevel);
+    sStream << "}" << endl; 
+    return sStream.str();
+}
+
+string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLevel=0) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(MST_NAME_STRING) << ": { ";
+
+    sStream << wrapStringInQuotes(MST_LENGTH_NAME_STRING) << " : \"" << mst.length << "\",\n";
+
+    sStream << insertTabs(tabLevel+1);
+    sStream << wrapStringInQuotes(MST_EDGE_LIST_NAME_STRING) << ": [ \n";
+
+    auto endIt = mst.mstEdgePointIndices.end();
+    for (auto myIt = mst.mstEdgePointIndices.begin(); myIt != endIt; ++myIt)
+    {
+        sStream << insertTabs(tabLevel + 2);
+        sStream << "{ " << endl;
+        
+        sStream << mstEdgeToJSONString(*myIt, tabLevel + 3);
+
+        sStream << insertTabs(tabLevel + 2);
+        sStream << "}";
+        if (next(myIt) != endIt)
+        {
+            sStream << ",";
+        }
+        sStream << endl;
+    }
+
+    sStream << insertTabs(tabLevel+2);
+    sStream << "]" << endl; 
+
+    sStream << insertTabs(tabLevel);
+    sStream << "}" << endl; 
+    return sStream.str();
+}
 
 /* //https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
 //https://stackoverflow.com/questions/34561190/pass-a-std-container-to-a-function
@@ -342,12 +379,12 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
 
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
-    sStream << "{ " << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
+    sStream << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
     
     sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ," << endl;
     ////////////////////
     sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [";
+    sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [ \n";
 
     MyArrangement_2::Ccb_halfedge_const_circulator circ = fit->outer_ccb();
     MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
@@ -356,40 +393,38 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
         MyArrangement_2::Halfedge_const_handle he = curr;
         size_t index = 0;
         assert(findPointIndex(he->target()->point(), myPtSet, index));
+        sStream << insertTabs(tabLevel + 3);
         sStream << "{\"index\":\"" << index << "\"}";
         if(he->next() != heEnd){
-            sStream << ",\n";
-            sStream << insertTabs(tabLevel + 3);
-        } else {
-            sStream << "\n";
+            sStream << ",";
         }        
+        sStream << endl;
     } while (++curr != circ);
 
-    sStream << insertTabs(tabLevel+1);
+    sStream << insertTabs(tabLevel+3);
     sStream << "]," << endl;
     //////////////////////
 
     sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [";
+    sStream << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [ \n";
 
     //static cast instead?
     MyFaceData myFaceStruct = (MyFaceData)(fit->data());
     auto endIt = end(myFaceStruct.myInputPointIndices);
     for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it) {
+        sStream << insertTabs(tabLevel + 3);
         sStream << "{\"index\":\"" << *it << "\"}"; 
         if(next(it) != endIt){
-            sStream << ",\n";
-            sStream << insertTabs(tabLevel + 3);
-        } else {
-            sStream << "\n";
+            sStream << ",";
         }
+        sStream << endl;
     }             
-    sStream << insertTabs(tabLevel + 1);
+    sStream << insertTabs(tabLevel + 3);
     sStream << "]" << endl;
     //////////////////////
 
     sStream << insertTabs(tabLevel);
-    sStream << "} }" << endl; 
+    sStream << "}" << endl; 
     
     return sStream.str();
 }
@@ -418,8 +453,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     sStream << "," << endl;
 
     sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [";
-
+    sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
 
     size_t faceIndex = 0;
     auto endFit = resultODCArrangement.faces_end();
@@ -431,17 +465,23 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
             ostringstream faceSStream;
 //            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
             faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+            sStream << insertTabs(tabLevel + 1);
+            sStream << "{ " << endl;
+
+            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 2);
 //            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
+
+            sStream << insertTabs(tabLevel + 1);
+            sStream << "}";
             if(next(fit) != endFit) 
             {
-                sStream << insertTabs(tabLevel + 1);
-                sStream << "," << endl;
-            }
+                sStream << ",";
+            } 
+            sStream << endl;
         }
     }
 
-    sStream << insertTabs(tabLevel);
+    sStream << insertTabs(tabLevel+1);
     sStream << "]" << endl; 
 
     sStream << insertTabs(tabLevel);

@@ -130,9 +130,7 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 
 #define MY_VERBOSE (0)
 #define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
-#define DEBUG_W_MY_BOUNDING_BOX (0)
 #define TIME_PROGRAM (1)
-#define DEBUG_OVERLAY (0)
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
 #define BUILD_ODCELL_BY_DIFFERENCES   (1)
 
@@ -161,6 +159,14 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define ARR_FACE_NAME_PREFIX_NAME_STRING ("arrFace__")
 #define ARR_FACE_CCW_V_INDICES_NAME_STRING ("arrangementFaceCCWVIndices")
 #define ARR_OODC_INPUT_SITE_INDICES_NAME_STRING ("arrangementOODCSiteIndices")
+//////////////////////////////
+#define MST_NAME_STRING ("minSpanningTree")
+#define MST_LENGTH_NAME_STRING ("mstLength")
+#define MST_EDGE_LIST_NAME_STRING ("mstEdgeList")
+#define MST_EDGE_NAME_STRING ("mstEdge")
+#define MST_EDGE_ENDPOINT_INDICES_NAME_STRING ("mstEdgeEndpointIndices")
+#define MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING ("firstEndPointIsSteiner")
+#define MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING ("secondEndPointIsSteiner")
 //////////////////////////////
 
 #define DOUBLE_EPSILON (0.000001)
