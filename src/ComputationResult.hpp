@@ -58,14 +58,15 @@ class ComputationResult
                       int inputGridLength = GRID_LENGTH_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
                       string outFilePrefix = "",
-                      const vector< MyPoint_2 >& userPointList = vector<MyPoint_2>());
+                      const vector< reference_wrapper<const MyPoint_2> >& userPointList = vector<reference_wrapper<const MyPoint_2>>());
     
     string outputResultToJSONString() const;
 
   protected:
 //    template <typename Container>
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
-    void preparePointSet(const vector< MyPoint_2 >& userPointList);
+    void preparePointSet(const vector< reference_wrapper<const MyPoint_2> >& userPointList);
+    void computeOODC();
     string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
     string pointVectorToJSONString(string name, const vector< reference_wrapper<const MyPoint_2> >& myColl, int tabLevel=0) const;
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,

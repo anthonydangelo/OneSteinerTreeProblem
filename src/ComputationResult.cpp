@@ -5,7 +5,7 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int inputGridLength,
                                      bool onlyProducePoints,
                                      string outputFilePrefix,
-                                     const vector<MyPoint_2> &userPointList) : numPoints(numInputPoints),
+                                     const vector<reference_wrapper<const MyPoint_2>> &userPointList) : numPoints(numInputPoints),
                                                                                randSeed(randomSeed),
                                                                                gridLength(inputGridLength),
                                                                                onlyPoints(onlyProducePoints),
@@ -129,7 +129,7 @@ ComputationResult::ComputationResult(int numInputPoints,
 } //constructor
 
 
-void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList)
+void ComputationResult::preparePointSet(const vector< reference_wrapper<const MyPoint_2> >& userPointList)
 {
     set< reference_wrapper<const MyPoint_2> > pointSet;
     //sanitize input a bit

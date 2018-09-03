@@ -205,7 +205,7 @@ static inline string insertTabs(int level)
     return sStream.str();
 }
 
-static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result)
+static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< reference_wrapper<const MyPoint_2> >& result)
 {
     //I'd like to use a regex here, but I don't know how to write the grammar...
     //http://www.cplusplus.com/reference/string/string/find_first_of/
@@ -225,7 +225,8 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
                 if (strIndex != string::npos)
                 {
                     double secondD = stod(inputString.substr(strIndex + 1));
-                    result.push_back(MyPoint_2(My_Number_type(firstD), My_Number_type(secondD)));
+                    const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
+                    result.push_back(temp);
                     //                    result.push_back(MyPoint_2(firstD, secondD ));
                 }
             }
