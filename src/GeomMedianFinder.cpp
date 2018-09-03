@@ -90,7 +90,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 
 static MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& pointB, const MyPoint_2& avoidMe)
 {
     MyPoint_2 intersectionPoint;
-    vector<MyDirection_2> coneRays;
+    vector<MyDirection_2> coneRays(6);
     const MyLine_2 baseLine = MyLine_2(pointA, pointB);
     const MyDirection_2 initialDirection = MyDirection_2(baseLine);
     computeConeRays(initialDirection, coneRays);
@@ -123,7 +123,8 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
                                                        DegeneratePointIndex& degenPt)
 {
     //Assume non-collinear points a,b,c
-    vector<MyDirection_2> coneRays;
+    //need to fill the vec w assignable elements. not sure if reserve would work...
+    vector<MyDirection_2> coneRays(6);
     const MyLine_2 baseLine = MyLine_2(pointA, pointB);
     const MyDirection_2 initialDirection = MyDirection_2(baseLine);
     computeConeRays(initialDirection, coneRays);
@@ -176,7 +177,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 
     const MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
     const MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
-    vector<MyDirection_2> secondConeRays;
+    vector<MyDirection_2> secondConeRays(6);
     computeConeRays(secondInitDirection, secondConeRays);    
     MyLine_2 thirdTestLine;
     thirdTestLine = MyLine_2(pointC, secondConeRays[1]);
