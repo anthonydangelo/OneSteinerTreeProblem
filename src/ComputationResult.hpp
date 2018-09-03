@@ -80,6 +80,8 @@ class ComputationResult
     string mstDataToJSONString(const MyEMSTData& mst, int tabLevel=0) const;
     string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const;
     string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel=0) const;
+    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel=0) const;
+    string steinerPointsToJSONString(int tabLevel=0) const;
     void computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts, 
                                 vector<GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
     vector<GeomMedianData> computeStPtsForOODC() const;

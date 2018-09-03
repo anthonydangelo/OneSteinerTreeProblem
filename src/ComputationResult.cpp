@@ -187,6 +187,8 @@ string ComputationResult::outputResultToJSONString() const
         sStream << arrangementToJSONString();
         sStream << ",\n";
         sStream << mstDataToJSONString(origMST);
+        sStream << ",\n";
+        sStream << steinerPointsToJSONString();
     }
     sStream << "\n}";
 
@@ -216,7 +218,7 @@ string ComputationResult::mstEdgeToJSONString(const pair< pair<size_t, size_t>, 
     sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}\n";
+    sStream << "}";
     return sStream.str();
 }
 
@@ -237,7 +239,7 @@ string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLeve
         sStream << insertTabs(tabLevel + 2);
         sStream << "{ \n";
         
-        sStream << mstEdgeToJSONString(*myIt, tabLevel + 3);
+        sStream << mstEdgeToJSONString(*myIt, tabLevel + 3) << "\n";
 
         sStream << insertTabs(tabLevel + 2);
         sStream << "}";
@@ -252,7 +254,7 @@ string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLeve
     sStream << "]\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}\n";
+    sStream << "}";
     return sStream.str();
 }
 
@@ -290,8 +292,45 @@ string ComputationResult::geomMedDataToJSONString(const GeomMedianData& stPtData
     sStream << wrapStringInQuotes(GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING) << ": {\"index\":\"" << stPtData.coincidentInputPtIndex << "\"}\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}\n"; 
+    sStream << "}"; 
     return sStream.str();    
+}
+
+string ComputationResult::candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel=0) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(CANDIDATE_STEINER_POINT_DATA_NAME_STRING) << ": { \n";
+
+    sStream << geomMedDataToJSONString(stPtData.steinerPt, tabLevel+1) << ",\n";
+    sStream << mstDataToJSONString(stPtData.mstData, tabLevel+1) << "\n";
+
+    sStream << insertTabs(tabLevel);
+    sStream << "}"; 
+    return sStream.str();  
+}
+
+string ComputationResult::steinerPointsToJSONString(int tabLevel=0) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(CANDIDATE_ST_PT_DATA_LIST_NAME_STRING) << ": [ \n";
+
+    auto endIt = end(steinerPoints);
+    for (auto it = begin(steinerPoints); it != endIt; ++it)
+    {
+        sStream << insertTabs(tabLevel + 2);
+        sStream << candidateSteinerPtDataToJSONString(*it);
+        if (next(it) != endIt)
+        {
+            sStream << ",";
+        }
+        sStream << "\n";
+    }
+
+    sStream << insertTabs(tabLevel);
+    sStream << "]"; 
+    return sStream.str();     
 }
 
 /* //https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
@@ -335,7 +374,7 @@ string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2>
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]\n";
+    sStream << "]";
     
     return sStream.str();
 }
@@ -344,23 +383,22 @@ string ComputationResult::pointVectorToJSONString(string name, const vector< ref
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(name) << ": [";
+    sStream << wrapStringInQuotes(name) << ": [\n";
     
     if(!myColl.empty()){
         auto endIt = end(myColl);
         for (auto it = begin(myColl); it != endIt; ++it) {
+            sStream << insertTabs(tabLevel + 2);
             sStream << point2ToJSON(*it); 
             if(next(it) != endIt){
-                sStream << ",\n";
-                sStream << insertTabs(tabLevel + 2);
-            } else {
-                sStream << "\n";
-            }
+                sStream << ",";
+            } 
+            sStream << "\n";
         }    
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]\n"; 
+    sStream << "]"; 
     
     return sStream.str();
 }
@@ -389,7 +427,7 @@ string ComputationResult::vertexIndicesToJSONString(string name, const vector<My
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]\n";
+    sStream << "]";
     
     return sStream.str();
 }
@@ -463,7 +501,7 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
     //////////////////////
 
     sStream << insertTabs(tabLevel);
-    sStream << "}\n"; 
+    sStream << "}"; 
     
     return sStream.str();
 }
@@ -486,10 +524,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     }
     sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, tempVec, tabLevel + 1); 
 */
-    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
-
-    sStream << insertTabs(tabLevel);
-    sStream << ",\n";
+    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1) << ",\n";
 
     sStream << insertTabs(tabLevel);
     sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
@@ -507,7 +542,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
             sStream << insertTabs(tabLevel + 1);
             sStream << "{ \n";
 
-            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 2);
+            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 2) << "\n";
 //            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
 
             sStream << insertTabs(tabLevel + 1);
@@ -524,7 +559,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     sStream << "]\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}\n";
+    sStream << "}";
     
     return sStream.str();
 }

@@ -174,6 +174,8 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING ("geomMedCoincidesWithInputPt")
 #define GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING ("geomMedCoincidentInputPtIndex")
 //////////////////////////////
+#define CANDIDATE_ST_PT_DATA_LIST_NAME_STRING ("candidateStPtDataList")
+#define CANDIDATE_STEINER_POINT_DATA_NAME_STRING ("candidateStPtData")
 
 #define DOUBLE_EPSILON (0.000001)
 
