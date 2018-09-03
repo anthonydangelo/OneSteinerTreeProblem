@@ -177,15 +177,15 @@ string ComputationResult::outputResultToJSONString() const
     ostringstream sStream;
     sStream << "{\n";  
     sStream << wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
-    sStream << "," << endl;
+    sStream << ",\n";
 //    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     sStream << pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
     if(!onlyPoints){
-        sStream << "," << endl;
+        sStream << ",\n";
         sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
-        sStream << "," << endl;
+        sStream << ",\n";
         sStream << arrangementToJSONString();
-        sStream << "," << endl;
+        sStream << ",\n";
         sStream << mstDataToJSONString(origMST);
     }
     sStream << "\n}";
@@ -203,19 +203,20 @@ string ComputationResult::mstEdgeToJSONString(const pair< pair<size_t, size_t>, 
     sStream << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
 
     sStream << insertTabs(tabLevel + 3);
-    sStream << "{\"index\":\"" << edgeData.first.first << "\"}," << endl;
-    sStream << "{\"index\":\"" << edgeData.first.second << "\"}" << endl;
+    sStream << "{\"index\":\"" << edgeData.first.first << "\"},\n";
+    sStream << "{\"index\":\"" << edgeData.first.second << "\"}\n";
 
     sStream << insertTabs(tabLevel+3);
-    sStream << "]," << endl; 
+    sStream << "],\n"; 
 
+    sStream << boolalpha;
     sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.first << "\"," << endl;
+    sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.first << "\",\n";
     sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"" << endl;
+    sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}" << endl; 
+    sStream << "}\n";
     return sStream.str();
 }
 
@@ -234,7 +235,7 @@ string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLeve
     for (auto myIt = mst.mstEdgePointIndices.begin(); myIt != endIt; ++myIt)
     {
         sStream << insertTabs(tabLevel + 2);
-        sStream << "{ " << endl;
+        sStream << "{ \n";
         
         sStream << mstEdgeToJSONString(*myIt, tabLevel + 3);
 
@@ -244,15 +245,53 @@ string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLeve
         {
             sStream << ",";
         }
-        sStream << endl;
+        sStream << "\n";
     }
 
     sStream << insertTabs(tabLevel+2);
-    sStream << "]" << endl; 
+    sStream << "]\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}" << endl; 
+    sStream << "}\n";
     return sStream.str();
+}
+
+string ComputationResult::geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel=0) const
+{
+    ostringstream sStream;
+    sStream << insertTabs(tabLevel);
+    sStream << wrapStringInQuotes(STEINER_PT_NAME_STRING) << ": { \n";
+
+    sStream << insertTabs(tabLevel+1);
+    sStream << wrapStringInQuotes(GEOM_MED_POINT_NAME_STRING) << " : " << point2ToJSON(stPtData.medPoint) << ",\n";
+
+    sStream << insertTabs(tabLevel+1);
+    sStream << wrapStringInQuotes(GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING) << ": [ \n";
+
+    auto endIt = stPtData.inputPtIndices.end();
+    for (auto myIt = stPtData.inputPtIndices.begin(); myIt != endIt; ++myIt)
+    {
+        sStream << insertTabs(tabLevel + 3);
+        sStream << "{\"index\":\"" << *myIt << "\"}";
+        if (next(myIt) != endIt)
+        {
+            sStream << ",";
+        }
+        sStream << "\n";        
+    }
+
+    sStream << insertTabs(tabLevel+3);
+    sStream << "],\n"; 
+
+    sStream << boolalpha;
+    sStream << insertTabs(tabLevel+1);
+    sStream << wrapStringInQuotes(GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING) << ": \"" << stPtData.coincidesWithInputPt << "\",\n";    
+    sStream << insertTabs(tabLevel+1);
+    sStream << wrapStringInQuotes(GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING) << ": {\"index\":\"" << stPtData.coincidentInputPtIndex << "\"}\n";
+
+    sStream << insertTabs(tabLevel);
+    sStream << "}\n"; 
+    return sStream.str();    
 }
 
 /* //https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
@@ -296,7 +335,7 @@ string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2>
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]" << endl; 
+    sStream << "]\n";
     
     return sStream.str();
 }
@@ -321,7 +360,7 @@ string ComputationResult::pointVectorToJSONString(string name, const vector< ref
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]" << endl; 
+    sStream << "]\n"; 
     
     return sStream.str();
 }
@@ -350,7 +389,7 @@ string ComputationResult::vertexIndicesToJSONString(string name, const vector<My
     }
 
     sStream << insertTabs(tabLevel);
-    sStream << "]" << endl; 
+    sStream << "]\n";
     
     return sStream.str();
 }
@@ -381,7 +420,7 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
     sStream << insertTabs(tabLevel);
     sStream << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
     
-    sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ," << endl;
+    sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ,\n";
     ////////////////////
     sStream << insertTabs(tabLevel + 1);
     sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [ \n";
@@ -398,11 +437,11 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
         if(he->next() != heEnd){
             sStream << ",";
         }        
-        sStream << endl;
+        sStream << "\n";
     } while (++curr != circ);
 
     sStream << insertTabs(tabLevel+3);
-    sStream << "]," << endl;
+    sStream << "],\n";
     //////////////////////
 
     sStream << insertTabs(tabLevel + 1);
@@ -417,14 +456,14 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
         if(next(it) != endIt){
             sStream << ",";
         }
-        sStream << endl;
+        sStream << "\n";
     }             
     sStream << insertTabs(tabLevel + 3);
-    sStream << "]" << endl;
+    sStream << "]\n";
     //////////////////////
 
     sStream << insertTabs(tabLevel);
-    sStream << "}" << endl; 
+    sStream << "}\n"; 
     
     return sStream.str();
 }
@@ -450,7 +489,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
 
     sStream << insertTabs(tabLevel);
-    sStream << "," << endl;
+    sStream << ",\n";
 
     sStream << insertTabs(tabLevel);
     sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
@@ -466,7 +505,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
 //            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
             faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
             sStream << insertTabs(tabLevel + 1);
-            sStream << "{ " << endl;
+            sStream << "{ \n";
 
             sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 2);
 //            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
@@ -477,15 +516,15 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
             {
                 sStream << ",";
             } 
-            sStream << endl;
+            sStream << "\n";
         }
     }
 
     sStream << insertTabs(tabLevel+1);
-    sStream << "]" << endl; 
+    sStream << "]\n";
 
     sStream << insertTabs(tabLevel);
-    sStream << "}" << endl; 
+    sStream << "}\n";
     
     return sStream.str();
 }

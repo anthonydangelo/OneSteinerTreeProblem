@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 {
     ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
-    cout << compResult;
+    cout << compResult << endl;
 }
 #if (TIME_PROGRAM)
     // Record end time

@@ -168,6 +168,12 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING ("firstEndPointIsSteiner")
 #define MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING ("secondEndPointIsSteiner")
 //////////////////////////////
+#define STEINER_PT_NAME_STRING ("steinerPoint")
+#define GEOM_MED_POINT_NAME_STRING ("geomMedPoint")
+#define GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING ("geomMedNeighbourIndices")
+#define GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING ("geomMedCoincidesWithInputPt")
+#define GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING ("geomMedCoincidentInputPtIndex")
+//////////////////////////////
 
 #define DOUBLE_EPSILON (0.000001)
 
