@@ -5,7 +5,7 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int inputGridLength,
                                      bool onlyProducePoints,
                                      string outputFilePrefix,
-                                     const vector<reference_wrapper<const MyPoint_2>> &userPointList) : numPoints(numInputPoints),
+                                     const vector<const MyPoint_2> &userPointList) : numPoints(numInputPoints),
                                                                                randSeed(randomSeed),
                                                                                gridLength(inputGridLength),
                                                                                onlyPoints(onlyProducePoints),
@@ -32,16 +32,16 @@ ComputationResult::ComputationResult(int numInputPoints,
 } //constructor
 
 
-void ComputationResult::preparePointSet(const vector< reference_wrapper<const MyPoint_2> >& userPointList)
+void ComputationResult::preparePointSet(const vector< const MyPoint_2 >& userPointList)
 {
-    set< reference_wrapper<const MyPoint_2> > pointSet;
+    set< const MyPoint_2 > pointSet;
     //sanitize input a bit
-    for (const auto pt : userPointList)
+    for (const MyPoint_2& pt : userPointList)
     {
         if (pointSet.size() < numPoints)
         {
-            std::pair<std::set< reference_wrapper<const MyPoint_2> >::iterator, bool> ret;
-            ret = pointSet.insert(pt);
+            std::pair<std::set< const MyPoint_2 >::iterator, bool> ret;
+            ret = pointSet.emplace(pt.x(), pt.y());
             if (ret.second == false)
             { //Maybe we should disable this output... don't want it messing up the json
                 cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl;
@@ -56,7 +56,7 @@ void ComputationResult::preparePointSet(const vector< reference_wrapper<const My
     //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
     while (pointSet.size() < numPoints)
     {
-        std::pair<std::set< reference_wrapper<const MyPoint_2> >::iterator, bool> ret;
+        std::pair<std::set< const MyPoint_2 >::iterator, bool> ret;
         MyPoint_2 temp = *randPointGen++;
         bool inSet = false;
         for (const auto pt : pointSet)
@@ -71,6 +71,7 @@ void ComputationResult::preparePointSet(const vector< reference_wrapper<const My
         {
             continue;
         }
+        //does the move const get called w this insert? or does it have to be a heap obj for that?
         ret = pointSet.insert(temp);
         if (ret.second == false)
         {
@@ -78,9 +79,10 @@ void ComputationResult::preparePointSet(const vector< reference_wrapper<const My
         }
     }
 
-    for (set< reference_wrapper<const MyPoint_2> >::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
+    for (set< const MyPoint_2 >::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
     {
-        inputPtVector.push_back(*it);
+        //are the two calls to the members as costly as the push_back?
+        inputPtVector.emplace_back(it->x(), it->y());
     }
 
     return;
@@ -93,11 +95,13 @@ void ComputationResult::computeOODC()
     size_t coneRaysSize = coneRays.size();
     assert(coneRaysSize == 6);
     
+    //TODO try switching ch to const points
     const vector< MyPoint_2 > &clippingPolygonList = convexHullList;
 
     MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
     MyOverlay_Traits overlayTraits;
     //The arrangements and their overlays are the same type...
+    //don't know what overlay returns, better not const the array arrs
     array<MyArrangement_2, 2> myTempArrangements;
     size_t arrIndex = 0;
     //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
@@ -152,19 +156,20 @@ void ComputationResult::computeMSTAndStPts()
     DelaunayTriEMST myEMST(inputPtVector);
     origMST = myEMST.getEMSTData();
 
-    vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
+    vector<const GeomMedianData> rawStPtList = computeStPtsForOODC();
     for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
     {
         const GeomMedianData& s = rawStPtList[ptIndex];
         //test its insertion into the pt set if it's not degenerate
         if(s.coincidesWithInputPt)
         {
-            steinerPoints.push_back(CandidateSteinerPointData(s, origMST));
+            steinerPoints.emplace_back(s, origMST);
         }
         else
         {
-            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
-            steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
+//            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
+//            steinerPoints.emplace_back(s, stMST);
+            steinerPoints.emplace_back(s, myEMST.testPointInsertion(s.medPoint));
         }
     }
     sort(steinerPoints.begin(), steinerPoints.end());
@@ -195,7 +200,7 @@ string ComputationResult::outputResultToJSONString() const
     return sStream.str();
 }
 
-string ComputationResult::mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const
+string ComputationResult::mstEdgeToJSONString(const pair< const pair<size_t, size_t>, const pair<bool, bool> >& edgeData, int tabLevel=0) const
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
@@ -379,7 +384,7 @@ string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2>
     return sStream.str();
 }
 
-string ComputationResult::pointVectorToJSONString(string name, const vector< reference_wrapper<const MyPoint_2> >& myColl, int tabLevel) const
+string ComputationResult::pointVectorToJSONString(string name, const vector< const MyPoint_2 >& myColl, int tabLevel) const
 {
     ostringstream sStream;
     sStream << insertTabs(tabLevel);
@@ -404,7 +409,7 @@ string ComputationResult::pointVectorToJSONString(string name, const vector< ref
 }
 
 string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                    const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const
+                                                    const vector<const MyPoint_2>& myPtSet, int tabLevel) const
 {
 
     ostringstream sStream;
@@ -433,25 +438,27 @@ string ComputationResult::vertexIndicesToJSONString(string name, const vector<My
 }
 
 //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-void ComputationResult::insertArrangementPointsIntoPointSet(vector< reference_wrapper<const MyPoint_2> >& arrPointsVec) const
+void ComputationResult::insertArrangementPointsIntoPointSet(vector< const MyPoint_2 >& arrPointsVec) const
 {
-    set<MyPoint_2> arrPoints;
+    set<const MyPoint_2> arrPoints;
     for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
     {
         if (! it->is_isolated() && ! it->is_at_open_boundary())
         {
-            arrPoints.insert(it->point());
+            const MyPoint_2& tempPt = it->point();
+            arrPoints.emplace(tempPt.x(), tempPt.y());
         }
     }    
-    for (MyPoint_2 p : arrPoints)
+    for (const MyPoint_2& p : arrPoints)
     {
-        arrPointsVec.push_back(p);
+        //we could probably turn this into a vec of refs, but it's not clear if the obvious way works
+        arrPointsVec.emplace_back(p.x(), p.y());
     }
     return;
 }
 
 string ComputationResult::arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const
+                                                        const vector<const MyPoint_2>& myPtSet, int tabLevel) const
 {
 
     ostringstream sStream;
@@ -508,7 +515,7 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
 
 string ComputationResult::arrangementToJSONString(int tabLevel) const
 {
-    vector< reference_wrapper<const MyPoint_2> > arrPoints;
+    vector< const MyPoint_2 > arrPoints;
     insertArrangementPointsIntoPointSet(arrPoints);
 
     ostringstream sStream;
@@ -565,7 +572,7 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
 }
 
 void ComputationResult::computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts,
-                                              vector<GeomMedianData>& results, set<vector<size_t>>& seenList) const
+                                              vector<const GeomMedianData>& results, set<vector<size_t>>& seenList) const
 {
     if (numComboPts > siteIndices.size())
     {
@@ -585,10 +592,11 @@ void ComputationResult::computePotentialStPts(const vector<size_t>& siteIndices,
         pair<set<vector<size_t>>::iterator, bool> ret = seenList.insert(siteComboIndices);
         if (ret.second)
         {
-            vector<reference_wrapper<const MyPoint_2>> siteTuples;
+            vector<const MyPoint_2> siteTuples;
             for (int i = 0; i < numComboPts; ++i)
             {
-                siteTuples.push_back(inputPtVector.at(siteComboIndices[i]));
+                const MyPoint_2& tempSitePt = inputPtVector.at(siteComboIndices[i]);
+                siteTuples.emplace_back(tempSitePt.x(), tempSitePt.y());
             }
             results.push_back(GeomMedianFinder::computeGeomMedian(siteTuples, siteComboIndices));
         }
@@ -597,9 +605,9 @@ void ComputationResult::computePotentialStPts(const vector<size_t>& siteIndices,
     return;
 }
 
-vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
+vector<const GeomMedianData> ComputationResult::computeStPtsForOODC() const
 {
-    vector<GeomMedianData> results;
+    vector<const GeomMedianData> results;
     set< vector<size_t> > seenList;
 
     auto endFit = resultODCArrangement.faces_end();

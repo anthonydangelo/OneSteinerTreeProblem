@@ -17,7 +17,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 static void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                               const vector<size_t> &originalInputPtIndices, GeomMedianData &fillMe);
 
-GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<reference_wrapper<const MyPoint_2>> &myPts,
+GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<const MyPoint_2> &myPts,
                                                    const vector<size_t> &originalInputPtIndices)
 {
     assert((myPts.size() == 3) || (myPts.size() == 4));
@@ -31,14 +31,14 @@ GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<reference_wrappe
     }
 }
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices)
+GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(3 == myPts.size());
 
     GeomMedianData result(originalInputPtIndices);
 
     //assume no input points are the same
-    if (collinear(myPts[0].get(), myPts[1].get(), myPts[2].get()))
+    if (collinear(myPts[0], myPts[1], myPts[2]))
     {
         //The middle is the geom median
         findCollinearMedian_3Pts(myPts[0], myPts[1], myPts[2], originalInputPtIndices, result);
@@ -69,10 +69,10 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< reference_
         else
         {
             //If no angle of the triangle is >= 120 degrees, we can find the intersection of two "simpson lines"
-            MyPoint_2 firstIntPoint = findEqTriIntPoint(myPts[0], myPts[1], myPts[2]);
-            MySegment_2 firstSimpsonLine = MySegment_2(firstIntPoint, myPts[2]);
-            MyPoint_2 secondIntPoint = findEqTriIntPoint(myPts[0], myPts[2], myPts[1]);
-            MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
+            const MyPoint_2 firstIntPoint = findEqTriIntPoint(myPts[0], myPts[1], myPts[2]);
+            const MySegment_2 firstSimpsonLine = MySegment_2(firstIntPoint, myPts[2]);
+            const MyPoint_2 secondIntPoint = findEqTriIntPoint(myPts[0], myPts[2], myPts[1]);
+            const MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
             //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
             CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSimpsonLine, secondSimpsonLine);
             if (intRes)
@@ -89,8 +89,8 @@ static MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& poi
 {
     MyPoint_2 intersectionPoint;
     vector<MyDirection_2> coneRays;
-    MyLine_2 baseLine = MyLine_2(pointA, pointB);
-    MyDirection_2 initialDirection = MyDirection_2(baseLine);
+    const MyLine_2 baseLine = MyLine_2(pointA, pointB);
+    const MyDirection_2 initialDirection = MyDirection_2(baseLine);
     computeConeRays(initialDirection, coneRays);
     
     MyLine_2 firstEqTriSide, secondEqTriSide;
@@ -121,8 +121,8 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 {
     //Assume non-collinear points a,b,c
     vector<MyDirection_2> coneRays;
-    MyLine_2 baseLine = MyLine_2(pointA, pointB);
-    MyDirection_2 initialDirection = MyDirection_2(baseLine);
+    const MyLine_2 baseLine = MyLine_2(pointA, pointB);
+    const MyDirection_2 initialDirection = MyDirection_2(baseLine);
     computeConeRays(initialDirection, coneRays);
     MyDirection_2 bttmRightDir = coneRays[5];
     MyDirection_2 bttmLeftDir = coneRays[4];
@@ -171,8 +171,8 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
         return true;
     }
 
-    MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
-    MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
+    const MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
+    const MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
     vector<MyDirection_2> secondConeRays;
     computeConeRays(secondInitDirection, secondConeRays);    
     MyLine_2 thirdTestLine;
@@ -188,7 +188,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 }
 
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices)
+GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(4 == myPts.size());
 
@@ -196,7 +196,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< reference_
 
 
     //assume no input points are the same
-    if (collinear(myPts[0].get(), myPts[1].get(), myPts[2].get()) && collinear(myPts[3].get(), myPts[1].get(), myPts[2].get()))
+    if (collinear(myPts[0], myPts[1], myPts[2]) && collinear(myPts[3], myPts[1], myPts[2]))
     {
         //The middle (or anywhere on the middle segment) is the geom median
         //This still works for 4 pts.
@@ -235,8 +235,8 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< reference_
     }
     else
     {
-        MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
-        MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
+        const MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
+        const MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
         CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
         if (intRes)
         { //these two non-par segments will intersect... do i really have to test for result?

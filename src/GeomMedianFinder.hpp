@@ -17,9 +17,9 @@ typedef struct GeomMedianData
 
 namespace GeomMedianFinder
 {
-    GeomMedianData computeGeomMedian(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices);
-    GeomMedianData computeGeomMedian_3Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices);
-    GeomMedianData computeGeomMedian_4Pts(const vector< reference_wrapper<const MyPoint_2> >& myPts, const vector<size_t>& originalInputPtIndices);
+    GeomMedianData computeGeomMedian(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices);
+    GeomMedianData computeGeomMedian_3Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices);
+    GeomMedianData computeGeomMedian_4Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices);
 }
 
 #endif

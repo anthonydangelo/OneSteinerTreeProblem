@@ -2,10 +2,10 @@
 
 
 //https://doc.cgal.org/latest/BGL/index.html#title15 and cgal examples BGL_triangulation_2/emst.cpp
-DelaunayTriEMST::DelaunayTriEMST(const vector<reference_wrapper<const MyPoint_2>>& pointSet) : initialPointSet(pointSet),
-                                                                                               is_finite(MyTriFilter(delaunayTri)),
-                                                                                               finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
-                                                                                               idMapIndex(0)
+DelaunayTriEMST::DelaunayTriEMST(const vector<const MyPoint_2> &pointSet) : initialPointSet(pointSet),
+                                                                            is_finite(MyTriFilter(delaunayTri)),
+                                                                            finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
+                                                                            idMapIndex(0)
 {
     addPointSet();
     return;
@@ -19,7 +19,7 @@ const MyEMSTData& DelaunayTriEMST::getEMSTData()
 //adds point set and computes emst
 void DelaunayTriEMST::addPointSet()
 {
-    for(auto pt : initialPointSet)
+    for(const MyPoint_2& pt : initialPointSet)
     {
         delaunayTri.insert(pt);
     }
@@ -122,9 +122,8 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         }        
         assert(foundSrc && foundTarget);
 
-        fillMe.mstEdgePointIndices.push_back( std::pair< std::pair<size_t, size_t>, 
-                                                            std::pair<bool, bool> > (std::pair<size_t, size_t>(sourceIndex, targetIndex),
-                                                                                        std::pair<bool, bool>(firstIsStPt, secondIsStPt) ));
+        fillMe.mstEdgePointIndices.emplace_back(std::pair<size_t, size_t>(sourceIndex, targetIndex),
+                                                std::pair<bool, bool>(firstIsStPt, secondIsStPt));
     }  
 
     return;    

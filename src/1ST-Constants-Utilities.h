@@ -219,7 +219,7 @@ static inline string insertTabs(int level)
     return sStream.str();
 }
 
-static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< reference_wrapper<const MyPoint_2> >& result)
+static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< const MyPoint_2 >& result)
 {
     //I'd like to use a regex here, but I don't know how to write the grammar...
     //http://www.cplusplus.com/reference/string/string/find_first_of/
@@ -239,9 +239,10 @@ static inline void extractPointsFromJSON2DArrayString(string &inputString, vecto
                 if (strIndex != string::npos)
                 {
                     double secondD = stod(inputString.substr(strIndex + 1));
-                    const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
-                    result.push_back(temp);
-                    //                    result.push_back(MyPoint_2(firstD, secondD ));
+                    //the temp assigned to the const ref apparently dies when we leave the function, leaving dangling ref
+//                    const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
+//                    result.push_back(temp);
+                    result.emplace_back(firstD, secondD);
                 }
             }
             catch (exception &e)
@@ -319,7 +320,7 @@ static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator cir
 }
 
 
-static inline bool findPointIndex(const MyPoint_2 &pt, const vector< reference_wrapper<const MyPoint_2> >& myColl, size_t &myIndex)
+static inline bool findPointIndex(const MyPoint_2 &pt, const vector< const MyPoint_2 >& myColl, size_t &myIndex)
 {
     myIndex = 0;
     if(!myColl.empty()){
@@ -333,8 +334,9 @@ static inline bool findPointIndex(const MyPoint_2 &pt, const vector< reference_w
     return false;
 }
 
-static inline void computeConvexHull(const vector< reference_wrapper<const MyPoint_2> >& pointVec, vector<MyPoint_2>& convexHullList)
+static inline void computeConvexHull(const vector< const MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
 {
+    //TODO does convex hull work w const mypoints?
     ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
     return;
 }
@@ -344,6 +346,7 @@ static inline void computeConeRays(const MyDirection_2& initialDirection, vector
 {
     //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
     // construct the functor
+    //TODO does the cones function work w vector of const dirs?
     Compute_cone_boundaries_2<MyKernel> cones;    
     cones(6, initialDirection, coneRays.begin());
 

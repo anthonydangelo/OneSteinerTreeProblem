@@ -4,7 +4,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,
                                              const size_t &originPtIndex,
-                                             const vector<reference_wrapper<const MyPoint_2>> &inputPointSet,
+                                             const vector<const MyPoint_2> &inputPointSet,
                                              const MyNef_polyhedron &clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                              secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                              cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
@@ -42,11 +42,11 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 }
 
 void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,
-                                        const vector<reference_wrapper<const MyPoint_2>> &inputPointSet, size_t originPtIndex)
+                                        const vector<const MyPoint_2> &inputPointSet, size_t originPtIndex)
 {
 #if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
-    Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
-    Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
+    const Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
+    const Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
     auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
 #   if (EXCLUDE_CELL_BOUNDARY)  
         cellBoundaryInclusion = MyNef_polyhedron::EXCLUDED;
@@ -59,17 +59,17 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
         {
             continue;
         }
-        const MyPoint_2 &otherSite = inputPointSet.at(i);
-        Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
+        const MyPoint_2 &otherSite = inputPointSet[i];
+        const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
         MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
                                          cellBoundaryInclusion);
         polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
                                                                         cellBoundaryInclusion));
         //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
         MyKernel ker;
-        MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
-        Nef_Point nefMP(midPoint.x(), midPoint.y());
-        Nef_Line supportLine(cellOriginPoint, otherSitePoint);
+        const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
+        const Nef_Point nefMP(midPoint.x(), midPoint.y());
+        const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
         Nef_Line perpBi = supportLine.perpendicular(nefMP);
         //We assume the points are different, so neither point lies on the bisector...
         if (!perpBi.has_on_positive_side(otherSitePoint))
@@ -85,8 +85,8 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
 
 #else
 
-    Nef_Line firstDirLine = Nef_Line(cellOriginPoint, firstDir);
-    Nef_Line secondDirLine = Nef_Line(cellOriginPoint, secondDir);
+    const Nef_Line firstDirLine = Nef_Line(cellOriginPoint, firstDir);
+    const Nef_Line secondDirLine = Nef_Line(cellOriginPoint, secondDir);
     auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
     MyNef_polyhedron stencil(firstDirLine, cellBoundaryInclusion);
     stencil = stencil.intersection(MyNef_polyhedron(secondDirLine, cellBoundaryInclusion));
@@ -98,17 +98,17 @@ void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_po
         {
             continue;
         }
-        const MyPoint_2 &otherSite = inputPointSet.at(i);
-        Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
+        const MyPoint_2 &otherSite = inputPointSet[i];
+        const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
         MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
                                          cellBoundaryInclusion);
         polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
                                                                         cellBoundaryInclusion));
         //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
         MyKernel ker;
-        MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
-        Nef_Point nefMP(midPoint.x(), midPoint.y());
-        Nef_Line supportLine(cellOriginPoint, otherSitePoint);
+        const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
+        const Nef_Point nefMP(midPoint.x(), midPoint.y());
+        const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
         Nef_Line perpBi = supportLine.perpendicular(nefMP);
         //We assume the points are different, so neither point lies on the bisector...
         if (!perpBi.has_on_positive_side(otherSitePoint))
@@ -165,7 +165,7 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
         if (hafc != nullptr)
         {
             ++nextHC;
-            vector<MyPoint_2> boundaryList;
+            vector<const MyPoint_2> boundaryList;
             bool firstTime = true;
             do
             {
@@ -180,14 +180,14 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
                     {
                         //auto sourcePt = sourceVH->point();
                         auto sourcePt = myExplorer.point(sourceVH);
-                        boundaryList.push_back(MyPoint_2(sourcePt.x(), sourcePt.y()));
+                        boundaryList.emplace_back(sourcePt.x(), sourcePt.y());
                         firstTime = false;
                     }
                     if (nextHC != done)
                     {
                         //auto targetPt = targetVH->point();
                         auto targetPt = myExplorer.point(targetVH);
-                        boundaryList.push_back(MyPoint_2(targetPt.x(), targetPt.y()));
+                        boundaryList.emplace_back(targetPt.x(), targetPt.y());
                     }
                 }
                 ++hafc;
@@ -195,15 +195,16 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
             } while (hafc != done);
             vector<MyArrangement_2::Vertex_handle> vertexHandles;
             MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
-            for (MyPoint_2 pt : boundaryList)
+            for (const MyPoint_2& pt : boundaryList)
             {
+                //don't want to mess with push vs emplace, i don't know what that const looks like
                 vertexHandles.push_back(result.insert_in_face_interior(pt, unboundedFace));
             }
             auto endBLIt = boundaryList.end();
             size_t handleIndex = 0, nextHandleIndex = 1;
             for (auto it = boundaryList.begin(); it != endBLIt; ++it)
             {
-                MyPoint_2 first = *it;
+                const MyPoint_2 first = *it;
                 MyPoint_2 second;
                 if (next(it) == endBLIt)
                 {
