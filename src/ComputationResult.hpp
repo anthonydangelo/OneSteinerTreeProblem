@@ -70,7 +70,7 @@ class ComputationResult
     string pointVectorToJSONString(string name, const vector< reference_wrapper<const MyPoint_2> >& myColl, int tabLevel=0) const;
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
                                      const vector<reference_wrapper<const MyPoint_2>> &myPtSet, int tabLevel = 0) const;
-    void insertArrangementPointsIntoPointSet(vector<MyPoint_2>& arrPointsVec) const;
+    void insertArrangementPointsIntoPointSet(vector< reference_wrapper<const MyPoint_2> >& arrPointsVec) const;
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
                                         const vector<reference_wrapper<const MyPoint_2>>& myPtSet, int tabLevel) const;
     string arrangementToJSONString(int tabLevel=0) const;   

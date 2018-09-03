@@ -305,7 +305,7 @@ string ComputationResult::vertexIndicesToJSONString(string name, const vector<My
 }
 
 //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-void ComputationResult::insertArrangementPointsIntoPointSet(vector<MyPoint_2>& arrPointsVec) const
+void ComputationResult::insertArrangementPointsIntoPointSet(vector< reference_wrapper<const MyPoint_2> >& arrPointsVec) const
 {
     set<MyPoint_2> arrPoints;
     for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
@@ -382,7 +382,7 @@ string ComputationResult::arrangementFaceToJSONString(string faceName, const MyA
 
 string ComputationResult::arrangementToJSONString(int tabLevel) const
 {
-    vector<MyPoint_2> arrPoints;
+    vector< reference_wrapper<const MyPoint_2> > arrPoints;
     insertArrangementPointsIntoPointSet(arrPoints);
 
     ostringstream sStream;
@@ -390,13 +390,15 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
     sStream << wrapStringInQuotes(ARR_NAME_STRING) << ": {";
 
     //sStream << pointSetToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
-    vector<reference_wrapper<const MyPoint_2>> tempVec;
+/*     vector<reference_wrapper<const MyPoint_2>> tempVec;
     for (const MyPoint_2& p : arrPoints)
     {
         //this is annoying and should be unnecessary! god damn it.
         tempVec.push_back(p);
     }
-    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, tempVec, tabLevel + 1);
+    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, tempVec, tabLevel + 1); 
+*/
+    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
 
     sStream << insertTabs(tabLevel);
     sStream << "," << endl;
@@ -415,8 +417,8 @@ string ComputationResult::arrangementToJSONString(int tabLevel) const
             ostringstream faceSStream;
 //            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
             faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-//            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
-            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
+            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 1);
+//            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
             if(next(fit) != endFit) 
             {
                 sStream << insertTabs(tabLevel + 1);
