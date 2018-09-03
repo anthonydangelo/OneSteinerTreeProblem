@@ -17,7 +17,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 static void findCollinearMedian_3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                               const vector<size_t> &originalInputPtIndices, GeomMedianData &fillMe);
 
-GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<const MyPoint_2> &myPts,
+GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<MyPoint_2> &myPts,
                                                    const vector<size_t> &originalInputPtIndices)
 {
     assert((myPts.size() == 3) || (myPts.size() == 4));
@@ -31,7 +31,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<const MyPoint_2>
     }
 }
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
+GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(3 == myPts.size());
 
@@ -74,7 +74,9 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< const MyPo
             const MyPoint_2 secondIntPoint = findEqTriIntPoint(myPts[0], myPts[2], myPts[1]);
             const MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
             //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
-            CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSimpsonLine, secondSimpsonLine);
+//            CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSimpsonLine, secondSimpsonLine);
+//compiler doesn't like the previous line declaration... wtf...! maybe it's cus of the consts...
+            auto intRes = intersection(firstSimpsonLine, secondSimpsonLine);
             if (intRes)
             { //these two non-par segments will intersect... do i really have to test for result?
                 result.medPoint = boost::get<MyPoint_2>(*intRes);
@@ -106,7 +108,8 @@ static MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& poi
         secondEqTriSide = MyLine_2(pointB, coneRays[4]);
     }
     //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
-    CGAL::cpp11::result_of<MyIntersect_2(MyLine_2, MyLine_2)>::type intRes = intersection(firstEqTriSide, secondEqTriSide);
+//    CGAL::cpp11::result_of<MyIntersect_2(MyLine_2, MyLine_2)>::type intRes = intersection(firstEqTriSide, secondEqTriSide);
+    auto intRes = intersection(firstEqTriSide, secondEqTriSide);
     if (intRes)
     { //these two non-par lines will intersect... do i really have to test for result?
         intersectionPoint = boost::get<MyPoint_2>(*intRes);
@@ -188,7 +191,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
 }
 
 
-GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< const MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
+GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 >& myPts, const vector<size_t>& originalInputPtIndices)
 {
     assert(4 == myPts.size());
 
@@ -237,7 +240,8 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< const MyPo
     {
         const MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
         const MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
-        CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
+//        CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
+        auto intRes = intersection(firstSeg, secondSeg);
         if (intRes)
         { //these two non-par segments will intersect... do i really have to test for result?
             result.medPoint = boost::get<MyPoint_2>(*intRes);

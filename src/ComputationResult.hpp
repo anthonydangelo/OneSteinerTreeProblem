@@ -17,8 +17,9 @@ typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
 typedef struct CandidateSteinerPointData
 {
-  const GeomMedianData steinerPt;
-  const MyEMSTData mstData;
+  //compiler didn't like these being const
+  GeomMedianData steinerPt;
+  MyEMSTData mstData;
 
   bool operator<(const CandidateSteinerPointData& other) const
   {
@@ -46,7 +47,7 @@ class ComputationResult
     vector<MyPoint_2>   convexHullList;
 
     vector<MyDirection_2> coneRays;
-    vector< const MyPoint_2 > inputPtVector;
+    vector< MyPoint_2 > inputPtVector;
     MyArrangement_2       resultODCArrangement;
 
     MyEMSTData origMST;
@@ -59,32 +60,32 @@ class ComputationResult
                       int inputGridLength = GRID_LENGTH_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
                       string outFilePrefix = "",
-                      const vector< const MyPoint_2 >& userPointList = vector<const MyPoint_2>());
+                      const vector< MyPoint_2 >& userPointList = vector<MyPoint_2>());
     
     string outputResultToJSONString() const;
 
   protected:
 //    template <typename Container>
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
-    void preparePointSet(const vector< const MyPoint_2 >& userPointList);
+    void preparePointSet(const vector< MyPoint_2 >& userPointList);
     void computeOODC();
     void computeMSTAndStPts();
     string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
-    string pointVectorToJSONString(string name, const vector< const MyPoint_2 >& myColl, int tabLevel=0) const;
+    string pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel=0) const;
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                     const vector<const MyPoint_2> &myPtSet, int tabLevel = 0) const;
-    void insertArrangementPointsIntoPointSet(vector< const MyPoint_2 >& arrPointsVec) const;
+                                     const vector<MyPoint_2> &myPtSet, int tabLevel = 0) const;
+    void insertArrangementPointsIntoPointSet(vector< MyPoint_2 >& arrPointsVec) const;
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                        const vector<const MyPoint_2>& myPtSet, int tabLevel) const;
+                                        const vector<MyPoint_2>& myPtSet, int tabLevel) const;
     string arrangementToJSONString(int tabLevel=0) const;   
     string mstDataToJSONString(const MyEMSTData& mst, int tabLevel=0) const;
-    string mstEdgeToJSONString(const pair< const pair<size_t, size_t>, const pair<bool, bool> >& edgeData, int tabLevel=0) const;
+    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const;
     string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel=0) const;
     string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel=0) const;
     string steinerPointsToJSONString(int tabLevel=0) const;
     void computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts, 
-                                vector<const GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
-    vector<const GeomMedianData> computeStPtsForOODC() const;
+                                vector<GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
+    vector<GeomMedianData> computeStPtsForOODC() const;
 };
 
 #endif

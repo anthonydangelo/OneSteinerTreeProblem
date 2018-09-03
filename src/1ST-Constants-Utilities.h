@@ -219,7 +219,7 @@ static inline string insertTabs(int level)
     return sStream.str();
 }
 
-static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< const MyPoint_2 >& result)
+static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result)
 {
     //I'd like to use a regex here, but I don't know how to write the grammar...
     //http://www.cplusplus.com/reference/string/string/find_first_of/
@@ -320,7 +320,7 @@ static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator cir
 }
 
 
-static inline bool findPointIndex(const MyPoint_2 &pt, const vector< const MyPoint_2 >& myColl, size_t &myIndex)
+static inline bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 >& myColl, size_t &myIndex)
 {
     myIndex = 0;
     if(!myColl.empty()){
@@ -334,7 +334,7 @@ static inline bool findPointIndex(const MyPoint_2 &pt, const vector< const MyPoi
     return false;
 }
 
-static inline void computeConvexHull(const vector< const MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
+static inline void computeConvexHull(const vector< MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
 {
     //TODO does convex hull work w const mypoints?
     ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));

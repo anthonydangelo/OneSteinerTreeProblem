@@ -46,8 +46,9 @@ typedef struct MyEMSTData
 {
   vector<MyEdge_descriptor> mstEdgeList;
 
-  vector<const pair<const pair<size_t, size_t>,
-                    const pair<bool, bool>>>
+  //didn't like all the consts
+  vector<pair<pair<size_t, size_t>,
+                    pair<bool, bool>>>
       mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
 
   My_Number_type length = 0.0;
@@ -69,11 +70,11 @@ class DelaunayTriEMST
     MyFinite_triangulation finiteDT;  
     MyVertexIndexMap vertex_id_map;
     int idMapIndex;
-    const vector< const MyPoint_2 >& initialPointSet;
+    const vector< MyPoint_2 >& initialPointSet;
     MyEMSTData      emstData;
 
   public:
-    DelaunayTriEMST(const vector< const MyPoint_2 >& pointSet);
+    DelaunayTriEMST(const vector< MyPoint_2 >& pointSet);
     //adds point set and computes emst
     const MyEMSTData& getEMSTData();
     MyEMSTData testPointInsertion(const MyPoint_2& myPoint);

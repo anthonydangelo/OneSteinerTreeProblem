@@ -4,7 +4,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,
                                              const size_t &originPtIndex,
-                                             const vector<const MyPoint_2> &inputPointSet,
+                                             const vector<MyPoint_2> &inputPointSet,
                                              const MyNef_polyhedron &clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                              secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                              cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
@@ -42,7 +42,7 @@ OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
 }
 
 void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,
-                                        const vector<const MyPoint_2> &inputPointSet, size_t originPtIndex)
+                                        const vector<MyPoint_2> &inputPointSet, size_t originPtIndex)
 {
 #if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
     const Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
@@ -165,7 +165,7 @@ void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Ne
         if (hafc != nullptr)
         {
             ++nextHC;
-            vector<const MyPoint_2> boundaryList;
+            vector< MyPoint_2> boundaryList;
             bool firstTime = true;
             do
             {
