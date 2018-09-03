@@ -46,9 +46,10 @@ class ComputationResult
     vector<MyPoint_2>   convexHullList;
 
     vector<MyDirection_2> coneRays;
-    //MyPolygon_set_2       convexHull;
     vector< reference_wrapper<const MyPoint_2> > inputPtVector;
     MyArrangement_2       resultODCArrangement;
+
+    MyEMSTData origMST;
 
     vector<CandidateSteinerPointData> steinerPoints;
 
@@ -67,6 +68,7 @@ class ComputationResult
 //    string outputCollectionToJSONFile(string name, const Container &myColl) const;
     void preparePointSet(const vector< reference_wrapper<const MyPoint_2> >& userPointList);
     void computeOODC();
+    void computeMSTAndStPts();
     string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
     string pointVectorToJSONString(string name, const vector< reference_wrapper<const MyPoint_2> >& myColl, int tabLevel=0) const;
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,

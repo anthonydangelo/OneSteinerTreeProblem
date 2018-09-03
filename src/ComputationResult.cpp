@@ -26,25 +26,7 @@ ComputationResult::ComputationResult(int numInputPoints,
 
     computeOODC();
 
-    DelaunayTriEMST myEMST(inputPtVector);
-    const MyEMSTData& origMST = myEMST.getEMSTData();
-
-    vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
-    for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
-    {
-        const GeomMedianData& s = rawStPtList[ptIndex];
-        //test its insertion into the pt set if it's not degenerate
-        if(s.coincidesWithInputPt)
-        {
-            steinerPoints.push_back(CandidateSteinerPointData(s, origMST));
-        }
-        else
-        {
-            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
-            steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
-        }
-    }
-    sort(steinerPoints.begin(), steinerPoints.end());
+    computeMSTAndStPts();
     
     return;
 } //constructor
@@ -186,6 +168,31 @@ void ComputationResult::computeOODC()
         }
     }
 #endif    
+
+    return;
+}
+
+void ComputationResult::computeMSTAndStPts()
+{
+    DelaunayTriEMST myEMST(inputPtVector);
+    origMST = myEMST.getEMSTData();
+
+    vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
+    for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
+    {
+        const GeomMedianData& s = rawStPtList[ptIndex];
+        //test its insertion into the pt set if it's not degenerate
+        if(s.coincidesWithInputPt)
+        {
+            steinerPoints.push_back(CandidateSteinerPointData(s, origMST));
+        }
+        else
+        {
+            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
+            steinerPoints.push_back(CandidateSteinerPointData(s, stMST));
+        }
+    }
+    sort(steinerPoints.begin(), steinerPoints.end());
 
     return;
 }
