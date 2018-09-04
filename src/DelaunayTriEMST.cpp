@@ -108,7 +108,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         if( !foundSrc && containsSteinerPoint)
         {
             //this must be the steiner point
-            sourceIndex = 0; //won't be used
+            sourceIndex = 0; //won't be used yet, we need to wait until we sort the collection of points before we set this properly
             foundSrc = true;
             firstIsStPt = true;
         }
@@ -116,7 +116,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         if( !foundTarget && containsSteinerPoint && !firstIsStPt)
         {
             //this must be the steiner point
-            targetIndex = 0; //won't be used
+            targetIndex = 0; //won't be used yet, we need to wait until we sort the collection of points before we set this properly
             foundTarget = true;
             secondIsStPt = true;
         }        

@@ -173,6 +173,24 @@ void ComputationResult::computeMSTAndStPts()
         }
     }
     sort(steinerPoints.begin(), steinerPoints.end());
+    //Now we have to properly assign the st pt indices so they print out correctly
+    for (size_t stPtIndex = 0; stPtIndex < steinerPoints.size(); ++stPtIndex)
+    {
+        vector<pair<pair<size_t, size_t>,
+                    pair<bool, bool>>>& mstEdgePairData = steinerPoints[stPtIndex].mstData.mstEdgePointIndices;
+        for (pair<pair<size_t, size_t>, pair<bool, bool>>& tempEdgeData : mstEdgePairData)
+        {
+            //there won't be any degenerate edges, so either the first is a st pt, or the second, or neither
+            if (tempEdgeData.second.first)
+            {
+                tempEdgeData.first.first = stPtIndex;
+            }
+            else if (tempEdgeData.second.second)
+            {
+                tempEdgeData.first.second = stPtIndex;
+            }
+        }
+    }
 
     return;
 }
