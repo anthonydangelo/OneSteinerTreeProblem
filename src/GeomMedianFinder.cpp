@@ -36,7 +36,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 
     assert(3 == myPts.size());
 
     GeomMedianData result(originalInputPtIndices);
-
+    
     //assume no input points are the same
     if (collinear(myPts[0], myPts[1], myPts[2]))
     {
@@ -46,9 +46,13 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 
     else
     {
         DegeneratePointIndex degenPt;
+        bool detectedDegen = false;
         //Test for an angle of 120 degrees or greater
+        //This doesn't work like it should since we can't specify precision and we lose things to input noise...
+        //We have to do an explicit check afterwards
         if (testForDegenerateGeomMedian3Pts(myPts[0], myPts[1], myPts[2], degenPt))
         {
+            detectedDegen = true;
             result.coincidesWithInputPt = true;
             switch (degenPt)
             {
@@ -82,7 +86,33 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 
                 result.medPoint = boost::get<MyPoint_2>(*intRes);
             } //TODO Else throw error or something...
         }
+        //check if it's too close to an input pt
+        if (!detectedDegen)
+        {
+            if (pointsAreTooClose(result.medPoint, myPts[0]))
+            {
+                result.coincidesWithInputPt = true;
+                result.medPoint = myPts[0];
+                result.coincidentInputPtIndex = originalInputPtIndices[0];
+            }
+            else if (pointsAreTooClose(result.medPoint, myPts[1]))
+            {
+                result.coincidesWithInputPt = true;
+                result.medPoint = myPts[1];
+                result.coincidentInputPtIndex = originalInputPtIndices[1];
+            }
+            else if (pointsAreTooClose(result.medPoint, myPts[2]))
+            {
+                result.coincidesWithInputPt = true;
+                result.medPoint = myPts[2];
+                result.coincidentInputPtIndex = originalInputPtIndices[2];
+            }
+        }
     }
+
+#if (MY_VERBOSE)
+cout << "geom med 3 pts: " << result.medPoint << " coincides? " << result.coincidesWithInputPt << " index: " << result.coincidentInputPtIndex << endl;
+#endif
 
     return result;
 }
@@ -133,7 +163,12 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
     MyPoint_2 leftPoint = pointA;
     MyPoint_2 rightPoint = pointB;
     bool switchSides = false;
-    
+#if (MY_VERBOSE)
+cout << "degen test: pt a " << pointA <<", pt b " << pointB << endl;
+cout << "result of 'has on': " << boolalpha << baseLine.has_on(pointC) << endl;
+cout << "result of 'has neg': " << boolalpha << baseLine.has_on_negative_side(pointC) << endl;
+cout << "result of 'has pos': " << boolalpha << baseLine.has_on_positive_side(pointC) << endl;
+#endif
     if ( ! baseLine.has_on_negative_side(pointC))
     {
         //Flip everything around
@@ -144,10 +179,20 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
         rightPoint = pointA;
         switchSides = true;
     }    
+#if (MY_VERBOSE)
+cout << "degen test: left " << leftPoint <<", right " << rightPoint << endl;
+cout << "testing against pt c " << pointC << endl;
+cout << "bttm right dir: " << bttmRightDir << endl;
+#endif    
 
     //test angles abc and bac for 120 degrees
     MyLine_2 firstTestLine;
     firstTestLine = MyLine_2(rightPoint, bttmRightDir);
+#if (MY_VERBOSE)
+cout << "result of 'has on': " << boolalpha << firstTestLine.has_on(pointC) << endl;
+cout << "result of 'has neg': " << boolalpha << firstTestLine.has_on_negative_side(pointC) << endl;
+cout << "result of 'has pos': " << boolalpha << firstTestLine.has_on_positive_side(pointC) << endl;
+#endif
     if ( ! firstTestLine.has_on_negative_side(pointC))
     {
         //right point is the degenerate point
@@ -181,6 +226,9 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
     computeConeRays(secondInitDirection, secondConeRays);    
     MyLine_2 thirdTestLine;
     thirdTestLine = MyLine_2(pointC, secondConeRays[1]);
+#if (MY_VERBOSE)
+cout << "degen test: second baseline " << leftPoint <<", " << pointC << endl;
+#endif        
     if ( ! thirdTestLine.has_on_positive_side(rightPoint))
     {
         //point C is the degenerate point
@@ -248,6 +296,10 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 
             result.medPoint = boost::get<MyPoint_2>(*intRes);
         } //TODO Else throw error or something...
     }
+
+#if (MY_VERBOSE)
+cout << "geom med 4 pts: " << result.medPoint << endl;
+#endif
 
     return result;
 }
