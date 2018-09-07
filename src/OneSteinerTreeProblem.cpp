@@ -173,22 +173,28 @@ int main(int argc, char **argv)
         randSeed = time(nullptr);
     }
 
-#if (TIME_PROGRAM)
 //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
     // Record start time
     auto start = std::chrono::high_resolution_clock::now();
-#endif
-{
+    ostringstream sStream;
+//{
     ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
-    cout << compResult << endl;
-}
-#if (TIME_PROGRAM)
+    sStream << "{ \n \"compResult\": ";
+    sStream << compResult << "\n";
+//}
+    sStream << ", \"elapsedTime\" :{";
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    std::cout << endl << "Elapsed time: " << elapsed.count() << " s\n";
-#endif
+    double timeInSecs = elapsed.count();
+    long timeNumb = static_cast<long>(floor(timeInSecs));
+    sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
+    timeNumb /= 60;
+    sStream << (timeNumb % 60) << "\", \"h\":\""; 
+    timeNumb /= 60;
+    sStream << timeNumb << "\" }\n }" << endl;
+    cout << sStream.str();
 
 /*     ofstream myfile;
     myfile.open (outfilePrefix + OUTPUT_FILE);

@@ -130,7 +130,6 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 
 #define MY_VERBOSE (0)
 #define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
-#define TIME_PROGRAM (0)
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
 #define BUILD_ODCELL_BY_DIFFERENCES   (1)
 
