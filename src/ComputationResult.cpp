@@ -201,6 +201,8 @@ string ComputationResult::outputResultToJSONString() const
     sStream << "{\n";  
     sStream << wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
     sStream << ",\n";
+    sStream << wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
+    sStream << ",\n";    
 //    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
     sStream << pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
     if(!onlyPoints){

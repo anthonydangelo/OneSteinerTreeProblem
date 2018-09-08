@@ -180,10 +180,10 @@ int main(int argc, char **argv)
 //{
     ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
-    sStream << "{ \n \"compResult\": ";
+    sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
     sStream << compResult << "\n";
 //}
-    sStream << ", \"elapsedTime\" :{";
+    sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;

@@ -146,9 +146,12 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 #define ONLY_POINTS_DEFAULT (false)
 
 #define OUTPUT_FILE ("-result.json")
+#define ELAPSED_TIME_NAME_STRING ("elapsedTime")
+#define COMP_RESULT_NAME_STRING ("compResult")
 #define INPUT_POINTS_NAME_STRING ("inputPoints")
 #define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
 #define RAND_SEED_NAME_STRING ("randSeed")
+#define GRID_LENGTH_NAME_STRING ("gridLength")
 //////////////////////////////
 #define ARR_NAME_STRING ("odcArrangement")
 #define ARR_POINTS_NAME_STRING ("arrangementPoints")
