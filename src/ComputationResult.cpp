@@ -4,7 +4,6 @@ ComputationResult::ComputationResult(int numInputPoints,
                                      int randomSeed,
                                      int inputGridLength,
                                      bool onlyProducePoints,
-                                     string outputFilePrefix,
                                      const vector<MyPoint_2> &userPointList) : numPoints(numInputPoints),
                                                                                randSeed(randomSeed),
                                                                                gridLength(inputGridLength),
@@ -12,7 +11,6 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                                rand(Random(randSeed)),
                                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
                                                                                randPointGen(Point_generator(gridLength, rand)),
-                                                                               outFilePrefix(outputFilePrefix),
                                                                                coneRays(6)
 {
 
@@ -362,27 +360,6 @@ string ComputationResult::steinerPointsToJSONString(int tabLevel) const
     sStream << "]"; 
     return sStream.str();     
 }
-
-/* //https://stackoverflow.com/questions/5451305/how-to-make-function-argument-container-independent
-//https://stackoverflow.com/questions/34561190/pass-a-std-container-to-a-function
-template <typename Container>
-string ComputationResult::outputCollectionToJSONFile(string name, const Container &myColl) const
-{
-    ostringstream sStream;
-    sStream << wrapStringInQuotes(name) << ": [";
-    
-    if(!myColl.empty()){
-        for (auto it = begin(myColl); it != end(vec); ++it) {
-            typedef decltype(*it) T; // if needed
-            sStream << *it << " "; 
-        }    
-    }
-
-    sStream << "]" << endl; 
-    
-    return sStream.str();
-} */
-
 
 string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel) const
 {

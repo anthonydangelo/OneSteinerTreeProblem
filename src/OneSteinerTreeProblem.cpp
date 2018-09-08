@@ -3,7 +3,17 @@
 // Author      : Anthony D'Angelo
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Implementation of Georgakopolous and Papadimitriou's O(n^2) 1 Steiner tree algorithm
+// Description : Implementation of (most of) Georgakopolous and Papadimitriou's 
+//               O(n^2) 1 Steiner tree algorithm from Journal of Algorithms, 1987.
+//               Use CGAL for everything, e.g., OODC arrangement.
+//               We don't do their n^2 pre-processing to figure out MST length changes.
+//               Instead, we compute the new MSTs with the test Steiner points
+//               by inserting them into a Delaunay tri., taking the MST, then removing
+//               the candidate St point so we can re-use the tri.
+//               Future work: implement the monma-suri approach to help find the MST deltas.
+//                      (see Transitions in geometric minimum spanning trees by 
+//                          Monma and Suri, 1992, Journal of Discrete and Computational Geometry,
+//                          Lemma 4.1 on page "277" for the idea)
 //============================================================================
 
 #include <getopt.h>
@@ -26,7 +36,6 @@ void PrintHelp()
                         << RAND_SEED_DEFAULT << ")\n"
            "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
                         << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
-           "--outFilePrefix (-f) <string s>: The results will be written to \'s\'-" << OUTPUT_FILE << "\n"
            "--inputList (-i) <string s = [[x,y],[u,v],...]>: Use these points (comes out of numPoints' budget)\n"
            "--help (-h):              Show help\n";
 
@@ -39,20 +48,18 @@ int randSeed = RAND_SEED_DEFAULT;
 int gridLength = GRID_LENGTH_DEFAULT;
 bool trueRandom = TRUE_RANDOM_DEFAULT;
 bool onlyPoints = ONLY_POINTS_DEFAULT;
-string outfilePrefix = "";
 string inputListString = "";
 
 //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
 void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
 {
-    const char *const short_opts = "pn:rs:g:f:i:h";
+    const char *const short_opts = "pn:rs:g:i:h";
     const option long_opts[] = {
         {"onlyPoints", no_argument, nullptr, 'p'},
         {"numPoints", required_argument, nullptr, 'n'},
         {"trueRandom", no_argument, nullptr, 'r'},
         {"randSeed", required_argument, nullptr, 's'},
         {"gridLength", required_argument, nullptr, 'g'},
-        {"outFilePrefix", required_argument, nullptr, 'f'},
         {"inputList", required_argument, nullptr, 'i'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, no_argument, nullptr, 0}};
@@ -128,24 +135,11 @@ void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
             }
             break;
 
-        case 'f':
-            if(optarg)
-            {
-                outfilePrefix = string(optarg);
-            }
-            break;
-
         case 'i':
             if(optarg)
             {
                 inputListString = string(optarg);
-                extractPointsFromJSON2DArrayString(inputListString, inputListVec);
-#if (MY_VERBOSE)
-                for (const auto pt : inputListVec)
-                {
-                    cout << " " << pt << endl;
-                }
-#endif                
+                extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
             }
             break;
 
@@ -177,12 +171,12 @@ int main(int argc, char **argv)
     // Record start time
     auto start = std::chrono::high_resolution_clock::now();
     ostringstream sStream;
-//{
-    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, outfilePrefix, inputListVec);
+
+    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
     sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
     sStream << compResult << "\n";
-//}
+
     sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
@@ -195,17 +189,6 @@ int main(int argc, char **argv)
     timeNumb /= 60;
     sStream << timeNumb << "\" }\n }" << endl;
     cout << sStream.str();
-
-/*     ofstream myfile;
-    myfile.open (outfilePrefix + OUTPUT_FILE);
-    myfile << compResult;
-    myfile.close();  */
-
-
-#if (MY_VERBOSE)
-    cout << "!!!Hello World!!!\n"
-         << trueRandom << onlyPoints << numPoints << randSeed << gridLength << outfilePrefix << endl; // prints !!!Hello World!!!
-#endif
 
     return 0;
 }

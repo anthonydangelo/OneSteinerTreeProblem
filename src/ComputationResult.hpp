@@ -40,7 +40,6 @@ class ComputationResult
     int randSeed;
     int gridLength;
     bool onlyPoints;
-    string outFilePrefix;
 
     Random rand;
     Point_generator     randPointGen;
@@ -59,14 +58,11 @@ class ComputationResult
                       int randomSeed = RAND_SEED_DEFAULT,
                       int inputGridLength = GRID_LENGTH_DEFAULT,
                       bool onlyProducePoints = ONLY_POINTS_DEFAULT,
-                      string outFilePrefix = "",
                       const vector< MyPoint_2 >& userPointList = vector<MyPoint_2>());
     
     string outputResultToJSONString() const;
 
   protected:
-//    template <typename Container>
-//    string outputCollectionToJSONFile(string name, const Container &myColl) const;
     void preparePointSet(const vector< MyPoint_2 >& userPointList);
     void computeOODC();
     void computeMSTAndStPts();

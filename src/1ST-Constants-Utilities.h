@@ -145,7 +145,7 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 
 #define ONLY_POINTS_DEFAULT (false)
 
-#define OUTPUT_FILE ("-result.json")
+
 #define ELAPSED_TIME_NAME_STRING ("elapsedTime")
 #define COMP_RESULT_NAME_STRING ("compResult")
 #define INPUT_POINTS_NAME_STRING ("inputPoints")
