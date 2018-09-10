@@ -89,19 +89,19 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 
         //check if it's too close to an input pt
         if (!detectedDegen)
         {
-            if (pointsAreTooClose(result.medPoint, myPts[0]))
+            if (Vasco_Rossi::pointsAreTooClose(result.medPoint, myPts[0]))
             {
                 result.coincidesWithInputPt = true;
                 result.medPoint = myPts[0];
                 result.coincidentInputPtIndex = originalInputPtIndices[0];
             }
-            else if (pointsAreTooClose(result.medPoint, myPts[1]))
+            else if (Vasco_Rossi::pointsAreTooClose(result.medPoint, myPts[1]))
             {
                 result.coincidesWithInputPt = true;
                 result.medPoint = myPts[1];
                 result.coincidentInputPtIndex = originalInputPtIndices[1];
             }
-            else if (pointsAreTooClose(result.medPoint, myPts[2]))
+            else if (Vasco_Rossi::pointsAreTooClose(result.medPoint, myPts[2]))
             {
                 result.coincidesWithInputPt = true;
                 result.medPoint = myPts[2];
@@ -123,7 +123,7 @@ static MyPoint_2 findEqTriIntPoint(const MyPoint_2& pointA, const MyPoint_2& poi
     vector<MyDirection_2> coneRays(6);
     const MyLine_2 baseLine = MyLine_2(pointA, pointB);
     const MyDirection_2 initialDirection = MyDirection_2(baseLine);
-    computeConeRays(initialDirection, coneRays);
+    Vasco_Rossi::computeConeRays(initialDirection, coneRays);
     
     MyLine_2 firstEqTriSide, secondEqTriSide;
     if (baseLine.has_on_negative_side(avoidMe))
@@ -157,7 +157,7 @@ static bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoi
     vector<MyDirection_2> coneRays(6);
     const MyLine_2 baseLine = MyLine_2(pointA, pointB);
     const MyDirection_2 initialDirection = MyDirection_2(baseLine);
-    computeConeRays(initialDirection, coneRays);
+    Vasco_Rossi::computeConeRays(initialDirection, coneRays);
     MyDirection_2 bttmRightDir = coneRays[5];
     MyDirection_2 bttmLeftDir = coneRays[4];
     MyPoint_2 leftPoint = pointA;
@@ -223,7 +223,7 @@ cout << "result of 'has pos': " << boolalpha << firstTestLine.has_on_positive_si
     const MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
     const MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
     vector<MyDirection_2> secondConeRays(6);
-    computeConeRays(secondInitDirection, secondConeRays);    
+    Vasco_Rossi::computeConeRays(secondInitDirection, secondConeRays);    
     MyLine_2 thirdTestLine;
     thirdTestLine = MyLine_2(pointC, secondConeRays[1]);
 #if (MY_VERBOSE)
@@ -257,7 +257,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 
 
     vector<MyPoint_2>   convexHullList;
 
-    computeConvexHull(myPts, convexHullList);
+    Vasco_Rossi::computeConvexHull(myPts, convexHullList);
 
     if (4 != convexHullList.size())
     {
@@ -269,7 +269,7 @@ GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 
             bool foundPt = false;
             for (size_t chInd = 0; chInd < convexHullList.size(); ++chInd)
             {
-                if (pointsAreTooClose(myPts[ptInd], convexHullList[chInd]))
+                if (Vasco_Rossi::pointsAreTooClose(myPts[ptInd], convexHullList[chInd]))
                 {
                     foundPt = true;
                     break;

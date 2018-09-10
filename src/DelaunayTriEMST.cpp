@@ -102,7 +102,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
         MyTriangulation::Vertex_handle vhTarget = target(ed, delaunayTri);
 
         size_t sourceIndex, targetIndex;
-        bool foundSrc = findPointIndex(vhSource->point(),  initialPointSet, sourceIndex);
+        bool foundSrc = Vasco_Rossi::findPointIndex(vhSource->point(),  initialPointSet, sourceIndex);
         bool firstIsStPt = false;
         bool secondIsStPt = false;
         if( !foundSrc && containsSteinerPoint)
@@ -112,7 +112,7 @@ void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsStei
             foundSrc = true;
             firstIsStPt = true;
         }
-        bool foundTarget = findPointIndex(vhTarget->point(),  initialPointSet, targetIndex);
+        bool foundTarget = Vasco_Rossi::findPointIndex(vhTarget->point(),  initialPointSet, targetIndex);
         if( !foundTarget && containsSteinerPoint && !firstIsStPt)
         {
             //this must be the steiner point

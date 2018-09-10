@@ -1,11 +1,9 @@
 #ifndef ONE_ST_CONSTANTS_UTILITIES
 #define ONE_ST_CONSTANTS_UTILITIES
 
-//#include <ostream>
 #include <iostream>
 #include <sstream> // for ostringstream
 #include <string>
-//#include <unordered_set> //need to provide a hasher or something for this...
 #include <set>
 #include <vector>
 
@@ -44,6 +42,8 @@
 #include <CGAL/enum.h>
 #include <CGAL/intersections.h>
 
+//TODO might be good to remove these and explicitly list the things I use...
+//e.g. why necessary: time() in main() might be CGAL, not std...
 using namespace CGAL;
 using namespace std;
 
@@ -97,31 +97,16 @@ struct Overlay_faces
   {
       //This should work out since the outer faces of the arrangements will have empty sets //vectors
         MyFaceData result;
-//        set<size_t> resSet;
-/*         copy(first.myInputPointIndices.begin(), first.myInputPointIndices.end(), back_inserter(result.myInputPointIndices) );
-        
-        for(const auto ind : second.myInputPointIndices)
-        {
-            bool addMe = false;
-            for(const auto resInd : result.myInputPointIndices)
-            {
-            }
-        } 
-*/
+
         for(const auto ind : first.myInputPointIndices)
         {
-            //resSet.insert(ind);
             result.myInputPointIndices.insert(ind);
         }
         for(const auto ind : second.myInputPointIndices)
         {
-            //resSet.insert(ind);
             result.myInputPointIndices.insert(ind);
         }        
-/*         for(const auto ind : resSet)
-        {
-            result.myInputPointIndices.push_back(ind);
-        }  */       
+
         return result;
   }
 };
@@ -181,178 +166,143 @@ typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrang
 
 #define DOUBLE_EPSILON (0.000001)
 
-/* bool intInRangeInclusive(int x, int lowEnd, int highEnd){
-    return ((x >= lowEnd) && (x <= highEnd));
-}
 
-string stringAsJSONString(string s)
+////// Forward-declare Structs used in printing and utils ///////
+struct GeomMedianData;
+struct MyEMSTData;
+struct CandidateSteinerPointData;
+
+/////////////////////
+// Namespaces for utilities and printing.
+
+/*
+**
+** Why namespace Vasco_Rossi? 
+** Apart from sounding like it could be the name of his next album,
+** it's just more interesting than "Utility_Functions". 
+** Plus, since it's likely that I'm the only one who's ever going
+** to see/use this, I can call it whatever I want as long as he doesn't mind. I hope he doesn't...
+** Plus I'm a fan.
+**
+ */
+namespace Vasco_Rossi
 {
-    return ("\"" + s + "\"");
-} */
 
-//why do these need to be static?
-static inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
-{
-    return ((x >= lowEnd) && (x <= highEnd));
-}
-
-//static inline string stringAsJSONString(string s)
-static inline string wrapStringInQuotes(const string &s)
-{
-    return ("\"" + s + "\"");
-}
-
-static inline string point2ToJSON(const MyPoint_2 &p)
-{
-    ostringstream sStream;
-
-    sStream << "{\"x\":\"" << p.x() << "\", "
-            << "\"y\":\"" << p.y() << "\"}";
-    return sStream.str();
-}
-
-static inline string insertTabs(int level)
-{
-    ostringstream sStream;
-    for (int i = 0; i < level; ++i)
+    inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
     {
-        sStream << "\t";
+        return ((x >= lowEnd) && (x <= highEnd));
     }
-    return sStream.str();
-}
 
-static inline void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result)
-{
-    //I'd like to use a regex here, but I don't know how to write the grammar...
-    //http://www.cplusplus.com/reference/string/string/find_first_of/
-    std::size_t strIndex = inputString.find_first_of("[");
-    //I don't like the way I'm doing this parsing!
-    while (strIndex != std::string::npos)
-    {
-        strIndex = inputString.find_first_of("[", strIndex + 1);
-        if (strIndex != string::npos)
-        {
-            try
-            {
-                //http://www.cplusplus.com/reference/string/stod/
-                string::size_type stodIndex;
-                double firstD = stod(inputString.substr(strIndex + 1), &stodIndex);
-                strIndex = inputString.find_first_of(",", stodIndex + strIndex);
-                if (strIndex != string::npos)
-                {
-                    double secondD = stod(inputString.substr(strIndex + 1));
-                    //the temp assigned to the const ref apparently dies when we leave the function, leaving dangling ref
-//                    const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
-//                    result.push_back(temp);
-                    result.emplace_back(firstD, secondD);
-                }
-            }
-            catch (exception &e)
-            {
-                cerr << e.what() << endl;
-                cerr << "Input point list string malformed" << endl;
-                result.clear();
-                return;
-            }
-        }
-    }
-    return;
-}
+    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result);
 
-//Assume the numbers aren't too large or small for doubles
-static inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
-{
-    string ptString = point2ToJSON(first);
-    string tempString = point2ToJSON(second);
+    //Assume the numbers aren't too large or small for doubles
+    bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second);
 
-    std::size_t strIndex = ptString.find_first_of(":");
-    ptString = ptString.substr(strIndex + 1);
-    strIndex = ptString.find_first_of("\"");
-    ptString = ptString.substr(strIndex + 1);
-    double ptX = stod(ptString);
-    strIndex = ptString.find_first_of(":");
-    ptString = ptString.substr(strIndex + 1);
-    strIndex = ptString.find_first_of("\"");
-    ptString = ptString.substr(strIndex + 1);
-    double ptY = stod(ptString);
-
-    strIndex = tempString.find_first_of(":");
-    tempString = tempString.substr(strIndex + 1);
-    strIndex = tempString.find_first_of("\"");
-    tempString = tempString.substr(strIndex + 1);
-    double tempX = stod(tempString);
-    strIndex = tempString.find_first_of(":");
-    tempString = tempString.substr(strIndex + 1);
-    strIndex = tempString.find_first_of("\"");
-    tempString = tempString.substr(strIndex + 1);
-    double tempY = stod(tempString);
-
-    return ( (fabs(ptX - tempX) < DOUBLE_EPSILON) && (fabs(ptY - tempY) < DOUBLE_EPSILON) );
-}
-
-static inline bool findOriginIndex(const MyPoint_2 &cellOrigin, 
+    bool findOriginIndex(const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                          size_t &resultIndex)
-{
-    resultIndex = 0;
-    for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
+                          size_t &resultIndex);
+
+    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 >& myColl, size_t &myIndex);
+
+    inline void computeConvexHull(const vector< MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
     {
-        if (pointsAreTooClose(*it, cellOrigin))
+        //TODO does convex hull work w const mypoints?
+        ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
+        return;
+    }    
+
+    inline void computeConeRays(const MyDirection_2& initialDirection, vector<MyDirection_2>& coneRays)
+    {
+        //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
+        // construct the functor
+        //TODO does the cones function work w vector of const dirs?
+        Compute_cone_boundaries_2<MyKernel> cones;    
+        cones(6, initialDirection, coneRays.begin());
+
+        return;
+    }
+
+    //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
+    void insertArrangementPointsIntoPointSet(const MyArrangement_2& resultODCArrangement, vector< MyPoint_2 >& arrPointsVec);
+
+} // namespace Vasco_Rossi
+
+
+/*
+**
+** Why namespace Marisa_Tomei? 
+** A few of her movies have been on tv lately. 
+** They left me wanting to see more of her...
+** I think it's a fitting name for pretty print functions.
+**
+** Plus, since it's likely that I'm the only one who's ever going
+** to see/use this, I can call it whatever I want as long as she doesn't mind. I hope she doesn't...
+** Plus, I'm a fan.
+**
+ */
+namespace Marisa_Tomei
+{
+    inline string wrapStringInQuotes(const string &s)
+    {
+        return ("\"" + s + "\"");
+    }
+
+    inline string point2ToJSON(const MyPoint_2 &p)
+    {
+        ostringstream sStream;
+
+        sStream << "{\"x\":\"" << p.x() << "\", "
+                << "\"y\":\"" << p.y() << "\"}";
+        return sStream.str();
+    } 
+
+    inline string insertTabs(int level)
+    {
+        ostringstream sStream;
+        for (int i = 0; i < level; ++i)
         {
-            return true;
+            sStream << "\t";
         }
+        return sStream.str();
     }
-    return false;
-}
 
-
-//https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html#title6 
-//&& examples/Arrangement_on_surface_2/bgl_dual_adapter.cpp 
-//&& examples/Arrangement_on_surface_2/arr_print.h
-static inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
-{
-  MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
-  std::cout << "(" << curr->source()->point() << ")";
-  do {
-    MyArrangement_2::Halfedge_const_handle he = curr;
-    std::cout << " [" << he->curve() << "] "
+#if (MY_VERBOSE)
+    //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html#title6 
+    //&& examples/Arrangement_on_surface_2/bgl_dual_adapter.cpp 
+    //&& examples/Arrangement_on_surface_2/arr_print.h
+    inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
+    {
+        MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
+        std::cout << "(" << curr->source()->point() << ")";
+        do {
+            MyArrangement_2::Halfedge_const_handle he = curr;
+            std::cout << " [" << he->curve() << "] "
               << "(" << he->target()->point() << ")";
-  } while (++curr != circ);
-  std::cout << std::endl;
-}
-
-
-static inline bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 >& myColl, size_t &myIndex)
-{
-    myIndex = 0;
-    if(!myColl.empty()){
-        auto endIt = end(myColl);
-        for (auto it = begin(myColl); it != endIt; ++it, ++myIndex) {
-            if(pointsAreTooClose(*it, pt)){
-                return true;
-            }
-        }    
+        } while (++curr != circ);
+        std::cout << std::endl;
     }
-    return false;
-}
+#endif
 
-static inline void computeConvexHull(const vector< MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
-{
-    //TODO does convex hull work w const mypoints?
-    ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
-    return;
-}
+    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel = 0);
 
+    string mstDataToJSONString(const MyEMSTData& mst, int tabLevel = 0);
 
-static inline void computeConeRays(const MyDirection_2& initialDirection, vector<MyDirection_2>& coneRays)
-{
-    //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
-    // construct the functor
-    //TODO does the cones function work w vector of const dirs?
-    Compute_cone_boundaries_2<MyKernel> cones;    
-    cones(6, initialDirection, coneRays.begin());
+    string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel = 0);
 
-    return;
-}
+    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel = 0);
+
+    string steinerPointsToJSONString(const vector<CandidateSteinerPointData>& steinerPoints, int tabLevel = 0);
+
+    string pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel = 0);
+
+    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
+                                                    const vector<MyPoint_2>& myPtSet, int tabLevel = 0);    
+
+    string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                                        const vector<MyPoint_2>& myPtSet, int tabLevel = 0);
+
+    string arrangementToJSONString(const MyArrangement_2& resultODCArrangement, int tabLevel = 0);
+
+} // namespace Marisa_Tomei
 
 #endif

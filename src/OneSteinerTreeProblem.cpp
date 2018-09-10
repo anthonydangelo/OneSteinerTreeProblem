@@ -9,7 +9,8 @@
 //               We don't do their n^2 pre-processing to figure out MST length changes.
 //               Instead, we compute the new MSTs with the test Steiner points
 //               by inserting them into a Delaunay tri., taking the MST, then removing
-//               the candidate St point so we can re-use the tri.
+//               the candidate St point so we can re-use the tri. This might make this
+//               implementation (n^3)log(n)...
 //               Future work: implement the monma-suri approach to help find the MST deltas.
 //                      (see Transitions in geometric minimum spanning trees by 
 //                          Monma and Suri, 1992, Journal of Discrete and Computational Geometry,
@@ -84,7 +85,7 @@ void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
                 try
                 {
                     int temp = stoi(optarg);
-                    if (intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
+                    if (Vasco_Rossi::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
                     {
                         numPoints = temp;
                     } else 
@@ -139,7 +140,7 @@ void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
             if(optarg)
             {
                 inputListString = string(optarg);
-                extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
+                Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
             }
             break;
 

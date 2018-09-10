@@ -20,7 +20,7 @@ ComputationResult::ComputationResult(int numInputPoints,
         return;
     }
 
-    computeConvexHull(inputPtVector, convexHullList);
+    Vasco_Rossi::computeConvexHull(inputPtVector, convexHullList);
 
     computeOODC();
 
@@ -59,7 +59,7 @@ void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList
         bool inSet = false;
         for (const MyPoint_2& pt : pointSet)
         {
-            if (pointsAreTooClose(pt, temp))
+            if (Vasco_Rossi::pointsAreTooClose(pt, temp))
             {
                 inSet = true;
                 break;
@@ -89,7 +89,7 @@ void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList
 //Pre-condition: convexHullList is populated
 void ComputationResult::computeOODC()
 {
-    computeConeRays(MyDirection_2(1, 0), coneRays);
+    Vasco_Rossi::computeConeRays(MyDirection_2(1, 0), coneRays);
     size_t coneRaysSize = coneRays.size();
     assert(coneRaysSize == 6);
     
@@ -133,7 +133,7 @@ void ComputationResult::computeOODC()
         if (!fit->is_unbounded())
         {
             cout << "face # " << faceIndex << ": " << endl;
-            print_ccb(fit->outer_ccb());
+            Marisa_Tomei::print_ccb(fit->outer_ccb());
             //static cast instead?
             MyFaceData tempStruct = (MyFaceData)(fit->data());
             cout << "face data contains the following indices: [" << endl;
@@ -197,378 +197,23 @@ string ComputationResult::outputResultToJSONString() const
 {
     ostringstream sStream;
     sStream << "{\n";  
-    sStream << wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
+    sStream << Marisa_Tomei::wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
     sStream << ",\n";
-    sStream << wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
+    sStream << Marisa_Tomei::wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
     sStream << ",\n";    
-//    sStream << pointSetToJSONString(INPUT_POINTS_NAME_STRING, pointSet);
-    sStream << pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
+    sStream << Marisa_Tomei::pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
     if(!onlyPoints){
         sStream << ",\n";
-        sStream << vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
+        sStream << Marisa_Tomei::vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
         sStream << ",\n";
-        sStream << arrangementToJSONString();
+        sStream << Marisa_Tomei::arrangementToJSONString(resultODCArrangement);
         sStream << ",\n";
-        sStream << mstDataToJSONString(origMST);
+        sStream << Marisa_Tomei::mstDataToJSONString(origMST);
         sStream << ",\n";
-        sStream << steinerPointsToJSONString();
+        sStream << Marisa_Tomei::steinerPointsToJSONString(steinerPoints);
     }
     sStream << "\n}";
 
-    return sStream.str();
-}
-
-string ComputationResult::mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(MST_EDGE_NAME_STRING) << ": { \n";
-
-    sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
-
-    sStream << insertTabs(tabLevel + 3);
-    sStream << "{\"index\":\"" << edgeData.first.first << "\"},\n";
-    sStream << insertTabs(tabLevel + 3);
-    sStream << "{\"index\":\"" << edgeData.first.second << "\"}\n";
-
-    sStream << insertTabs(tabLevel+3);
-    sStream << "],\n"; 
-
-    sStream << boolalpha;
-    sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.first << "\",\n";
-    sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"\n";
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}";
-    return sStream.str();
-}
-
-string ComputationResult::mstDataToJSONString(const MyEMSTData& mst, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(MST_NAME_STRING) << ": { ";
-
-    sStream << wrapStringInQuotes(MST_LENGTH_NAME_STRING) << " : \"" << mst.length << "\",\n";
-
-    sStream << insertTabs(tabLevel+2);
-    sStream << wrapStringInQuotes(MST_EDGE_LIST_NAME_STRING) << ": [ \n";
-
-    auto endIt = mst.mstEdgePointIndices.end();
-    for (auto myIt = mst.mstEdgePointIndices.begin(); myIt != endIt; ++myIt)
-    {
-        sStream << insertTabs(tabLevel + 4);
-        sStream << "{ \n";
-        
-        sStream << mstEdgeToJSONString(*myIt, tabLevel + 5) << "\n";
-
-        sStream << insertTabs(tabLevel + 4);
-        sStream << "}";
-        if (next(myIt) != endIt)
-        {
-            sStream << ",";
-        }
-        sStream << "\n";
-    }
-
-    sStream << insertTabs(tabLevel+4);
-    sStream << "]\n";
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}";
-    return sStream.str();
-}
-
-string ComputationResult::geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(STEINER_PT_NAME_STRING) << ": { \n";
-
-    sStream << insertTabs(tabLevel+1);
-    sStream << wrapStringInQuotes(GEOM_MED_POINT_NAME_STRING) << " : " << point2ToJSON(stPtData.medPoint) << ",\n";
-
-    sStream << insertTabs(tabLevel+1);
-    sStream << wrapStringInQuotes(GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING) << ": [ \n";
-
-    auto endIt = stPtData.inputPtIndices.end();
-    for (auto myIt = stPtData.inputPtIndices.begin(); myIt != endIt; ++myIt)
-    {
-        sStream << insertTabs(tabLevel + 3);
-        sStream << "{\"index\":\"" << *myIt << "\"}";
-        if (next(myIt) != endIt)
-        {
-            sStream << ",";
-        }
-        sStream << "\n";        
-    }
-
-    sStream << insertTabs(tabLevel+3);
-    sStream << "],\n"; 
-
-    sStream << boolalpha;
-    sStream << insertTabs(tabLevel+1);
-    sStream << wrapStringInQuotes(GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING) << ": \"" << stPtData.coincidesWithInputPt << "\",\n";    
-    sStream << insertTabs(tabLevel+1);
-    sStream << wrapStringInQuotes(GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING) << ": {\"index\":\"" << stPtData.coincidentInputPtIndex << "\"}\n";
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}"; 
-    return sStream.str();    
-}
-
-string ComputationResult::candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(CANDIDATE_STEINER_POINT_DATA_NAME_STRING) << ": { \n";
-
-    sStream << geomMedDataToJSONString(stPtData.steinerPt, tabLevel+1) << ",\n";
-    sStream << mstDataToJSONString(stPtData.mstData, tabLevel+1) << "\n";
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}"; 
-    return sStream.str();  
-}
-
-string ComputationResult::steinerPointsToJSONString(int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(CANDIDATE_ST_PT_DATA_LIST_NAME_STRING) << ": [ \n";
-
-    auto endIt = end(steinerPoints);
-    for (auto it = begin(steinerPoints); it != endIt; ++it)
-    {
-        sStream << insertTabs(tabLevel + 2);
-        sStream << "{ \n";
-        sStream << candidateSteinerPtDataToJSONString(*it, tabLevel + 3);
-        sStream << "\n";
-        sStream << insertTabs(tabLevel + 2);
-        sStream << "}";
-        if (next(it) != endIt)
-        {
-            sStream << ",";
-        }
-        sStream << "\n";
-    }
-
-    sStream << insertTabs(tabLevel+2);
-    sStream << "]"; 
-    return sStream.str();     
-}
-
-string ComputationResult::pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(name) << ": [";
-    
-    if(!myColl.empty()){
-        auto endIt = end(myColl);
-        for (auto it = begin(myColl); it != endIt; ++it) {
-            sStream << point2ToJSON(*it); 
-            if(next(it) != endIt){
-                sStream << ",\n";
-                sStream << insertTabs(tabLevel + 2);
-            } else {
-                sStream << "\n";
-            }
-        }    
-    }
-
-    sStream << insertTabs(tabLevel);
-    sStream << "]";
-    
-    return sStream.str();
-}
-
-string ComputationResult::pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel) const
-{
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(name) << ": [\n";
-    
-    if(!myColl.empty()){
-        auto endIt = end(myColl);
-        for (auto it = begin(myColl); it != endIt; ++it) {
-            sStream << insertTabs(tabLevel + 2);
-            sStream << point2ToJSON(*it); 
-            if(next(it) != endIt){
-                sStream << ",";
-            } 
-            sStream << "\n";
-        }    
-    }
-
-    sStream << insertTabs(tabLevel+2);
-    sStream << "]"; 
-    
-    return sStream.str();
-}
-
-string ComputationResult::vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                    const vector<MyPoint_2>& myPtSet, int tabLevel) const
-{
-
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(name) << ": [\n";
-    
-    if(!myColl.empty()){
-        auto endIt = end(myColl);
-        for (auto it = begin(myColl); it != endIt; ++it) {
-            size_t index = 0;
-            assert(findPointIndex(*it, myPtSet, index));
-            sStream << insertTabs(tabLevel + 2);
-            sStream << "{\"index\":\"" << index << "\"}"; 
-            if(next(it) != endIt){
-                sStream << ",";
-            }
-            sStream << "\n";
-        }    
-    }
-
-    sStream << insertTabs(tabLevel+2);
-    sStream << "]";
-    
-    return sStream.str();
-}
-
-//Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-void ComputationResult::insertArrangementPointsIntoPointSet(vector< MyPoint_2 >& arrPointsVec) const
-{
-    set<MyPoint_2> arrPoints;
-    for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
-    {
-        if (! it->is_isolated() && ! it->is_at_open_boundary())
-        {
-            const MyPoint_2& tempPt = it->point();
-            arrPoints.emplace(tempPt.x(), tempPt.y());
-        }
-    }    
-    for (const MyPoint_2& p : arrPoints)
-    {
-        //we could probably turn this into a vec of refs, but it's not clear if the obvious way works
-        arrPointsVec.emplace_back(p.x(), p.y());
-    }
-    return;
-}
-
-string ComputationResult::arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const vector<MyPoint_2>& myPtSet, int tabLevel) const
-{
-
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
-    
-    sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ,\n";
-    ////////////////////
-    sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [ \n";
-
-    MyArrangement_2::Ccb_halfedge_const_circulator circ = fit->outer_ccb();
-    MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
-    MyArrangement_2::Halfedge_const_handle heEnd = circ; //don't know if this does an implicit conversion; best it do it here, not in the expr
-    do {
-        MyArrangement_2::Halfedge_const_handle he = curr;
-        size_t index = 0;
-        assert(findPointIndex(he->target()->point(), myPtSet, index));
-        sStream << insertTabs(tabLevel + 3);
-        sStream << "{\"index\":\"" << index << "\"}";
-        if(he->next() != heEnd){
-            sStream << ",";
-        }        
-        sStream << "\n";
-    } while (++curr != circ);
-
-    sStream << insertTabs(tabLevel+3);
-    sStream << "],\n";
-    //////////////////////
-
-    sStream << insertTabs(tabLevel + 1);
-    sStream << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [ \n";
-
-    //static cast instead?
-    MyFaceData myFaceStruct = (MyFaceData)(fit->data());
-    auto endIt = end(myFaceStruct.myInputPointIndices);
-    for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it) {
-        sStream << insertTabs(tabLevel + 3);
-        sStream << "{\"index\":\"" << *it << "\"}"; 
-        if(next(it) != endIt){
-            sStream << ",";
-        }
-        sStream << "\n";
-    }             
-    sStream << insertTabs(tabLevel + 3);
-    sStream << "]\n";
-    //////////////////////
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}"; 
-    
-    return sStream.str();
-}
-
-string ComputationResult::arrangementToJSONString(int tabLevel) const
-{
-    vector< MyPoint_2 > arrPoints;
-    insertArrangementPointsIntoPointSet(arrPoints);
-
-    ostringstream sStream;
-    sStream << insertTabs(tabLevel);
-    sStream << wrapStringInQuotes(ARR_NAME_STRING) << ": {\n";
-
-    //sStream << pointSetToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 1);
-/*     vector<reference_wrapper<const MyPoint_2>> tempVec;
-    for (const MyPoint_2& p : arrPoints)
-    {
-        //this is annoying and should be unnecessary! god damn it.
-        tempVec.push_back(p);
-    }
-    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, tempVec, tabLevel + 1); 
-*/
-    sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 2) << ",\n";
-
-    sStream << insertTabs(tabLevel+2);
-    sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
-
-    size_t faceIndex = 0;
-    auto endFit = resultODCArrangement.faces_end();
-//    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
-    for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
-    {
-        if (!fit->is_unbounded())
-        {
-            ostringstream faceSStream;
-//            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
-            faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-            sStream << insertTabs(tabLevel + 4);
-            sStream << "{ \n";
-
-            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 5) << "\n";
-//            sStream << arrangementFaceToJSONString(faceSStream.str(), fit, tempVec, tabLevel + 1);
-
-            sStream << insertTabs(tabLevel + 4);
-            sStream << "}";
-            if(next(fit) != endFit) 
-            {
-                sStream << ",";
-            } 
-            sStream << "\n";
-        }
-    }
-
-    sStream << insertTabs(tabLevel+4);
-    sStream << "]\n";
-
-    sStream << insertTabs(tabLevel);
-    sStream << "}";
-    
     return sStream.str();
 }
 

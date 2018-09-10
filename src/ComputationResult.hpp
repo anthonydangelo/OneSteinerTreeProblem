@@ -65,20 +65,7 @@ class ComputationResult
   protected:
     void preparePointSet(const vector< MyPoint_2 >& userPointList);
     void computeOODC();
-    void computeMSTAndStPts();
-    string pointSetToJSONString(string name, const set<MyPoint_2> &myColl, int tabLevel=0) const;
-    string pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel=0) const;
-    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                     const vector<MyPoint_2> &myPtSet, int tabLevel = 0) const;
-    void insertArrangementPointsIntoPointSet(vector< MyPoint_2 >& arrPointsVec) const;
-    string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                        const vector<MyPoint_2>& myPtSet, int tabLevel) const;
-    string arrangementToJSONString(int tabLevel=0) const;   
-    string mstDataToJSONString(const MyEMSTData& mst, int tabLevel=0) const;
-    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel=0) const;
-    string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel=0) const;
-    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel=0) const;
-    string steinerPointsToJSONString(int tabLevel=0) const;
+    void computeMSTAndStPts(); 
     void computePotentialStPts(const vector<size_t>& siteIndices, const int numComboPts, 
                                 vector<GeomMedianData>& results, set< vector<size_t> >& seenList) const; 
     vector<GeomMedianData> computeStPtsForOODC() const;
