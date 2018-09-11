@@ -24,6 +24,14 @@
 
 #include <chrono>  // for high_resolution_clock
 
+//Posix semaphores
+//http://man7.org/linux/man-pages/man7/sem_overview.7.html
+//http://man7.org/linux/man-pages/man3/sem_open.3.html
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <semaphore.h>
+#include <errno.h>
+
 void PrintHelp()
 {
     ostringstream msg;
@@ -168,6 +176,16 @@ int main(int argc, char **argv)
         randSeed = time(nullptr);
     }
 
+    sem_t* pSem = sem_open(SEMAPHORE_NAME, O_CREAT, (S_IRWXU | S_IRWXG), SEMAPHORE_INIT_VALUE);
+
+    if (SEM_FAILED == pSem)
+    {
+        perror("Failed to open a semaphore for 1 St tree problem");
+        return 1;
+    }
+
+    sem_wait(pSem);
+
 //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
     // Record start time
     auto start = std::chrono::high_resolution_clock::now();
@@ -181,6 +199,14 @@ int main(int argc, char **argv)
     sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
+
+    sem_post(pSem);
+    //http://man7.org/linux/man-pages/man3/sem_close.3.html
+    /*All open named semaphores are automatically closed on process
+       termination, or upon execve(2). 
+       Oh well. Do it anyway.*/
+    sem_close(pSem);
+
     std::chrono::duration<double> elapsed = finish - start;
     double timeInSecs = elapsed.count();
     long timeNumb = static_cast<long>(floor(timeInSecs));

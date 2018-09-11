@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "-frounding-math", "-std=c++11", 
+                "-g", "-frounding-math", "-std=c++11", "-pthread",
                 "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
                 "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/printFormattingUtilFunctions.cpp", "src/utilityFunctions.cpp",
                 "-o", "OneSteinerTreeProblem_d",
@@ -38,7 +38,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-O2", "-frounding-math", "-std=c++11", 
+                "-O2", "-frounding-math", "-std=c++11", "-pthread",
                 "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
                 "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/printFormattingUtilFunctions.cpp", "src/utilityFunctions.cpp",
                 "-o", "OneSteinerTreeProblem",

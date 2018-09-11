@@ -113,6 +113,10 @@ struct Overlay_faces
 typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrangement_2, Overlay_faces>  MyOverlay_Traits;
 
 
+//http://man7.org/linux/man-pages/man7/sem_overview.7.html
+#define SEMAPHORE_NAME ("/ONE_ST_TREE_SEMAPHORE")
+#define SEMAPHORE_INIT_VALUE (1)
+
 #define MY_VERBOSE (0)
 #define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
 #define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
