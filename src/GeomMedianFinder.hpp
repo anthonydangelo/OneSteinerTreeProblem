@@ -1,6 +1,8 @@
 #ifndef GMFINDER_HPP
 #define GMFINDER_HPP
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 #include "1ST-Constants-Utilities.h"
 
 

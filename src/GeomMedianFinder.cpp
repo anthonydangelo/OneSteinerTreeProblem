@@ -1,5 +1,6 @@
 #include "GeomMedianFinder.hpp"
 
+//See OneSteinerTreeProblem.cpp for project notes
 
 //No one needs to see these file-level scoped functions and enums
 //My understanding is that the anon namespace makes this effectively a file-scoped enum

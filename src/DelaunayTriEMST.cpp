@@ -1,5 +1,7 @@
 #include "DelaunayTriEMST.hpp"
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 
 //https://doc.cgal.org/latest/BGL/index.html#title15 and cgal examples BGL_triangulation_2/emst.cpp
 DelaunayTriEMST::DelaunayTriEMST(const vector<MyPoint_2> &pointSet) : initialPointSet(pointSet),

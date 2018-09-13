@@ -1,3 +1,5 @@
+//See OneSteinerTreeProblem.cpp for project notes
+
 #include "1ST-Constants-Utilities.h"
 
 /*
@@ -50,37 +52,6 @@ namespace Vasco_Rossi
         }
         return;
     }   
-
-    //Assume the numbers aren't too large or small for doubles
-    bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
-    {
-        string ptString = Marisa_Tomei::point2ToJSON(first);
-        string tempString = Marisa_Tomei::point2ToJSON(second);
-
-        std::size_t strIndex = ptString.find_first_of(":");
-        ptString = ptString.substr(strIndex + 1);
-        strIndex = ptString.find_first_of("\"");
-        ptString = ptString.substr(strIndex + 1);
-        double ptX = stod(ptString);
-        strIndex = ptString.find_first_of(":");
-        ptString = ptString.substr(strIndex + 1);
-        strIndex = ptString.find_first_of("\"");
-        ptString = ptString.substr(strIndex + 1);
-        double ptY = stod(ptString);
-
-        strIndex = tempString.find_first_of(":");
-        tempString = tempString.substr(strIndex + 1);
-        strIndex = tempString.find_first_of("\"");
-        tempString = tempString.substr(strIndex + 1);
-        double tempX = stod(tempString);
-        strIndex = tempString.find_first_of(":");
-        tempString = tempString.substr(strIndex + 1);
-        strIndex = tempString.find_first_of("\"");
-        tempString = tempString.substr(strIndex + 1);
-        double tempY = stod(tempString);
-
-        return ( (fabs(ptX - tempX) < DOUBLE_EPSILON) && (fabs(ptY - tempY) < DOUBLE_EPSILON) );
-    }
 
     bool findOriginIndex(const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,

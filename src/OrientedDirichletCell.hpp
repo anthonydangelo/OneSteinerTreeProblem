@@ -1,6 +1,8 @@
 #ifndef ODC_HPP
 #define ODC_HPP
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 #include "1ST-Constants-Utilities.h"
 
 #include <CGAL/CORE_Expr.h>

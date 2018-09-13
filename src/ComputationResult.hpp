@@ -1,6 +1,8 @@
 #ifndef COMPUTATION_RESULT_HPP
 #define COMPUTATION_RESULT_HPP
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 #include "1ST-Constants-Utilities.h"
 
 #include <CGAL/point_generators_2.h>

@@ -1,6 +1,8 @@
 #ifndef ONE_ST_CONSTANTS_UTILITIES
 #define ONE_ST_CONSTANTS_UTILITIES
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 #include <iostream>
 #include <sstream> // for ostringstream
 #include <string>
@@ -200,7 +202,11 @@ namespace Vasco_Rossi
     void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result);
 
     //Assume the numbers aren't too large or small for doubles
-    bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second);
+    inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
+    {
+        return ( (fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
+                && (fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
+    }
 
     bool findOriginIndex(const MyPoint_2 &cellOrigin, 
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,

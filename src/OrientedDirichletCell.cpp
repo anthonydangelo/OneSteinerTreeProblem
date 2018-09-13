@@ -1,5 +1,7 @@
 #include "OrientedDirichletCell.hpp"
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
                                              const MyDirection_2 &dirB,
                                              const MyPoint_2 &cellOrigin,

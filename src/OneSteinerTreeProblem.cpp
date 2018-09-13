@@ -1,8 +1,20 @@
 //============================================================================
 // Name        : OneSteinerTreeProblem.cpp
-// Author      : Anthony D'Angelo
+// Author      : Anthony D'Angelo and the CGAL demos I re-worked. I tried to cite them in the code.
+//               Also, random internet examples (also tried to cite those).
+//              " CGAL, Computational Geometry Algorithms Library, https://www.cgal.org"
+/*              https://doc.cgal.org/latest/Manual/how_to_cite_cgal.html
+                Note: I used CGAL 4.11.2, but the manual for 4.12.1. They're pretty close.
+                @book{ cgal:eb-18b
+                , title        = "{CGAL} User and Reference Manual"
+                , author      = "{The CGAL Project}"
+                , publisher     = "{CGAL Editorial Board}"
+                , edition     = "{4.12.1}"
+                , year         = 2018
+                , url =    "https://doc.cgal.org/4.12.1/Manual/packages.html"
+                }
+*/
 // Version     :
-// Copyright   : Your copyright notice
 // Description : Implementation of (most of) Georgakopolous and Papadimitriou's 
 //               O(n^2) 1 Steiner tree algorithm from Journal of Algorithms, 1987.
 //               Use CGAL for everything, e.g., OODC arrangement.
@@ -15,6 +27,30 @@
 //                      (see Transitions in geometric minimum spanning trees by 
 //                          Monma and Suri, 1992, Journal of Discrete and Computational Geometry,
 //                          Lemma 4.1 on page "277" for the idea)
+// Copyright   : This uses CGAL and the dependencies of CGAL, which have their own licences 
+//               and copyrights and stuff that probably apply virally to this too.
+//               From some random CGAL demos (they're probably all the same):
+//                  Copyright (c) 2005-2009  INRIA Sophia-Antipolis (France).
+//                  All rights reserved.
+//
+//                  This file is part of CGAL (www.cgal.org); you can redistribute it and/or
+//                  modify it under the terms of the GNU Lesser General Public License as
+//                  published by the Free Software Foundation; either version 3 of the License,
+//                  or (at your option) any later version.
+//
+//                  Licensees holding a valid commercial license may use this file in
+//                  accordance with the commercial license agreement provided with the software.
+//
+//                  This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+//                  WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+//
+//              This stuff goes for me too:
+//              These files are provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+//              WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+//              These files are provided as a kind of example, I guess... If you use stuff from it,
+//              please give the others (CGAL, authors of the papers...) and I credit.
+//              I hope I've done that properly myself...
+//              If any papers come out of this, you'll probably have to cite the individual chapters of the CGAL manual too.
 //============================================================================
 
 #include <getopt.h>

@@ -1,5 +1,7 @@
 #include "ComputationResult.hpp"
 
+//See OneSteinerTreeProblem.cpp for project notes
+
 ComputationResult::ComputationResult(int numInputPoints,
                                      int randomSeed,
                                      int inputGridLength,
