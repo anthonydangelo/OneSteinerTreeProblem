@@ -17,12 +17,12 @@
 // Version     :
 // Description : Implementation of (most of) Georgakopolous and Papadimitriou's 
 //               O(n^2) 1 Steiner tree algorithm from Journal of Algorithms, 1987.
-//               Use CGAL for everything, e.g., OODC arrangement.
+//               Use CGAL for everything, e.g., OODC arrangement creation.
 //               We don't do their n^2 pre-processing to figure out MST length changes.
 //               Instead, we compute the new MSTs with the test Steiner points
 //               by inserting them into a Delaunay tri., taking the MST, then removing
 //               the candidate St point so we can re-use the tri. This might make this
-//               implementation (n^3)log(n)...
+//               implementation (n^2)log(n) (depends on how CGAL does this)...
 //               Future work: implement the monma-suri approach to help find the MST deltas.
 //                      (see Transitions in geometric minimum spanning trees by 
 //                          Monma and Suri, 1992, Journal of Discrete and Computational Geometry,
