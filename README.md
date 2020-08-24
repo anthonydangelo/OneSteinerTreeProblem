@@ -12,13 +12,13 @@ Implementation of (most of) Georgakopolous and Papadimitriou's O(n^2) 1-Steiner 
 }
 
 Used CGAL 4.11.2 for everything, e.g., OODC/OOVD arrangement creation. 
-Not sure how CGAL does some things and it's been a while since I've looked at the code, but I think this is at least an \Omega(n^2)log(n) implementation.
+Not sure how CGAL does some things and it's been a while since I've looked at the code, but I think this is an O(n^2)log(n) implementation, maybe worse.
 Had this code a while before I uploaded it.
 
 I remember that I didn't implement their n^2 pre-processing to enable constant-time updates of MST length, but as will appear in 
 "On the Restricted 1-Steiner Tree Problem" by P. Bose, A. D'Angelo, and S. Durocher (of which I'm a co-author), 
 we _could_ accomplish constant-time updates with nlog n preprocessing (using a result from "Approximating geometric bottleneck shortest paths" by Bose et al. 2004).
-I didn't implement that either though. It's possible I re-compute the MST every time which would give \Omega(n^3)log(n) time, but I think 
+I didn't implement that either though. It's possible I re-compute the MST every time which would give O(n^3)log(n) time, but I think 
 I probably used some kind of dynamic Delaunay allowing for log n updates.
 
 I think I used the correct CGAL data types/primitives.
