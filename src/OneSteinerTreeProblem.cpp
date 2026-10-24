@@ -77,6 +77,7 @@ namespace
         int gridLength = GRID_LENGTH_DEFAULT;
         bool trueRandom = TRUE_RANDOM_DEFAULT;
         bool onlyPoints = ONLY_POINTS_DEFAULT;
+        vector<MyPoint_2> pointsVec;
     };
 
     void PrintHelp()
@@ -101,7 +102,7 @@ namespace
     
 
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-    void ProcessArgs(int argc, char **argv, OneStPtConfig &config, vector<MyPoint_2>& inputListVec)
+    void ProcessArgs(int argc, char **argv, OneStPtConfig &config)
     {
         const char *const short_opts = "pn:rs:g:i:h";
         const option long_opts[] = {
@@ -190,7 +191,7 @@ namespace
                 if(optarg)
                 {
                     inputListString = string(optarg);
-                    Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
+                    Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, config.pointsVec);              
                 }
                 break;
 
@@ -209,9 +210,8 @@ int main(int argc, char **argv)
 {
 
     OneStPtConfig config;
-    vector<MyPoint_2> inputListVec;
 
-    ProcessArgs(argc, argv, config, inputListVec);
+    ProcessArgs(argc, argv, config);
 
     //http://www.cplusplus.com/reference/cstdlib/srand/
     if(config.trueRandom) {
@@ -233,7 +233,7 @@ int main(int argc, char **argv)
     auto start = std::chrono::high_resolution_clock::now();
     ostringstream sStream;
 
-    ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, inputListVec);
+    ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
     string compResult = myCompResult.outputResultToJSONString();
     sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
     sStream << compResult << "\n";
@@ -252,7 +252,7 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed = finish - start;
     double timeInSecs = elapsed.count();
     long timeNumb = static_cast<long>(floor(timeInSecs));
-    
+
     sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
     timeNumb /= 60;
     sStream << (timeNumb % 60) << "\", \"h\":\""; 
