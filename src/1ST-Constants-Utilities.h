@@ -107,8 +107,17 @@
 
 
 
-using namespace CGAL;
-using namespace std;
+    using std::cout;
+    using std::cerr;
+    using std::endl;
+    using std::vector;
+    using std::string;
+    using std::reference_wrapper;
+    using std::ostringstream;
+    using std::list;
+    using std::size_t;
+    using std::pair;
+    using std::set;
 
 
 
@@ -118,8 +127,8 @@ using namespace std;
 //https://doc.cgal.org/latest/Cone_spanners_2/index.html
 //typedef Exact_predicates_exact_constructions_kernel Kernel;
 #if (MY_LAZY_COMPS)
-    typedef Lazy_exact_nt<CORE::Expr> Lazy_FT;
-    typedef Simple_cartesian< Lazy_FT >  MyKernel;
+    typedef CGAL::Lazy_exact_nt<CORE::Expr> Lazy_FT;
+    typedef CGAL::Simple_cartesian< Lazy_FT >  MyKernel;
 #else
     typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
 #endif
@@ -224,7 +233,7 @@ namespace Utility_Functions
         //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
         // construct the functor
         //TODO does the cones function work w vector of const dirs?
-        Compute_cone_boundaries_2<MyKernel> cones;    
+        CGAL::Compute_cone_boundaries_2<MyKernel> cones;    
         cones(6, initialDirection, coneRays.begin());
 
         return;

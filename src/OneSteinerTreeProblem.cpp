@@ -70,6 +70,8 @@
 
 namespace
 {
+    using std::stoi;
+    
     struct OneStPtConfig
     {
         int numPoints = DEFAULT_NUM_INPUT_POINTS;

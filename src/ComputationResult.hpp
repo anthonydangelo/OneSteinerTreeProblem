@@ -14,8 +14,8 @@
 #include "GeomMedianFinder.hpp"
 
 //https://doc.cgal.org/latest/Generator/index.html
-typedef Creator_uniform_2<double, MyPoint_2> Creator;
-typedef Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
+typedef CGAL::Creator_uniform_2<double, MyPoint_2> Creator;
+typedef CGAL::Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
 typedef struct CandidateSteinerPointData
 {
@@ -43,7 +43,7 @@ class ComputationResult
     int gridLength;
     bool onlyPoints;
 
-    Random rand;
+    CGAL::Random rand;
     Point_generator     randPointGen;
     vector<MyPoint_2>   convexHullList;
 

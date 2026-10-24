@@ -8,6 +8,7 @@
  */
 namespace Utility_Functions
 {
+    using std::exception;
 
     void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result)
     {

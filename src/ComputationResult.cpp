@@ -10,7 +10,7 @@ ComputationResult::ComputationResult(int numInputPoints,
                                                                                randSeed(randomSeed),
                                                                                gridLength(inputGridLength),
                                                                                onlyPoints(onlyProducePoints),
-                                                                               rand(Random(randSeed)),
+                                                                               rand(CGAL::Random(randSeed)),
                                                                                //https://doc.cgal.org/latest/Generator/classCGAL_1_1Random__points__in__square__2.html
                                                                                randPointGen(Point_generator(gridLength, rand)),
                                                                                coneRays(6)
@@ -102,7 +102,7 @@ void ComputationResult::computeOODC()
     MyOverlay_Traits overlayTraits;
     //The arrangements and their overlays are the same type...
     //don't know what overlay returns, better not const the array arrs
-    array<MyArrangement_2, 2> myTempArrangements;
+    CGAL::array<MyArrangement_2, 2> myTempArrangements;
     size_t arrIndex = 0;
     //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
     for(size_t i = 0; i < inputPtVector.size(); ++i)
@@ -227,7 +227,7 @@ void ComputationResult::computePotentialStPts(const vector<size_t>& siteIndices,
         //TODO throw some kind of error...
         return;
     }
-    Combination_enumerator<vector<size_t>::const_iterator> combi(numComboPts, siteIndices.begin(), siteIndices.end());
+    CGAL::Combination_enumerator<vector<size_t>::const_iterator> combi(numComboPts, siteIndices.begin(), siteIndices.end());
     while (!combi.finished())
     {
         vector<size_t> siteComboIndices;

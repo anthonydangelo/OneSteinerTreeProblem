@@ -5,13 +5,16 @@
 #include "GeomMedianFinder.hpp"
 #include "ComputationResult.hpp"
 
+
+
 /*
 **
 **
  */
 namespace Pretty_Print
 {
-
+    using std::boolalpha;
+    
     string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel)
     {
         ostringstream sStream;
