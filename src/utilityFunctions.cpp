@@ -2,100 +2,103 @@
 
 #include "1ST-Constants-Utilities.h"
 
-/*
-**
-**
- */
-namespace Utility_Functions
+namespace One_St_Pt_GPA
 {
-    using std::exception;
-
-    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result)
+    /*
+    **
+    **
+    */
+    namespace Utility_Functions
     {
-        //I'd like to use a regex here, but I don't know how to write the grammar...
-        //http://www.cplusplus.com/reference/string/string/find_first_of/
-        std::size_t strIndex = inputString.find_first_of("[");
-        //I don't like the way I'm doing this parsing!
-        while (strIndex != std::string::npos)
+        using std::exception;
+
+        void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result)
         {
-            strIndex = inputString.find_first_of("[", strIndex + 1);
-            if (strIndex != string::npos)
+            //I'd like to use a regex here, but I don't know how to write the grammar...
+            //http://www.cplusplus.com/reference/string/string/find_first_of/
+            std::size_t strIndex = inputString.find_first_of("[");
+            //I don't like the way I'm doing this parsing!
+            while (strIndex != std::string::npos)
             {
-                try
+                strIndex = inputString.find_first_of("[", strIndex + 1);
+                if (strIndex != string::npos)
                 {
-                    //http://www.cplusplus.com/reference/string/stod/
-                    string::size_type stodIndex;
-                    double firstD = stod(inputString.substr(strIndex + 1), &stodIndex);
-                    strIndex = inputString.find_first_of(",", stodIndex + strIndex);
-                    if (strIndex != string::npos)
+                    try
                     {
-                        double secondD = stod(inputString.substr(strIndex + 1));
-                        //the temp assigned to the const ref apparently dies when we leave the function, leaving dangling ref
-//                        const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
-//                        result.push_back(temp);
-                        result.emplace_back(firstD, secondD);
+                        //http://www.cplusplus.com/reference/string/stod/
+                        string::size_type stodIndex;
+                        double firstD = stod(inputString.substr(strIndex + 1), &stodIndex);
+                        strIndex = inputString.find_first_of(",", stodIndex + strIndex);
+                        if (strIndex != string::npos)
+                        {
+                            double secondD = stod(inputString.substr(strIndex + 1));
+                            //the temp assigned to the const ref apparently dies when we leave the function, leaving dangling ref
+    //                        const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
+    //                        result.push_back(temp);
+                            result.emplace_back(firstD, secondD);
+                        }
+                    }
+                    catch (exception &e)
+                    {
+                        cerr << e.what() << endl;
+                        cerr << "Input point list string malformed" << endl;
+                        result.clear();
+                        return;
                     }
                 }
-                catch (exception &e)
-                {
-                    cerr << e.what() << endl;
-                    cerr << "Input point list string malformed" << endl;
-                    result.clear();
-                    return;
-                }
             }
-        }
-        return;
-    }   
+            return;
+        }   
 
-    bool findOriginIndex(const MyPoint_2 &cellOrigin, 
-                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                          size_t &resultIndex)
-    {
-        resultIndex = 0;
-        for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
+        bool findOriginIndex(const MyPoint_2 &cellOrigin, 
+                            const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
+                            size_t &resultIndex)
         {
-            if (pointsAreTooClose(*it, cellOrigin))
+            resultIndex = 0;
+            for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
             {
-                return true;
-            }
-        }
-        return false;
-    }    
-
-    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex)
-    {
-        myIndex = 0;
-        if(!myColl.empty()){
-            auto endIt = end(myColl);
-            for (auto it = begin(myColl); it != endIt; ++it, ++myIndex) {
-                if(pointsAreTooClose(*it, pt)){
+                if (pointsAreTooClose(*it, cellOrigin))
+                {
                     return true;
                 }
-            }    
-        }
-        return false;
-    }
-
-    //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-    void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec)
-    {
-        set<MyPoint_2> arrPoints;
-        for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
-        {
-            if (! it->is_isolated() && ! it->is_at_open_boundary())
-            {
-                const MyPoint_2& tempPt = it->point();
-                arrPoints.emplace(tempPt.x(), tempPt.y());
             }
+            return false;
         }    
-        for (const MyPoint_2& p : arrPoints)
+
+        bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex)
         {
-            //we could probably turn this into a vec of refs, but it's not clear if the obvious way works
-            arrPointsVec.emplace_back(p.x(), p.y());
+            myIndex = 0;
+            if(!myColl.empty()){
+                auto endIt = end(myColl);
+                for (auto it = begin(myColl); it != endIt; ++it, ++myIndex) {
+                    if(pointsAreTooClose(*it, pt)){
+                        return true;
+                    }
+                }    
+            }
+            return false;
         }
-        return;
-    }    
+
+        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
+        void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec)
+        {
+            set<MyPoint_2> arrPoints;
+            for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
+            {
+                if (! it->is_isolated() && ! it->is_at_open_boundary())
+                {
+                    const MyPoint_2& tempPt = it->point();
+                    arrPoints.emplace(tempPt.x(), tempPt.y());
+                }
+            }    
+            for (const MyPoint_2& p : arrPoints)
+            {
+                //we could probably turn this into a vec of refs, but it's not clear if the obvious way works
+                arrPointsVec.emplace_back(p.x(), p.y());
+            }
+            return;
+        }    
 
 
-} // namespace Utility_Functions
+    } // namespace Utility_Functions
+} // namespace One_St_Pt_GPA

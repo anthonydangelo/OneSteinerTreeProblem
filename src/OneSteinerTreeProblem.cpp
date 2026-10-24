@@ -68,6 +68,8 @@
 #include <semaphore.h>
 #include <errno.h>
 
+using namespace One_St_Pt_GPA;
+
 namespace
 {
     using std::stoi;

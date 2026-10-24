@@ -105,8 +105,9 @@
 
 #define DOUBLE_EPSILON (0.000001)
 
-
-
+// project namespace: one steiner point Georgakopolous-Papadimitriou algorithm (GPA)
+namespace One_St_Pt_GPA
+{
     using std::cout;
     using std::cerr;
     using std::endl;
@@ -120,198 +121,198 @@
     using std::set;
 
 
+    //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
+    //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
+    //https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
+    //https://doc.cgal.org/latest/Cone_spanners_2/index.html
+    //typedef Exact_predicates_exact_constructions_kernel Kernel;
+#   if (MY_LAZY_COMPS)
+        typedef CGAL::Lazy_exact_nt<CORE::Expr> Lazy_FT;
+        typedef CGAL::Simple_cartesian< Lazy_FT >  MyKernel;
+#   else
+        typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
+#   endif
+    //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
+    typedef MyKernel::FT                                                        My_Number_type;
+    typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;
 
-//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
-//https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
-//https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
-//https://doc.cgal.org/latest/Cone_spanners_2/index.html
-//typedef Exact_predicates_exact_constructions_kernel Kernel;
-#if (MY_LAZY_COMPS)
-    typedef CGAL::Lazy_exact_nt<CORE::Expr> Lazy_FT;
-    typedef CGAL::Simple_cartesian< Lazy_FT >  MyKernel;
-#else
-    typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
-#endif
-//https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
-typedef MyKernel::FT                                                        My_Number_type;
-typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;
+    typedef MyTraits_2::Point_2                                                 MyPoint_2;
+    typedef MyTraits_2::Segment_2                                               MySegment_2;
+    typedef MyTraits_2::Line_2                                                  MyLine_2;
+    typedef MyTraits_2::Intersect_2                                             MyIntersect_2;
 
-typedef MyTraits_2::Point_2                                                 MyPoint_2;
-typedef MyTraits_2::Segment_2                                               MySegment_2;
-typedef MyTraits_2::Line_2                                                  MyLine_2;
-typedef MyTraits_2::Intersect_2                                             MyIntersect_2;
+    typedef MyTraits_2::Direction_2                                             MyDirection_2;
 
-typedef MyTraits_2::Direction_2                                             MyDirection_2;
+    typedef CGAL::Polygon_2<MyKernel>                                           MyPolygon_2;
+    typedef CGAL::Polygon_with_holes_2<MyKernel>                                MyPolygon_with_holes_2;
+    typedef CGAL::Polygon_set_2<MyKernel>                                       MyPolygon_set_2;
 
-typedef CGAL::Polygon_2<MyKernel>                                           MyPolygon_2;
-typedef CGAL::Polygon_with_holes_2<MyKernel>                                MyPolygon_with_holes_2;
-typedef CGAL::Polygon_set_2<MyKernel>                                       MyPolygon_set_2;
+    //enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
+    struct MyFaceData 
+    {
+    //    vector< size_t > myInputPointIndices;
+        set< size_t > myInputPointIndices;
+        //TODO augment with something that lets us do a colouring of the faces
+    };
 
-//enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
-typedef struct {
-//    vector< size_t > myInputPointIndices;
-    set< size_t > myInputPointIndices;
-    //TODO augment with something that lets us do a colouring of the faces
-} MyFaceData;
+    //https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
+    //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
+    //Might only be able to use extended faces 
+    //typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
+    //typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
+    typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
+    typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
 
-//https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
-//https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
-//Might only be able to use extended faces 
-//typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
-//typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
-typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
-typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
-
-// Define a functor for creating a label.
-struct Overlay_faces
-{
-  MyFaceData operator() (MyFaceData first, MyFaceData second) const
-  {
-      //This should work out since the outer faces of the arrangements will have empty sets //vectors
-        MyFaceData result;
-
-        for(const auto ind : first.myInputPointIndices)
+    // Define a functor for creating a label.
+    struct Overlay_faces
+    {
+        MyFaceData operator() (MyFaceData first, MyFaceData second) const
         {
-            result.myInputPointIndices.insert(ind);
+            //This should work out since the outer faces of the arrangements will have empty sets //vectors
+                MyFaceData result;
+
+                for(const auto ind : first.myInputPointIndices)
+                {
+                    result.myInputPointIndices.insert(ind);
+                }
+                for(const auto ind : second.myInputPointIndices)
+                {
+                    result.myInputPointIndices.insert(ind);
+                }        
+
+                return result;
         }
-        for(const auto ind : second.myInputPointIndices)
+    };
+    typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrangement_2, Overlay_faces>  MyOverlay_Traits;
+
+
+
+    ////// Forward-declare Structs used in printing and utils ///////
+    struct GeomMedianData;
+    struct MyEMSTData;
+    struct CandidateSteinerPointData;
+
+    /////////////////////
+    // Namespaces for utilities and printing.
+
+    /*
+    **
+    **
+    */
+    namespace Utility_Functions
+    {
+
+        inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
         {
-            result.myInputPointIndices.insert(ind);
-        }        
-
-        return result;
-  }
-};
-typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrangement_2, Overlay_faces>  MyOverlay_Traits;
-
-
-
-////// Forward-declare Structs used in printing and utils ///////
-struct GeomMedianData;
-struct MyEMSTData;
-struct CandidateSteinerPointData;
-
-/////////////////////
-// Namespaces for utilities and printing.
-
-/*
-**
-**
- */
-namespace Utility_Functions
-{
-
-    inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
-    {
-        return ((x >= lowEnd) && (x <= highEnd));
-    }
-
-    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result);
-
-    //Assume the numbers aren't too large or small for doubles
-    inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
-    {
-        return ( (fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
-                && (fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
-    }
-
-    bool findOriginIndex(const MyPoint_2 &cellOrigin, 
-                          const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                          size_t &resultIndex);
-
-    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex);
-
-    inline void computeConvexHull(const vector< MyPoint_2 > &pointVec, vector<MyPoint_2> &convexHullList)
-    {
-        //TODO does convex hull work w const mypoints?
-        ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
-        return;
-    }    
-
-    inline void computeConeRays(const MyDirection_2 &initialDirection, vector<MyDirection_2> &coneRays)
-    {
-        //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
-        // construct the functor
-        //TODO does the cones function work w vector of const dirs?
-        CGAL::Compute_cone_boundaries_2<MyKernel> cones;    
-        cones(6, initialDirection, coneRays.begin());
-
-        return;
-    }
-
-    //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-    void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec);
-
-} // namespace Utility_Functions
-
-
-/*
-**
-**
- */
-namespace Pretty_Print
-{
-    inline string wrapStringInQuotes(const string &s)
-    {
-        return ("\"" + s + "\"");
-    }
-
-    inline string point2ToJSON(const MyPoint_2 &p)
-    {
-        ostringstream sStream;
-
-        sStream << "{\"x\":\"" << p.x() << "\", "
-                << "\"y\":\"" << p.y() << "\"}";
-        return sStream.str();
-    } 
-
-    inline string insertTabs(int level)
-    {
-        ostringstream sStream;
-        for (int i = 0; i < level; ++i)
-        {
-            sStream << "\t";
+            return ((x >= lowEnd) && (x <= highEnd));
         }
-        return sStream.str();
-    }
 
-#if (MY_VERBOSE)
-    //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html#title6 
-    //&& examples/Arrangement_on_surface_2/bgl_dual_adapter.cpp 
-    //&& examples/Arrangement_on_surface_2/arr_print.h
-    inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
+        void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result);
+
+        //Assume the numbers aren't too large or small for doubles
+        inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
+        {
+            return ( (fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
+                    && (fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
+        }
+
+        bool findOriginIndex(const MyPoint_2 &cellOrigin, 
+                            const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
+                            size_t &resultIndex);
+
+        bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex);
+
+        inline void computeConvexHull(const vector< MyPoint_2 > &pointVec, vector<MyPoint_2> &convexHullList)
+        {
+            //TODO does convex hull work w const mypoints?
+            ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
+            return;
+        }    
+
+        inline void computeConeRays(const MyDirection_2 &initialDirection, vector<MyDirection_2> &coneRays)
+        {
+            //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
+            // construct the functor
+            //TODO does the cones function work w vector of const dirs?
+            CGAL::Compute_cone_boundaries_2<MyKernel> cones;    
+            cones(6, initialDirection, coneRays.begin());
+
+            return;
+        }
+
+        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
+        void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec);
+
+    } // namespace Utility_Functions
+
+
+    /*
+    **
+    **
+    */
+    namespace Pretty_Print
     {
-        MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
-        std::cout << "(" << curr->source()->point() << ")";
-        do {
-            MyArrangement_2::Halfedge_const_handle he = curr;
-            std::cout << " [" << he->curve() << "] "
-              << "(" << he->target()->point() << ")";
-        } while (++curr != circ);
-        std::cout << std::endl;
-    }
-#endif
+        inline string wrapStringInQuotes(const string &s)
+        {
+            return ("\"" + s + "\"");
+        }
 
-    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel = 0);
+        inline string point2ToJSON(const MyPoint_2 &p)
+        {
+            ostringstream sStream;
 
-    string mstDataToJSONString(const MyEMSTData &mst, int tabLevel = 0);
+            sStream << "{\"x\":\"" << p.x() << "\", "
+                    << "\"y\":\"" << p.y() << "\"}";
+            return sStream.str();
+        } 
 
-    string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel = 0);
+        inline string insertTabs(int level)
+        {
+            ostringstream sStream;
+            for (int i = 0; i < level; ++i)
+            {
+                sStream << "\t";
+            }
+            return sStream.str();
+        }
 
-    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel = 0);
+#   if (MY_VERBOSE)
+        //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html#title6 
+        //&& examples/Arrangement_on_surface_2/bgl_dual_adapter.cpp 
+        //&& examples/Arrangement_on_surface_2/arr_print.h
+        inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
+        {
+            MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
+            std::cout << "(" << curr->source()->point() << ")";
+            do {
+                MyArrangement_2::Halfedge_const_handle he = curr;
+                std::cout << " [" << he->curve() << "] "
+                << "(" << he->target()->point() << ")";
+            } while (++curr != circ);
+            std::cout << std::endl;
+        }
+#   endif
 
-    string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel = 0);
+        string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel = 0);
 
-    string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel = 0);
+        string mstDataToJSONString(const MyEMSTData &mst, int tabLevel = 0);
 
-    string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                    const vector<MyPoint_2> &myPtSet, int tabLevel = 0);    
+        string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel = 0);
 
-    string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const vector<MyPoint_2> &myPtSet, int tabLevel = 0);
+        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel = 0);
 
-    string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel = 0);
+        string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel = 0);
 
-} // namespace Pretty_Print
+        string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel = 0);
 
+        string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
+                                                        const vector<MyPoint_2> &myPtSet, int tabLevel = 0);    
+
+        string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                                            const vector<MyPoint_2> &myPtSet, int tabLevel = 0);
+
+        string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel = 0);
+
+    } // namespace Pretty_Print
+} // namespace One_St_Pt_GPA
 #endif

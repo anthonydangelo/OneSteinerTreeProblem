@@ -9,41 +9,43 @@
 #include <CGAL/Extended_cartesian.h>
 #include <CGAL/Nef_polyhedron_2.h>
 
-typedef CORE::Expr Nef_FT;
-#if (MY_LAZY_COMPS)
-  typedef CGAL::Lazy_exact_nt<Nef_FT> Lazy_Nef_FT; //compiler can't convert non-lazy expr into lazy expr...
-  typedef CGAL::Extended_cartesian<Lazy_Nef_FT> Nef_Extended_kernel;
-#else
-  typedef Extended_cartesian<Nef_FT> Nef_Extended_kernel;
-#endif
-typedef CGAL::Nef_polyhedron_2<Nef_Extended_kernel> MyNef_polyhedron;
-
-typedef MyNef_polyhedron::Point Nef_Point;
-typedef MyNef_polyhedron::Line Nef_Line;
-typedef MyNef_polyhedron::Direction Nef_Direction;
-typedef MyNef_polyhedron::Explorer Nef_Explorer;
-
-class OrientedDirichletCell
+namespace One_St_Pt_GPA
 {
-  protected: 
-    //member initialization order depends on the order we list them here, apparently
-    const Nef_Direction     firstDir;
-    const Nef_Direction     secondDir;
-    const Nef_Point         cellOriginPoint;
-    MyArrangement_2   odcArr;
+    typedef CORE::Expr Nef_FT;
+    #if (MY_LAZY_COMPS)
+        typedef CGAL::Lazy_exact_nt<Nef_FT> Lazy_Nef_FT; //compiler can't convert non-lazy expr into lazy expr...
+        typedef CGAL::Extended_cartesian<Lazy_Nef_FT> Nef_Extended_kernel;
+    #else
+        typedef Extended_cartesian<Nef_FT> Nef_Extended_kernel;
+    #endif
+    typedef CGAL::Nef_polyhedron_2<Nef_Extended_kernel> MyNef_polyhedron;
 
-  public:
-    OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
-                          const MyPoint_2 &cellOrigin, 
-                          const size_t &originPtIndex,
-                          const vector< MyPoint_2 > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
-                          const MyNef_polyhedron &clippingPolygon);
-    const MyArrangement_2 & getCellArrangement() const;
+    typedef MyNef_polyhedron::Point Nef_Point;
+    typedef MyNef_polyhedron::Line Nef_Line;
+    typedef MyNef_polyhedron::Direction Nef_Direction;
+    typedef MyNef_polyhedron::Explorer Nef_Explorer;
 
-  protected:
-    void computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon, 
-                      const vector< MyPoint_2 > &inputPointSet, size_t originPtIndex);  
-    void extractArrangement( MyArrangement_2 &result, const Nef_Explorer &myExplorer, const size_t &originIndex);
-};
+    class OrientedDirichletCell
+    {
+    protected: 
+        //member initialization order depends on the order we list them here
+        const Nef_Direction     firstDir;
+        const Nef_Direction     secondDir;
+        const Nef_Point         cellOriginPoint;
+        MyArrangement_2   odcArr;
 
+    public:
+        OrientedDirichletCell(const MyDirection_2 &dirA, const MyDirection_2 &dirB,
+                            const MyPoint_2 &cellOrigin, 
+                            const size_t &originPtIndex,
+                            const vector< MyPoint_2 > &inputPointSet, //vector instead of a set so we can use 'reliable' indices
+                            const MyNef_polyhedron &clippingPolygon);
+        const MyArrangement_2 & getCellArrangement() const;
+
+    protected:
+        void computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon, 
+                        const vector< MyPoint_2 > &inputPointSet, size_t originPtIndex);  
+        void extractArrangement( MyArrangement_2 &result, const Nef_Explorer &myExplorer, const size_t &originIndex);
+    };
+} // namespace One_St_Pt_GPA
 #endif
