@@ -68,148 +68,154 @@
 #include <semaphore.h>
 #include <errno.h>
 
-void PrintHelp()
+namespace
 {
-    ostringstream msg;
-    msg << "--onlyPoints (-p):        Only create new random points and return\n"
-           "--numPoints (-n) <int>:   Number of random points to generate (between "
-                        << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
-                        << DEFAULT_NUM_INPUT_POINTS << ")\n"
-           "--trueRandom (-r):        Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
-                        << TRUE_RANDOM_DEFAULT << ")\n"
-           "--randSeed (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
-                        << RAND_SEED_DEFAULT << ")\n"
-           "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
-                        << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
-           "--inputList (-i) <string s = [[x,y],[u,v],...]>: Use these points (comes out of numPoints' budget)\n"
-           "--help (-h):              Show help\n";
-
-    cout << msg.str();
-    exit(1);
-}
-
-int numPoints = DEFAULT_NUM_INPUT_POINTS;
-int randSeed = RAND_SEED_DEFAULT;
-int gridLength = GRID_LENGTH_DEFAULT;
-bool trueRandom = TRUE_RANDOM_DEFAULT;
-bool onlyPoints = ONLY_POINTS_DEFAULT;
-string inputListString = "";
-
-//https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-void ProcessArgs(int argc, char **argv, vector<MyPoint_2>& inputListVec)
-{
-    const char *const short_opts = "pn:rs:g:i:h";
-    const option long_opts[] = {
-        {"onlyPoints", no_argument, nullptr, 'p'},
-        {"numPoints", required_argument, nullptr, 'n'},
-        {"trueRandom", no_argument, nullptr, 'r'},
-        {"randSeed", required_argument, nullptr, 's'},
-        {"gridLength", required_argument, nullptr, 'g'},
-        {"inputList", required_argument, nullptr, 'i'},
-        {"help", no_argument, nullptr, 'h'},
-        {nullptr, no_argument, nullptr, 0}};
-
-    //note: string(optarg) is to take in and make a string
-    while (true)
+    struct OneStPtConfig
     {
-        const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
+        int numPoints = DEFAULT_NUM_INPUT_POINTS;
+        int randSeed = RAND_SEED_DEFAULT;
+        int gridLength = GRID_LENGTH_DEFAULT;
+        bool trueRandom = TRUE_RANDOM_DEFAULT;
+        bool onlyPoints = ONLY_POINTS_DEFAULT;
+    };
 
-        if (-1 == opt)
-            break;
+    void PrintHelp()
+    {
+        ostringstream msg;
+        msg << "--onlyPoints (-p):        Only create new random points and return\n"
+            "--numPoints (-n) <int>:   Number of random points to generate (between "
+                            << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
+                            << DEFAULT_NUM_INPUT_POINTS << ")\n"
+            "--trueRandom (-r):        Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
+                            << TRUE_RANDOM_DEFAULT << ")\n"
+            "--randSeed (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
+                            << RAND_SEED_DEFAULT << ")\n"
+            "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
+                            << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
+            "--inputList (-i) <string s = [[x,y],[u,v],...]>: Use these points (comes out of numPoints' budget)\n"
+            "--help (-h):              Show help\n";
 
-        switch (opt)
+        cout << msg.str();
+        exit(1);
+    }
+    
+
+    //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
+    void ProcessArgs(int argc, char **argv, OneStPtConfig &config, vector<MyPoint_2>& inputListVec)
+    {
+        const char *const short_opts = "pn:rs:g:i:h";
+        const option long_opts[] = {
+            {"onlyPoints", no_argument, nullptr, 'p'},
+            {"numPoints", required_argument, nullptr, 'n'},
+            {"trueRandom", no_argument, nullptr, 'r'},
+            {"randSeed", required_argument, nullptr, 's'},
+            {"gridLength", required_argument, nullptr, 'g'},
+            {"inputList", required_argument, nullptr, 'i'},
+            {"help", no_argument, nullptr, 'h'},
+            {nullptr, no_argument, nullptr, 0}};
+        string inputListString = "";
+
+        //note: string(optarg) is to take in and make a string
+        while (true)
         {
-        case 'p':
-            onlyPoints = true;
-            break;
+            const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
 
-        case 'n':
-            if (optarg)
+            if (-1 == opt)
+                break;
+
+            switch (opt)
             {
-                try
+            case 'p':
+                config.onlyPoints = true;
+                break;
+
+            case 'n':
+                if (optarg)
                 {
-                    int temp = stoi(optarg);
-                    if (Vasco_Rossi::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
+                    try
                     {
-                        numPoints = temp;
-                    } else 
+                        int temp = stoi(optarg);
+                        if (Vasco_Rossi::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
+                        {
+                            config.numPoints = temp;
+                        } else 
+                        {
+                            cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                        }
+                    }
+                    catch (...)
                     {
+                        config.numPoints = DEFAULT_NUM_INPUT_POINTS;
                         cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
                     }
                 }
-                catch (...)
+                break;
+
+            case 'r':
+                config.trueRandom = true;
+                break;
+
+            case 's':
+                if (optarg)
                 {
-                    numPoints = DEFAULT_NUM_INPUT_POINTS;
-                    cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                    try
+                    {
+                        //note: also stof exists
+                        config.randSeed = stoi(optarg);
+                    }
+                    catch (...)
+                    {
+                        config.randSeed = RAND_SEED_DEFAULT;
+                        cerr << "Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
+                    }
                 }
+                break;
+
+            case 'g':
+                if (optarg)
+                {
+                    try
+                    {
+                        config.gridLength = stoi(optarg);
+                    }
+                    catch (...)
+                    {
+                        config.gridLength = GRID_LENGTH_DEFAULT;
+                        cerr << "Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
+                    }
+                }
+                break;
+
+            case 'i':
+                if(optarg)
+                {
+                    inputListString = string(optarg);
+                    Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
+                }
+                break;
+
+            case 'h': // -h or --help
+            case '?': // Unrecognized option
+            default:
+                PrintHelp();
+                break;
             }
-            break;
-
-        case 'r':
-            trueRandom = true;
-            break;
-
-        case 's':
-            if (optarg)
-            {
-                try
-                {
-                    //note: also stof exists
-                    randSeed = stoi(optarg);
-                }
-                catch (...)
-                {
-                    randSeed = RAND_SEED_DEFAULT;
-                    cerr << "Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
-                }
-            }
-            break;
-
-        case 'g':
-            if (optarg)
-            {
-                try
-                {
-                    gridLength = stoi(optarg);
-                }
-                catch (...)
-                {
-                    gridLength = GRID_LENGTH_DEFAULT;
-                    cerr << "Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
-                }
-            }
-            break;
-
-        case 'i':
-            if(optarg)
-            {
-                inputListString = string(optarg);
-                Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, inputListVec);              
-            }
-            break;
-
-        case 'h': // -h or --help
-        case '?': // Unrecognized option
-        default:
-            PrintHelp();
-            break;
         }
+        return;
     }
-    return;
-}
-
+} // anon namespace
 
 int main(int argc, char **argv)
 {
 
+    OneStPtConfig config;
     vector<MyPoint_2> inputListVec;
 
-    //There's some kind of CGAL destructor bug that blows up if we have this vector as a global...
-    ProcessArgs(argc, argv, inputListVec);
+    ProcessArgs(argc, argv, config, inputListVec);
 
     //http://www.cplusplus.com/reference/cstdlib/srand/
-    if(trueRandom) {
-        randSeed = time(nullptr);
+    if(config.trueRandom) {
+        config.randSeed = time(nullptr);
     }
 
     sem_t* pSem = sem_open(SEMAPHORE_NAME, O_CREAT, (S_IRWXU | S_IRWXG), SEMAPHORE_INIT_VALUE);
@@ -227,7 +233,7 @@ int main(int argc, char **argv)
     auto start = std::chrono::high_resolution_clock::now();
     ostringstream sStream;
 
-    ComputationResult myCompResult(numPoints, randSeed, gridLength, onlyPoints, inputListVec);
+    ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, inputListVec);
     string compResult = myCompResult.outputResultToJSONString();
     sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
     sStream << compResult << "\n";
@@ -246,6 +252,7 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed = finish - start;
     double timeInSecs = elapsed.count();
     long timeNumb = static_cast<long>(floor(timeInSecs));
+    
     sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
     timeNumb /= 60;
     sStream << (timeNumb % 60) << "\", \"h\":\""; 
