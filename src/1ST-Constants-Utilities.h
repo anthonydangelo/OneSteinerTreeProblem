@@ -44,12 +44,73 @@
 #include <CGAL/enum.h>
 #include <CGAL/intersections.h>
 
-//TODO might be good to remove these and explicitly list the things I use...
-//e.g. why necessary: time() in main() might be CGAL, not std...
+
+
+#define MY_LAZY_COMPS   (1)
+
+//http://man7.org/linux/man-pages/man7/sem_overview.7.html
+#define SEMAPHORE_NAME ("/ONE_ST_TREE_SEMAPHORE")
+#define SEMAPHORE_INIT_VALUE (1)
+
+#define MY_VERBOSE (0)
+#define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
+#define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
+#define BUILD_ODCELL_BY_DIFFERENCES   (1)
+
+//magic numbers
+#define MIN_NUM_INPUT_POINTS (3)
+#define MAX_NUM_INPUT_POINTS (10)
+#define DEFAULT_NUM_INPUT_POINTS (MIN_NUM_INPUT_POINTS)
+
+#define GRID_LENGTH_DEFAULT (10)
+
+#define RAND_SEED_DEFAULT (10)
+#define TRUE_RANDOM_DEFAULT (false)
+
+#define ONLY_POINTS_DEFAULT (false)
+
+
+#define ELAPSED_TIME_NAME_STRING ("elapsedTime")
+#define COMP_RESULT_NAME_STRING ("compResult")
+#define INPUT_POINTS_NAME_STRING ("inputPoints")
+#define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
+#define RAND_SEED_NAME_STRING ("randSeed")
+#define GRID_LENGTH_NAME_STRING ("gridLength")
+//////////////////////////////
+#define ARR_NAME_STRING ("odcArrangement")
+#define ARR_POINTS_NAME_STRING ("arrangementPoints")
+///////
+#define ARR_FACES_NAME_STRING ("arrangementFaces")
+#define ARR_IND_FACE_NAME_STRING ("arrFace")
+#define ARR_FACE_NAME_PREFIX_NAME_STRING ("arrFace__")
+#define ARR_FACE_CCW_V_INDICES_NAME_STRING ("arrangementFaceCCWVIndices")
+#define ARR_OODC_INPUT_SITE_INDICES_NAME_STRING ("arrangementOODCSiteIndices")
+//////////////////////////////
+#define MST_NAME_STRING ("minSpanningTree")
+#define MST_LENGTH_NAME_STRING ("mstLength")
+#define MST_EDGE_LIST_NAME_STRING ("mstEdgeList")
+#define MST_EDGE_NAME_STRING ("mstEdge")
+#define MST_EDGE_ENDPOINT_INDICES_NAME_STRING ("mstEdgeEndpointIndices")
+#define MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING ("firstEndPointIsSteiner")
+#define MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING ("secondEndPointIsSteiner")
+//////////////////////////////
+#define STEINER_PT_NAME_STRING ("steinerPoint")
+#define GEOM_MED_POINT_NAME_STRING ("geomMedPoint")
+#define GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING ("geomMedNeighbourIndices")
+#define GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING ("geomMedCoincidesWithInputPt")
+#define GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING ("geomMedCoincidentInputPtIndex")
+//////////////////////////////
+#define CANDIDATE_ST_PT_DATA_LIST_NAME_STRING ("candidateStPtDataList")
+#define CANDIDATE_STEINER_POINT_DATA_NAME_STRING ("candidateStPtData")
+
+#define DOUBLE_EPSILON (0.000001)
+
+
+
 using namespace CGAL;
 using namespace std;
 
-#define MY_LAZY_COMPS   (1)
+
 
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
 //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
@@ -115,63 +176,6 @@ struct Overlay_faces
 typedef CGAL::Arr_face_overlay_traits<MyArrangement_2, MyArrangement_2, MyArrangement_2, Overlay_faces>  MyOverlay_Traits;
 
 
-//http://man7.org/linux/man-pages/man7/sem_overview.7.html
-#define SEMAPHORE_NAME ("/ONE_ST_TREE_SEMAPHORE")
-#define SEMAPHORE_INIT_VALUE (1)
-
-#define MY_VERBOSE (0)
-#define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
-#define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
-#define BUILD_ODCELL_BY_DIFFERENCES   (1)
-
-//magic numbers
-#define MIN_NUM_INPUT_POINTS (3)
-#define MAX_NUM_INPUT_POINTS (10)
-#define DEFAULT_NUM_INPUT_POINTS (MIN_NUM_INPUT_POINTS)
-
-#define GRID_LENGTH_DEFAULT (10)
-
-#define RAND_SEED_DEFAULT (10)
-#define TRUE_RANDOM_DEFAULT (false)
-
-#define ONLY_POINTS_DEFAULT (false)
-
-
-#define ELAPSED_TIME_NAME_STRING ("elapsedTime")
-#define COMP_RESULT_NAME_STRING ("compResult")
-#define INPUT_POINTS_NAME_STRING ("inputPoints")
-#define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
-#define RAND_SEED_NAME_STRING ("randSeed")
-#define GRID_LENGTH_NAME_STRING ("gridLength")
-//////////////////////////////
-#define ARR_NAME_STRING ("odcArrangement")
-#define ARR_POINTS_NAME_STRING ("arrangementPoints")
-///////
-#define ARR_FACES_NAME_STRING ("arrangementFaces")
-#define ARR_IND_FACE_NAME_STRING ("arrFace")
-#define ARR_FACE_NAME_PREFIX_NAME_STRING ("arrFace__")
-#define ARR_FACE_CCW_V_INDICES_NAME_STRING ("arrangementFaceCCWVIndices")
-#define ARR_OODC_INPUT_SITE_INDICES_NAME_STRING ("arrangementOODCSiteIndices")
-//////////////////////////////
-#define MST_NAME_STRING ("minSpanningTree")
-#define MST_LENGTH_NAME_STRING ("mstLength")
-#define MST_EDGE_LIST_NAME_STRING ("mstEdgeList")
-#define MST_EDGE_NAME_STRING ("mstEdge")
-#define MST_EDGE_ENDPOINT_INDICES_NAME_STRING ("mstEdgeEndpointIndices")
-#define MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING ("firstEndPointIsSteiner")
-#define MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING ("secondEndPointIsSteiner")
-//////////////////////////////
-#define STEINER_PT_NAME_STRING ("steinerPoint")
-#define GEOM_MED_POINT_NAME_STRING ("geomMedPoint")
-#define GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING ("geomMedNeighbourIndices")
-#define GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING ("geomMedCoincidesWithInputPt")
-#define GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING ("geomMedCoincidentInputPtIndex")
-//////////////////////////////
-#define CANDIDATE_ST_PT_DATA_LIST_NAME_STRING ("candidateStPtDataList")
-#define CANDIDATE_STEINER_POINT_DATA_NAME_STRING ("candidateStPtData")
-
-#define DOUBLE_EPSILON (0.000001)
-
 
 ////// Forward-declare Structs used in printing and utils ///////
 struct GeomMedianData;
@@ -183,15 +187,9 @@ struct CandidateSteinerPointData;
 
 /*
 **
-** Why namespace Vasco_Rossi? 
-** Apart from sounding like it could be the name of his next album,
-** it's just more interesting than "Utility_Functions". 
-** Plus, since it's likely that I'm the only one who's ever going
-** to see/use this, I can call it whatever I want as long as he doesn't mind. I hope he doesn't...
-** Plus I'm a fan.
 **
  */
-namespace Vasco_Rossi
+namespace Utility_Functions
 {
 
     inline bool intInRangeInclusive(int x, int lowEnd, int highEnd)
@@ -199,7 +197,7 @@ namespace Vasco_Rossi
         return ((x >= lowEnd) && (x <= highEnd));
     }
 
-    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result);
+    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result);
 
     //Assume the numbers aren't too large or small for doubles
     inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
@@ -212,16 +210,16 @@ namespace Vasco_Rossi
                           const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
                           size_t &resultIndex);
 
-    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 >& myColl, size_t &myIndex);
+    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex);
 
-    inline void computeConvexHull(const vector< MyPoint_2 >& pointVec, vector<MyPoint_2>& convexHullList)
+    inline void computeConvexHull(const vector< MyPoint_2 > &pointVec, vector<MyPoint_2> &convexHullList)
     {
         //TODO does convex hull work w const mypoints?
         ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
         return;
     }    
 
-    inline void computeConeRays(const MyDirection_2& initialDirection, vector<MyDirection_2>& coneRays)
+    inline void computeConeRays(const MyDirection_2 &initialDirection, vector<MyDirection_2> &coneRays)
     {
         //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
         // construct the functor
@@ -233,24 +231,16 @@ namespace Vasco_Rossi
     }
 
     //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-    void insertArrangementPointsIntoPointSet(const MyArrangement_2& resultODCArrangement, vector< MyPoint_2 >& arrPointsVec);
+    void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec);
 
-} // namespace Vasco_Rossi
+} // namespace Utility_Functions
 
 
 /*
 **
-** Why namespace Marisa_Tomei? 
-** A few of her movies have been on tv lately. 
-** They left me wanting to see more of her...
-** I think it's a fitting name for pretty print functions.
-**
-** Plus, since it's likely that I'm the only one who's ever going
-** to see/use this, I can call it whatever I want as long as she doesn't mind. I hope she doesn't...
-** Plus, I'm a fan.
 **
  */
-namespace Marisa_Tomei
+namespace Pretty_Print
 {
     inline string wrapStringInQuotes(const string &s)
     {
@@ -293,26 +283,26 @@ namespace Marisa_Tomei
     }
 #endif
 
-    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel = 0);
+    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel = 0);
 
-    string mstDataToJSONString(const MyEMSTData& mst, int tabLevel = 0);
+    string mstDataToJSONString(const MyEMSTData &mst, int tabLevel = 0);
 
-    string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel = 0);
+    string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel = 0);
 
-    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel = 0);
+    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel = 0);
 
-    string steinerPointsToJSONString(const vector<CandidateSteinerPointData>& steinerPoints, int tabLevel = 0);
+    string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel = 0);
 
-    string pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel = 0);
+    string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel = 0);
 
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                    const vector<MyPoint_2>& myPtSet, int tabLevel = 0);    
+                                                    const vector<MyPoint_2> &myPtSet, int tabLevel = 0);    
 
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const vector<MyPoint_2>& myPtSet, int tabLevel = 0);
+                                                        const vector<MyPoint_2> &myPtSet, int tabLevel = 0);
 
-    string arrangementToJSONString(const MyArrangement_2& resultODCArrangement, int tabLevel = 0);
+    string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel = 0);
 
-} // namespace Marisa_Tomei
+} // namespace Pretty_Print
 
 #endif

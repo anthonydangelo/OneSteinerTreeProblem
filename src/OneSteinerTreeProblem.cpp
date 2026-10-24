@@ -136,7 +136,7 @@ namespace
                     try
                     {
                         int temp = stoi(optarg);
-                        if (Vasco_Rossi::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
+                        if (Utility_Functions::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
                         {
                             config.numPoints = temp;
                         } else 
@@ -191,7 +191,7 @@ namespace
                 if(optarg)
                 {
                     inputListString = string(optarg);
-                    Vasco_Rossi::extractPointsFromJSON2DArrayString(inputListString, config.pointsVec);              
+                    Utility_Functions::extractPointsFromJSON2DArrayString(inputListString, config.pointsVec);              
                 }
                 break;
 

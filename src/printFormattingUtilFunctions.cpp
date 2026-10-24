@@ -7,20 +7,12 @@
 
 /*
 **
-** Why namespace Marisa_Tomei? 
-** A few of her movies have been on tv lately. 
-** They left me wanting to see more of her...
-** I think it's a fitting name for pretty print functions.
-**
-** Plus, since it's likely that I'm the only one who's ever going
-** to see/use this, I can call it whatever I want as long as she doesn't mind. I hope she doesn't...
-** Plus, I'm a fan.
 **
  */
-namespace Marisa_Tomei
+namespace Pretty_Print
 {
 
-    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> >& edgeData, int tabLevel)
+    string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -48,7 +40,7 @@ namespace Marisa_Tomei
         return sStream.str();
     }
 
-    string mstDataToJSONString(const MyEMSTData& mst, int tabLevel)
+    string mstDataToJSONString(const MyEMSTData &mst, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -84,7 +76,7 @@ namespace Marisa_Tomei
         return sStream.str();
     }
 
-    string geomMedDataToJSONString(const GeomMedianData& stPtData, int tabLevel)
+    string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -122,7 +114,7 @@ namespace Marisa_Tomei
         return sStream.str();    
     }
 
-    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData& stPtData, int tabLevel)
+    string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -136,7 +128,7 @@ namespace Marisa_Tomei
         return sStream.str();  
     }
 
-    string steinerPointsToJSONString(const vector<CandidateSteinerPointData>& steinerPoints, int tabLevel)
+    string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -163,7 +155,7 @@ namespace Marisa_Tomei
         return sStream.str();     
     }
 
-    string pointVectorToJSONString(string name, const vector< MyPoint_2 >& myColl, int tabLevel)
+    string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel)
     {
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -188,7 +180,7 @@ namespace Marisa_Tomei
     }
 
     string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                    const vector<MyPoint_2>& myPtSet, int tabLevel)
+                                                    const vector<MyPoint_2> &myPtSet, int tabLevel)
     {
 
         ostringstream sStream;
@@ -199,7 +191,7 @@ namespace Marisa_Tomei
             auto endIt = end(myColl);
             for (auto it = begin(myColl); it != endIt; ++it) {
                 size_t index = 0;
-                assert(Vasco_Rossi::findPointIndex(*it, myPtSet, index));
+                assert(Utility_Functions::findPointIndex(*it, myPtSet, index));
                 sStream << insertTabs(tabLevel + 2);
                 sStream << "{\"index\":\"" << index << "\"}"; 
                 if(next(it) != endIt){
@@ -216,7 +208,7 @@ namespace Marisa_Tomei
     }    
 
     string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                        const vector<MyPoint_2>& myPtSet, int tabLevel)
+                                                        const vector<MyPoint_2> &myPtSet, int tabLevel)
     {
 
         ostringstream sStream;
@@ -234,7 +226,7 @@ namespace Marisa_Tomei
         do {
             MyArrangement_2::Halfedge_const_handle he = curr;
             size_t index = 0;
-            assert(Vasco_Rossi::findPointIndex(he->target()->point(), myPtSet, index));
+            assert(Utility_Functions::findPointIndex(he->target()->point(), myPtSet, index));
             sStream << insertTabs(tabLevel + 3);
             sStream << "{\"index\":\"" << index << "\"}";
             if(he->next() != heEnd){
@@ -271,10 +263,10 @@ namespace Marisa_Tomei
         return sStream.str();
     }    
 
-    string arrangementToJSONString(const MyArrangement_2& resultODCArrangement, int tabLevel)
+    string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel)
     {
         vector< MyPoint_2 > arrPoints;
-        Vasco_Rossi::insertArrangementPointsIntoPointSet(resultODCArrangement, arrPoints);
+        Utility_Functions::insertArrangementPointsIntoPointSet(resultODCArrangement, arrPoints);
 
         ostringstream sStream;
         sStream << insertTabs(tabLevel);
@@ -317,4 +309,5 @@ namespace Marisa_Tomei
         return sStream.str();
     }
 
-} // namespace Marisa_Tomei
+} // namespace Pretty_Print
+

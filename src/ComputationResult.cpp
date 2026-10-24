@@ -22,7 +22,7 @@ ComputationResult::ComputationResult(int numInputPoints,
         return;
     }
 
-    Vasco_Rossi::computeConvexHull(inputPtVector, convexHullList);
+    Utility_Functions::computeConvexHull(inputPtVector, convexHullList);
 
     computeOODC();
 
@@ -61,7 +61,7 @@ void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList
         bool inSet = false;
         for (const MyPoint_2& pt : pointSet)
         {
-            if (Vasco_Rossi::pointsAreTooClose(pt, temp))
+            if (Utility_Functions::pointsAreTooClose(pt, temp))
             {
                 inSet = true;
                 break;
@@ -91,7 +91,7 @@ void ComputationResult::preparePointSet(const vector< MyPoint_2 >& userPointList
 //Pre-condition: convexHullList is populated
 void ComputationResult::computeOODC()
 {
-    Vasco_Rossi::computeConeRays(MyDirection_2(1, 0), coneRays);
+    Utility_Functions::computeConeRays(MyDirection_2(1, 0), coneRays);
     size_t coneRaysSize = coneRays.size();
     assert(coneRaysSize == 6);
     
@@ -135,7 +135,7 @@ void ComputationResult::computeOODC()
         if (!fit->is_unbounded())
         {
             cout << "face # " << faceIndex << ": " << endl;
-            Marisa_Tomei::print_ccb(fit->outer_ccb());
+            Pretty_Print::print_ccb(fit->outer_ccb());
             //static cast instead?
             MyFaceData tempStruct = (MyFaceData)(fit->data());
             cout << "face data contains the following indices: [" << endl;
@@ -199,20 +199,20 @@ string ComputationResult::outputResultToJSONString() const
 {
     ostringstream sStream;
     sStream << "{\n";  
-    sStream << Marisa_Tomei::wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
+    sStream << Pretty_Print::wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
     sStream << ",\n";
-    sStream << Marisa_Tomei::wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
+    sStream << Pretty_Print::wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
     sStream << ",\n";    
-    sStream << Marisa_Tomei::pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
+    sStream << Pretty_Print::pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
     if(!onlyPoints){
         sStream << ",\n";
-        sStream << Marisa_Tomei::vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
+        sStream << Pretty_Print::vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
         sStream << ",\n";
-        sStream << Marisa_Tomei::arrangementToJSONString(resultODCArrangement);
+        sStream << Pretty_Print::arrangementToJSONString(resultODCArrangement);
         sStream << ",\n";
-        sStream << Marisa_Tomei::mstDataToJSONString(origMST);
+        sStream << Pretty_Print::mstDataToJSONString(origMST);
         sStream << ",\n";
-        sStream << Marisa_Tomei::steinerPointsToJSONString(steinerPoints);
+        sStream << Pretty_Print::steinerPointsToJSONString(steinerPoints);
     }
     sStream << "\n}";
 

@@ -4,18 +4,12 @@
 
 /*
 **
-** Why namespace Vasco_Rossi? 
-** Apart from sounding like it could be the name of his next album,
-** it's just more interesting than "Utility_Functions". 
-** Plus, since it's likely that I'm the only one who's ever going
-** to see/use this, I can call it whatever I want as long as he doesn't mind. I hope he doesn't...
-** Plus I'm a fan.
 **
  */
-namespace Vasco_Rossi
+namespace Utility_Functions
 {
 
-    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 >& result)
+    void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result)
     {
         //I'd like to use a regex here, but I don't know how to write the grammar...
         //http://www.cplusplus.com/reference/string/string/find_first_of/
@@ -68,7 +62,7 @@ namespace Vasco_Rossi
         return false;
     }    
 
-    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 >& myColl, size_t &myIndex)
+    bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex)
     {
         myIndex = 0;
         if(!myColl.empty()){
@@ -83,7 +77,7 @@ namespace Vasco_Rossi
     }
 
     //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
-    void insertArrangementPointsIntoPointSet(const MyArrangement_2& resultODCArrangement, vector< MyPoint_2 >& arrPointsVec)
+    void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec)
     {
         set<MyPoint_2> arrPoints;
         for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
@@ -103,4 +97,4 @@ namespace Vasco_Rossi
     }    
 
 
-} // namespace Vasco_Rossi
+} // namespace Utility_Functions
