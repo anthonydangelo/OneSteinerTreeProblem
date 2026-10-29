@@ -87,26 +87,30 @@ namespace
     void PrintHelp()
     {
         ostringstream msg;
-        msg << "--onlyPoints (-p):        Only create new random points and return\n"
-            "--numPoints (-n) <int>:   Number of random points to generate (between "
+        msg <<  "\nOneSteinerTreeProblem / OneSteinerTreeProblem_d : Help\n"
+                "====================================================================================================================\n"
+                "--onlyPoints (-p):         Only create new random points and return\n"
+                "--numPoints  (-n) <int>:   Number of random points to generate (between "
                             << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
                             << DEFAULT_NUM_INPUT_POINTS << ")\n"
-            "--trueRandom (-r):        Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
+                "--trueRandom (-r):         Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
                             << TRUE_RANDOM_DEFAULT << ")\n"
-            "--randSeed (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
+                "--randSeed   (-s) <int>:   Use the following fixed seed for the rand. num. gen. (default is "
                             << RAND_SEED_DEFAULT << ")\n"
-            "--gridLength (-g) <int>:    Choose points from a square grid with this length (default is "
+                "--gridLength (-g) <int>:   Choose points from a square grid with this length (default is "
                             << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
-            "--inputList (-i) <string s = [[x,y],[u,v],...]>: Use these points (comes out of numPoints' budget)\n"
-            "--help (-h):              Show help\n";
+                "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (comes out of numPoints' budget). Needs quotes around list.\n"
+                "--help       (-h):         Show help\n"
+                "\ne.g., -i \"[[1,0], [2,0], [3,0]]\"\n"
+                "All arguments are optional.\n";
 
         cout << msg.str();
-        exit(1);
+        return;
     }
     
 
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-    void ProcessArgs(int argc, char **argv, OneStPtConfig &config)
+    bool ProcessArgs(int argc, char **argv, OneStPtConfig &config)
     {
         const char *const short_opts = "pn:rs:g:i:h";
         const option long_opts[] = {
@@ -126,7 +130,9 @@ namespace
             const auto opt = getopt_long(argc, argv, short_opts, long_opts, nullptr);
 
             if (-1 == opt)
+            {
                 break;
+            }
 
             switch (opt)
             {
@@ -145,13 +151,14 @@ namespace
                             config.numPoints = temp;
                         } else 
                         {
-                            cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                            cerr << "ERROR: Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
                         }
                     }
                     catch (...)
                     {
                         config.numPoints = DEFAULT_NUM_INPUT_POINTS;
-                        cerr << "Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                        cerr << endl << "Exception caught" << endl;
+                        cerr << "ERROR: Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
                     }
                 }
                 break;
@@ -171,7 +178,8 @@ namespace
                     catch (...)
                     {
                         config.randSeed = RAND_SEED_DEFAULT;
-                        cerr << "Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
+                        cerr << endl << "Exception caught" << endl;
+                        cerr << "ERROR: Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
                     }
                 }
                 break;
@@ -186,7 +194,8 @@ namespace
                     catch (...)
                     {
                         config.gridLength = GRID_LENGTH_DEFAULT;
-                        cerr << "Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
+                        cerr << endl << "Exception caught" << endl;
+                        cerr << "ERROR: Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
                     }
                 }
                 break;
@@ -195,18 +204,23 @@ namespace
                 if(optarg)
                 {
                     inputListString = string(optarg);
-                    Utility_Functions::extractPointsFromJSON2DArrayString(inputListString, config.pointsVec);              
+                    if ( !Utility_Functions::extractPointsFromJSON2DArrayString(inputListString, config.pointsVec))
+                    {
+                        // malformed input point list. bounce back to user.
+                        // error message printed in function
+                        // pointsVec is returned empty
+                        return false;
+                    }                                
                 }
                 break;
 
             case 'h': // -h or --help
             case '?': // Unrecognized option
             default:
-                PrintHelp();
-                break;
+                return false;
             }
         }
-        return;
+        return true;
     }
 } // anon namespace
 
@@ -215,7 +229,83 @@ int main(int argc, char **argv)
 
     OneStPtConfig config;
 
-    ProcessArgs(argc, argv, config);
+    if ( !ProcessArgs(argc, argv, config))
+    {
+        cout << "\nThere was an error starting up the program. Review the following and ensure the inputs are legal." << endl;
+        PrintHelp();
+        if( config.onlyPoints)
+        {
+            cout << "\nYour request is that we only generate and return up to " << config.numPoints << " random point(s) "
+                    "from a square with side length " << config.gridLength <<
+                    " using the following value to seed the random number generator: ";
+            if(config.trueRandom)
+            {
+                cout << "the current time\n";
+            } else
+            {
+                cout << config.randSeed << endl;
+            }
+
+            if( !config.pointsVec.empty())
+            {
+                cout << "You have requested up to " << config.numPoints << " of the following points be part of the output:\n";
+                cout << "\"";
+                for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
+                {
+                    MyPoint_2 p = config.pointsVec[ind];
+                    cout << "( " << p.x() << ", " << p.y() << ") ";
+                    if(ind < config.pointsVec.size() - 1)
+                    {
+                        cout << ", ";
+                    }
+                }
+                cout << "\"" << endl;                 
+            }
+        } else
+        {
+            int ptsRemain = config.numPoints - config.pointsVec.size();
+
+            cout << "\nYour request is to compute the 1-Steiner tree on ";
+
+            if( !config.pointsVec.empty())
+            {
+                cout << "the following points:\n";
+                cout << "\"";
+                for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
+                {
+                    MyPoint_2 p = config.pointsVec[ind];
+                    cout << "( " << p.x() << ", " << p.y() << ") ";
+                    if(ind < config.pointsVec.size() - 1)
+                    {
+                        cout << ", ";
+                    }
+                }
+                cout << "\"" << endl; 
+                
+                if( ptsRemain > 0 )
+                {
+                    cout << "with an additional " << ptsRemain;
+                }               
+            } else
+            {
+                cout << config.numPoints;
+            }
+
+            if( ptsRemain > 0 )
+            {
+                cout << " random points generated with a random number generator using the following seed: \n";
+                if(config.trueRandom)
+                {
+                    cout << "the current time\n";
+                } else
+                {
+                    cout << config.randSeed << endl;
+                }    
+                cout << "with the points chosen from a square of side length " << config.gridLength << endl; 
+            }                                  
+        }
+        return 1;
+    }
 
     //http://www.cplusplus.com/reference/cstdlib/srand/
     if(config.trueRandom) {

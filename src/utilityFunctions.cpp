@@ -12,12 +12,27 @@ namespace One_St_Pt_GPA
     {
         using std::exception;
 
-        void extractPointsFromJSON2DArrayString(string &inputString, vector< MyPoint_2 > &result)
+        bool extractPointsFromJSON2DArrayString(const string &inputString, vector< MyPoint_2 > &result)
         {
-            //I'd like to use a regex here, but I don't know how to write the grammar...
-            //http://www.cplusplus.com/reference/string/string/find_first_of/
-            std::size_t strIndex = inputString.find_first_of("[");
-            //I don't like the way I'm doing this parsing!
+            //NB: The string processing is a bit more flexible than the PrintHelp message suggests
+            //TODO: consider switching to using a regex here
+
+            size_t strIndex = inputString.find_first_of("(");
+            if (strIndex != string::npos) 
+            {
+                cerr << "\nERROR: found '(' at position " << strIndex
+                    << " but only '[' is expected. No points were read in.\n";
+                return false;
+            }
+
+            strIndex = inputString.find_first_of("[");
+            if (string::npos == strIndex)
+            {
+                cerr << "\nERROR: Could not read input list. Expected '[' to open the list but got: " << endl;
+                cerr << inputString << endl;
+                return false;
+            }
+
             while (strIndex != std::string::npos)
             {
                 strIndex = inputString.find_first_of("[", strIndex + 1);
@@ -25,29 +40,37 @@ namespace One_St_Pt_GPA
                 {
                     try
                     {
-                        //http://www.cplusplus.com/reference/string/stod/
                         string::size_type stodIndex;
                         double firstD = stod(inputString.substr(strIndex + 1), &stodIndex);
+                        // stodIndex is relative to the substring, not the original string
+                        // stodIndex is the position of the first character in the substring after the number.                        
                         strIndex = inputString.find_first_of(",", stodIndex + strIndex);
                         if (strIndex != string::npos)
                         {
                             double secondD = stod(inputString.substr(strIndex + 1));
-                            //the temp assigned to the const ref apparently dies when we leave the function, leaving dangling ref
-    //                        const MyPoint_2& temp = MyPoint_2(My_Number_type(firstD), My_Number_type(secondD));
-    //                        result.push_back(temp);
                             result.emplace_back(firstD, secondD);
                         }
                     }
                     catch (exception &e)
                     {
-                        cerr << e.what() << endl;
-                        cerr << "Input point list string malformed" << endl;
-                        result.clear();
-                        return;
+                        cerr << endl << "Exception caught: " << e.what() << endl;
+                        cerr << "ERROR: Input point list string malformed. Try surrounding the list in quotes." << endl;
+                        if (result.empty())
+                        {
+                            cerr << "No points were read in." << endl;                          
+                        } else
+                        {
+                            cerr << "Successfully read in " << result.size() << " point(s). The last point read in successfully was: ";
+                            MyPoint_2 p = result.back();
+                            cerr << "( " << p.x() << ", " << p.y() << " )" << endl;
+                            cerr << "List cleared." << endl << endl;
+                            result.clear();                              
+                        }                  
+                        return false;
                     }
                 }
             }
-            return;
+            return true;
         }   
 
         bool findOriginIndex(const MyPoint_2 &cellOrigin, 
