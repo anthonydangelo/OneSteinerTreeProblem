@@ -231,96 +231,103 @@ namespace
         }
         return true;
     }
-} // anon namespace
 
-int main(int argc, char **argv)
-{
-
-    int mutexFD = 0;
-    OneStPtConfig config;
-
-    if ( !ProcessArgs(argc, argv, config))
+    void initializeOrDie(int argc, char **argv, OneStPtConfig &config)
     {
-        cout << "\nThere was an error starting up the program. Review the following and ensure the inputs are legal." << endl;
-        PrintHelp();
-        if( config.onlyPoints)
+        if ( !ProcessArgs(argc, argv, config))
         {
-            cout << "\nYour request is that we only generate and return up to " << config.numPoints << " random point(s) "
-                    "from a square with side length " << config.gridLength <<
-                    " using the following value to seed the random number generator: ";
-            if(config.trueRandom)
+            cout << "\nThere was an error starting up the program. Review the following and ensure the inputs are legal." << endl;
+            PrintHelp();
+            if( config.onlyPoints)
             {
-                cout << "the current time\n";
-            } else
-            {
-                cout << config.randSeed << endl;
-            }
-
-            if( !config.pointsVec.empty())
-            {
-                cout << "You have requested up to " << config.numPoints << " of the following points be part of the output:\n";
-                cout << "\"";
-                for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
-                {
-                    MyPoint_2 p = config.pointsVec[ind];
-                    cout << "( " << p.x() << ", " << p.y() << ") ";
-                    if(ind < config.pointsVec.size() - 1)
-                    {
-                        cout << ", ";
-                    }
-                }
-                cout << "\"" << endl;                 
-            }
-        } else
-        {
-            int ptsRemain = config.numPoints - config.pointsVec.size();
-
-            cout << "\nYour request is to compute the 1-Steiner tree on ";
-
-            if( !config.pointsVec.empty())
-            {
-                cout << "the following points:\n";
-                cout << "\"";
-                for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
-                {
-                    MyPoint_2 p = config.pointsVec[ind];
-                    cout << "( " << p.x() << ", " << p.y() << ") ";
-                    if(ind < config.pointsVec.size() - 1)
-                    {
-                        cout << ", ";
-                    }
-                }
-                cout << "\"" << endl; 
-                
-                if( ptsRemain > 0 )
-                {
-                    cout << "with an additional " << ptsRemain;
-                }               
-            } else
-            {
-                cout << config.numPoints;
-            }
-
-            if( ptsRemain > 0 )
-            {
-                cout << " random points generated with a random number generator using the following seed: \n";
+                cout << "\nYour request is that we only generate and return up to " << config.numPoints << " random point(s) "
+                        "from a square with side length " << config.gridLength <<
+                        " using the following value to seed the random number generator: ";
                 if(config.trueRandom)
                 {
                     cout << "the current time\n";
                 } else
                 {
                     cout << config.randSeed << endl;
-                }    
-                cout << "with the points chosen from a square of side length " << config.gridLength << endl; 
-            }                                  
-        }
-        return 1;
-    }
+                }
 
-    //http://www.cplusplus.com/reference/cstdlib/srand/
-    if(config.trueRandom) {
-        config.randSeed = time(nullptr);
+                if( !config.pointsVec.empty())
+                {
+                    cout << "You have requested up to " << config.numPoints << " of the following points be part of the output:\n";
+                    cout << "\"";
+                    for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
+                    {
+                        MyPoint_2 p = config.pointsVec[ind];
+                        cout << "( " << p.x() << ", " << p.y() << ") ";
+                        if(ind < config.pointsVec.size() - 1)
+                        {
+                            cout << ", ";
+                        }
+                    }
+                    cout << "\"" << endl;                 
+                }
+            } else
+            {
+                int ptsRemain = config.numPoints - config.pointsVec.size();
+
+                cout << "\nYour request is to compute the 1-Steiner tree on ";
+
+                if( !config.pointsVec.empty())
+                {
+                    cout << "the following points:\n";
+                    cout << "\"";
+                    for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
+                    {
+                        MyPoint_2 p = config.pointsVec[ind];
+                        cout << "( " << p.x() << ", " << p.y() << ") ";
+                        if(ind < config.pointsVec.size() - 1)
+                        {
+                            cout << ", ";
+                        }
+                    }
+                    cout << "\"" << endl; 
+                    
+                    if( ptsRemain > 0 )
+                    {
+                        cout << "with an additional " << ptsRemain;
+                    }               
+                } else
+                {
+                    cout << config.numPoints;
+                }
+
+                if( ptsRemain > 0 )
+                {
+                    cout << " random points generated with a random number generator using the following seed: \n";
+                    if(config.trueRandom)
+                    {
+                        cout << "the current time\n";
+                    } else
+                    {
+                        cout << config.randSeed << endl;
+                    }    
+                    cout << "with the points chosen from a square of side length " << config.gridLength << endl; 
+                }                                  
+            }
+            exit(1);
+        }
+
+        //http://www.cplusplus.com/reference/cstdlib/srand/
+        if(config.trueRandom) {
+            config.randSeed = time(nullptr);
+        }
+
+        return;
     }
+} // anon namespace
+
+int main(int argc, char **argv)
+{
+
+    int mutexFD = -1;
+    OneStPtConfig config;
+
+    initializeOrDie(argc, argv, config);
 
     if(config.useMutex)
     {
