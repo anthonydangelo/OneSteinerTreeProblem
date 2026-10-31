@@ -60,13 +60,12 @@
 
 #include <chrono>  // for high_resolution_clock
 
-//Posix semaphores
-//http://man7.org/linux/man-pages/man7/sem_overview.7.html
-//http://man7.org/linux/man-pages/man3/sem_open.3.html
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>        /* For mode constants */
-#include <semaphore.h>
+#include <unistd.h>
+#include <sys/file.h>
 #include <errno.h>
+
 
 using namespace One_St_Pt_GPA;
 
@@ -81,6 +80,7 @@ namespace
         int gridLength = GRID_LENGTH_DEFAULT;
         bool trueRandom = TRUE_RANDOM_DEFAULT;
         bool onlyPoints = ONLY_POINTS_DEFAULT;
+        bool useMutex = true;
         vector<MyPoint_2> pointsVec;
     };
 
@@ -99,6 +99,8 @@ namespace
                             << RAND_SEED_DEFAULT << ")\n"
                 "--gridLength (-g) <int>:   Choose points from a square grid with this length (default is "
                             << GRID_LENGTH_DEFAULT << " x " << GRID_LENGTH_DEFAULT << ")\n"
+                "--no-mutex:                Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
+                "                           This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
                 "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (comes out of numPoints' budget). Needs quotes around list.\n"
                 "--help       (-h):         Show help\n"
                 "\ne.g., -i \"[[1,0], [2,0], [3,0]]\"\n"
@@ -119,6 +121,7 @@ namespace
             {"trueRandom", no_argument, nullptr, 'r'},
             {"randSeed", required_argument, nullptr, 's'},
             {"gridLength", required_argument, nullptr, 'g'},
+            {"no-mutex", no_argument, nullptr, 256},    // "Any value that won't collide with the short option chars. 256 is a common choice since it's outside the ASCII range."
             {"inputList", required_argument, nullptr, 'i'},
             {"help", no_argument, nullptr, 'h'},
             {nullptr, no_argument, nullptr, 0}};
@@ -200,6 +203,12 @@ namespace
                 }
                 break;
 
+            case 256:
+                // request to not to use a resource mutex in the program.
+                // this is useful if you want to manage a mutex in a bash script instead
+                config.useMutex = false;
+                break;                
+
             case 'i':
                 if(optarg)
                 {
@@ -227,6 +236,7 @@ namespace
 int main(int argc, char **argv)
 {
 
+    int mutexFD = 0;
     OneStPtConfig config;
 
     if ( !ProcessArgs(argc, argv, config))
@@ -312,17 +322,25 @@ int main(int argc, char **argv)
         config.randSeed = time(nullptr);
     }
 
-    sem_t* pSem = sem_open(SEMAPHORE_NAME, O_CREAT, (S_IRWXU | S_IRWXG), SEMAPHORE_INIT_VALUE);
-
-    if (SEM_FAILED == pSem)
+    if(config.useMutex)
     {
-        perror("Failed to open a semaphore for 1 St tree problem");
-        return 1;
+        mutexFD = open(FLOCK_PATH, O_CREAT | O_RDWR, 0600);
+        if (mutexFD == -1) 
+        {
+            int err = errno;
+            cerr << "Failed to open the lock file \'" << FLOCK_PATH << "\' for the one steiner tree problem (used as a resource mutex): "
+                    << strerror(err) << " (" << err << ")\n";
+            return 1;
+        }
+
+        // N.B.: the non-blocking version returns -1 if in use -- flock(mutexFD, LOCK_EX | LOCK_NB) 
+        flock(mutexFD, LOCK_EX);
+        // Lock is released automatically:
+        // when you close(fd), when the process exits (even SIGKILL, even segfault)
     }
 
-    sem_wait(pSem);
 
-//https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
+    //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
     // Record start time
     auto start = std::chrono::high_resolution_clock::now();
     ostringstream sStream;
@@ -336,12 +354,11 @@ int main(int argc, char **argv)
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();
 
-    sem_post(pSem);
-    //http://man7.org/linux/man-pages/man3/sem_close.3.html
-    /*All open named semaphores are automatically closed on process
-       termination, or upon execve(2). 
-       Oh well. Do it anyway.*/
-    sem_close(pSem);
+    if(config.useMutex)
+    {
+        // Note: No unlock needed — flock is released automatically when fd is closed (end of scope) or the process dies.        
+        close(mutexFD);
+    }    
 
     std::chrono::duration<double> elapsed = finish - start;
     double timeInSecs = elapsed.count();
