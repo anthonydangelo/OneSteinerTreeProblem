@@ -73,15 +73,33 @@ namespace
 {
     using std::stoi;
     
+    struct OneStPtResourceMutex {
+        //FLOCK mutex
+        int mutexFD = -1;
+        OneStPtResourceMutex() = default;
+        ~OneStPtResourceMutex() 
+        { 
+            if (mutexFD >= 0) 
+            {
+                close(mutexFD); 
+            }
+        }
+        OneStPtResourceMutex(const OneStPtResourceMutex&) = delete;
+        OneStPtResourceMutex& operator=(const OneStPtResourceMutex&) = delete;
+        OneStPtResourceMutex(OneStPtResourceMutex&&) = delete;
+        OneStPtResourceMutex& operator=(OneStPtResourceMutex&&) = delete;        
+    };
+
     struct OneStPtConfig
     {
+        vector<MyPoint_2> pointsVec;
         int numPoints = DEFAULT_NUM_INPUT_POINTS;
         int randSeed = RAND_SEED_DEFAULT;
         int gridLength = GRID_LENGTH_DEFAULT;
+        OneStPtResourceMutex flockMutex;
+        bool useMutex = true;
         bool trueRandom = TRUE_RANDOM_DEFAULT;
         bool onlyPoints = ONLY_POINTS_DEFAULT;
-        bool useMutex = true;
-        vector<MyPoint_2> pointsVec;
     };
 
     void PrintHelp()
@@ -317,35 +335,33 @@ namespace
             config.randSeed = time(nullptr);
         }
 
+        if(config.useMutex)
+        {
+            config.flockMutex.mutexFD = open(FLOCK_PATH, O_CREAT | O_RDWR, 0600);
+            if (config.flockMutex.mutexFD == -1) 
+            {
+                int err = errno;
+                cerr << "Failed to open the lock file \'" << FLOCK_PATH << "\' for the one steiner tree problem (used as a resource mutex): "
+                        << strerror(err) << " (" << err << ")\n";
+                exit(1);
+            }
+
+            // N.B.: the non-blocking version returns -1 if in use -- flock(mutexFD, LOCK_EX | LOCK_NB) 
+            flock(config.flockMutex.mutexFD, LOCK_EX);
+            // Lock is released automatically:
+            // when you close(fd), when the process exits (even SIGKILL, even segfault)
+            // for us, the destructor of the struct is called when it goes out of scope and calls close
+        }        
+
         return;
     }
 } // anon namespace
 
 int main(int argc, char **argv)
 {
-
-    int mutexFD = -1;
     OneStPtConfig config;
 
     initializeOrDie(argc, argv, config);
-
-    if(config.useMutex)
-    {
-        mutexFD = open(FLOCK_PATH, O_CREAT | O_RDWR, 0600);
-        if (mutexFD == -1) 
-        {
-            int err = errno;
-            cerr << "Failed to open the lock file \'" << FLOCK_PATH << "\' for the one steiner tree problem (used as a resource mutex): "
-                    << strerror(err) << " (" << err << ")\n";
-            return 1;
-        }
-
-        // N.B.: the non-blocking version returns -1 if in use -- flock(mutexFD, LOCK_EX | LOCK_NB) 
-        flock(mutexFD, LOCK_EX);
-        // Lock is released automatically:
-        // when you close(fd), when the process exits (even SIGKILL, even segfault)
-    }
-
 
     //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
     // Record start time
@@ -359,13 +375,7 @@ int main(int argc, char **argv)
 
     sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
     // Record end time
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    if(config.useMutex)
-    {
-        // Note: No unlock needed — flock is released automatically when fd is closed (end of scope) or the process dies.        
-        close(mutexFD);
-    }    
+    auto finish = std::chrono::high_resolution_clock::now();  
 
     std::chrono::duration<double> elapsed = finish - start;
     double timeInSecs = elapsed.count();
