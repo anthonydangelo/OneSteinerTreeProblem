@@ -49,6 +49,7 @@ namespace One_St_Pt_GPA
                                             const vector<MyPoint_2> &inputPointSet, size_t originPtIndex)
     {
 #   if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
+        //build odcell by complementing
         const Nef_Line oppositeFirstDirLine = Nef_Line(cellOriginPoint, firstDir).opposite();
         const Nef_Line oppositeSecondDirLine = Nef_Line(cellOriginPoint, secondDir).opposite();
         auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;

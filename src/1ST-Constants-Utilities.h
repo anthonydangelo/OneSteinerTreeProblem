@@ -71,10 +71,9 @@
 #define FLOCK_PATH ("/tmp/one-st-tree-mutex.lock")
 
 
-#define MY_VERBOSE (0)
-#define EXCLUDE_CELL_BOUNDARY (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
-#define BUILD_ODCELL_BY_COMPLEMENTING (1)   //no effect right now
-#define BUILD_ODCELL_BY_DIFFERENCES   (1)
+#define MY_VERBOSE                  (0)
+#define EXCLUDE_CELL_BOUNDARY       (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
+#define BUILD_ODCELL_BY_DIFFERENCES (1)
 
 //magic numbers
 constexpr int MIN_NUM_INPUT_POINTS      = 3;
