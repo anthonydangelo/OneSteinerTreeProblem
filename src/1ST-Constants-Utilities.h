@@ -46,8 +46,6 @@
 
 
 
-#define MY_LAZY_COMPS   (1)
-
 // NOTE: 
 // We use a file lock as a resource mutex (a blocking lock call).
 // The lock file lives in /tmp, which is sticky + world-writable.
@@ -79,52 +77,52 @@
 #define BUILD_ODCELL_BY_DIFFERENCES   (1)
 
 //magic numbers
-#define MIN_NUM_INPUT_POINTS (3)
-#define MAX_NUM_INPUT_POINTS (10)
-#define DEFAULT_NUM_INPUT_POINTS (MIN_NUM_INPUT_POINTS)
+constexpr int MIN_NUM_INPUT_POINTS      = 3;
+constexpr int MAX_NUM_INPUT_POINTS      = 10;
+constexpr int DEFAULT_NUM_INPUT_POINTS  = MIN_NUM_INPUT_POINTS;
 
-#define GRID_LENGTH_DEFAULT (10)
+constexpr int GRID_LENGTH_DEFAULT   = 10;
 
-#define RAND_SEED_DEFAULT (10)
-#define TRUE_RANDOM_DEFAULT (false)
+constexpr int  RAND_SEED_DEFAULT    = 10;
+constexpr bool TRUE_RANDOM_DEFAULT  = false;
 
-#define ONLY_POINTS_DEFAULT (false)
+constexpr bool ONLY_POINTS_DEFAULT  = false;
 
 
-#define ELAPSED_TIME_NAME_STRING ("elapsedTime")
-#define COMP_RESULT_NAME_STRING ("compResult")
-#define INPUT_POINTS_NAME_STRING ("inputPoints")
-#define CONVEX_HULL_POINTS_NAME_STRING ("convexHullPoints")
-#define RAND_SEED_NAME_STRING ("randSeed")
-#define GRID_LENGTH_NAME_STRING ("gridLength")
+constexpr const char* ELAPSED_TIME_NAME_STRING          = "elapsedTime";
+constexpr const char* COMP_RESULT_NAME_STRING           = "compResult";
+constexpr const char* INPUT_POINTS_NAME_STRING          = "inputPoints";
+constexpr const char* CONVEX_HULL_POINTS_NAME_STRING    = "convexHullPoints";
+constexpr const char* RAND_SEED_NAME_STRING             = "randSeed";
+constexpr const char* GRID_LENGTH_NAME_STRING           = "gridLength";
 //////////////////////////////
-#define ARR_NAME_STRING ("odcArrangement")
-#define ARR_POINTS_NAME_STRING ("arrangementPoints")
+constexpr const char* ARR_NAME_STRING           = "odcArrangement";
+constexpr const char* ARR_POINTS_NAME_STRING    = "arrangementPoints";
 ///////
-#define ARR_FACES_NAME_STRING ("arrangementFaces")
-#define ARR_IND_FACE_NAME_STRING ("arrFace")
-#define ARR_FACE_NAME_PREFIX_NAME_STRING ("arrFace__")
-#define ARR_FACE_CCW_V_INDICES_NAME_STRING ("arrangementFaceCCWVIndices")
-#define ARR_OODC_INPUT_SITE_INDICES_NAME_STRING ("arrangementOODCSiteIndices")
+constexpr const char* ARR_FACES_NAME_STRING                     = "arrangementFaces";
+constexpr const char* ARR_IND_FACE_NAME_STRING                  = "arrFace";
+constexpr const char* ARR_FACE_NAME_PREFIX_NAME_STRING          = "arrFace__";
+constexpr const char* ARR_FACE_CCW_V_INDICES_NAME_STRING        = "arrangementFaceCCWVIndices";
+constexpr const char* ARR_OODC_INPUT_SITE_INDICES_NAME_STRING   = "arrangementOODCSiteIndices";
 //////////////////////////////
-#define MST_NAME_STRING ("minSpanningTree")
-#define MST_LENGTH_NAME_STRING ("mstLength")
-#define MST_EDGE_LIST_NAME_STRING ("mstEdgeList")
-#define MST_EDGE_NAME_STRING ("mstEdge")
-#define MST_EDGE_ENDPOINT_INDICES_NAME_STRING ("mstEdgeEndpointIndices")
-#define MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING ("firstEndPointIsSteiner")
-#define MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING ("secondEndPointIsSteiner")
+constexpr const char* MST_NAME_STRING                                       = "minSpanningTree";
+constexpr const char* MST_LENGTH_NAME_STRING                                = "mstLength";
+constexpr const char* MST_EDGE_LIST_NAME_STRING                             = "mstEdgeList";
+constexpr const char* MST_EDGE_NAME_STRING                                  = "mstEdge";
+constexpr const char* MST_EDGE_ENDPOINT_INDICES_NAME_STRING                 = "mstEdgeEndpointIndices";
+constexpr const char* MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING     = "firstEndPointIsSteiner";
+constexpr const char* MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING    = "secondEndPointIsSteiner";
 //////////////////////////////
-#define STEINER_PT_NAME_STRING ("steinerPoint")
-#define GEOM_MED_POINT_NAME_STRING ("geomMedPoint")
-#define GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING ("geomMedNeighbourIndices")
-#define GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING ("geomMedCoincidesWithInputPt")
-#define GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING ("geomMedCoincidentInputPtIndex")
+constexpr const char* STEINER_PT_NAME_STRING                        = "steinerPoint";
+constexpr const char* GEOM_MED_POINT_NAME_STRING                    = "geomMedPoint";
+constexpr const char* GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING        = "geomMedNeighbourIndices";
+constexpr const char* GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING     = "geomMedCoincidesWithInputPt";
+constexpr const char* GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING   = "geomMedCoincidentInputPtIndex";
 //////////////////////////////
-#define CANDIDATE_ST_PT_DATA_LIST_NAME_STRING ("candidateStPtDataList")
-#define CANDIDATE_STEINER_POINT_DATA_NAME_STRING ("candidateStPtData")
+constexpr const char* CANDIDATE_ST_PT_DATA_LIST_NAME_STRING     = "candidateStPtDataList";
+constexpr const char* CANDIDATE_STEINER_POINT_DATA_NAME_STRING  = "candidateStPtData";
 
-#define DOUBLE_EPSILON (0.000001)
+constexpr double DOUBLE_EPSILON = 0.000001;
 
 // project namespace: one steiner point Georgakopolous-Papadimitriou algorithm (GPA)
 namespace One_St_Pt_GPA
@@ -142,17 +140,11 @@ namespace One_St_Pt_GPA
     using std::set;
 
 
-    //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2exact_8cpp-example.html#_a0
-    //https://doc.cgal.org/latest/Kernel_23/Kernel_23_2intersection_visitor_8cpp-example.html#_a0
-    //https://doc.cgal.org/latest/Kernel_d/group__PkgKernelDFunctions.html#ga0aa3e8b6bdf1bff509f8e2672ef194d1
-    //https://doc.cgal.org/latest/Cone_spanners_2/index.html
-    //typedef Exact_predicates_exact_constructions_kernel Kernel;
-#   if (MY_LAZY_COMPS)
-        typedef CGAL::Lazy_exact_nt<CORE::Expr> Lazy_FT;
-        typedef CGAL::Simple_cartesian< Lazy_FT >  MyKernel;
-#   else
-        typedef CGAL::Exact_predicates_exact_constructions_kernel_with_root_of      MyKernel;
-#   endif
+//  Exact kernel with lazy interval-arithmetic evaluation (faster than
+//  "EPECK_with_root_of" for typical inputs; both are fully exact).
+    typedef CGAL::Lazy_exact_nt<CORE::Expr>     Lazy_FT;
+    typedef CGAL::Simple_cartesian< Lazy_FT >   MyKernel;
+
     //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
     typedef MyKernel::FT                                                        My_Number_type;
     typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;

@@ -11,19 +11,15 @@
 
 namespace One_St_Pt_GPA
 {
-    typedef CORE::Expr Nef_FT;
-    #if (MY_LAZY_COMPS)
-        typedef CGAL::Lazy_exact_nt<Nef_FT> Lazy_Nef_FT; //compiler can't convert non-lazy expr into lazy expr...
-        typedef CGAL::Extended_cartesian<Lazy_Nef_FT> Nef_Extended_kernel;
-    #else
-        typedef Extended_cartesian<Nef_FT> Nef_Extended_kernel;
-    #endif
+    typedef CORE::Expr                                  Nef_FT;
+    typedef CGAL::Lazy_exact_nt<Nef_FT>                 Lazy_Nef_FT; 
+    typedef CGAL::Extended_cartesian<Lazy_Nef_FT>       Nef_Extended_kernel;
     typedef CGAL::Nef_polyhedron_2<Nef_Extended_kernel> MyNef_polyhedron;
 
-    typedef MyNef_polyhedron::Point Nef_Point;
-    typedef MyNef_polyhedron::Line Nef_Line;
-    typedef MyNef_polyhedron::Direction Nef_Direction;
-    typedef MyNef_polyhedron::Explorer Nef_Explorer;
+    typedef MyNef_polyhedron::Point         Nef_Point;
+    typedef MyNef_polyhedron::Line          Nef_Line;
+    typedef MyNef_polyhedron::Direction     Nef_Direction;
+    typedef MyNef_polyhedron::Explorer      Nef_Explorer;
 
     class OrientedDirichletCell
     {
