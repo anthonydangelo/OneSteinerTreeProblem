@@ -19,7 +19,7 @@ namespace One_St_Pt_GPA
     typedef CGAL::Creator_uniform_2<double, MyPoint_2> Creator;
     typedef CGAL::Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
-    typedef struct CandidateSteinerPointData
+    struct CandidateSteinerPointData
     {
         
         GeomMedianData steinerPt;
@@ -33,7 +33,7 @@ namespace One_St_Pt_GPA
         //need ctor because GeomMedData needs one for its reference
         CandidateSteinerPointData(const GeomMedianData &myStPt, const MyEMSTData &myMstData) : steinerPt(myStPt), mstData(myMstData) {}
 
-    } CandidateSteinerPointData;
+    };
 
     class ComputationResult
     {
