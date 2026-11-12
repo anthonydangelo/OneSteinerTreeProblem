@@ -11,8 +11,6 @@
 
 #include <unistd.h>
 #include <cstdlib>
-#include <fstream>
-#include <ctime>
 #include <cstddef> // std::size_t
 
 #include <math.h> /* fabs */
@@ -21,17 +19,8 @@
 
 #include <algorithm> //std::next_permutation, std::sort
 
-//https://github.com/CGAL/cgal/blob/master/Generator/examples/Generator/random_grid.cpp
-//https://doc.cgal.org/latest/Kernel_23/classCGAL_1_1Exact__predicates__exact__constructions__kernel.html
-//https://doc.cgal.org/latest/Cone_spanners_2/index.html
-//#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include <CGAL/Exact_predicates_exact_constructions_kernel_with_root_of.h>
-#include <CGAL/algorithm.h>
-
 #include <CGAL/Lazy_exact_nt.h>
 
-#include <CGAL/Polygon_2.h>
-#include <CGAL/Polygon_with_holes_2.h>
 #include <CGAL/Polygon_set_2.h>
 #include <CGAL/Compute_cone_boundaries_2.h>
 
@@ -141,23 +130,20 @@ namespace One_St_Pt_GPA
 
 //  Exact kernel with lazy interval-arithmetic evaluation (faster than
 //  "EPECK_with_root_of" for typical inputs; both are fully exact).
-    typedef CGAL::Lazy_exact_nt<CORE::Expr>     Lazy_FT;
-    typedef CGAL::Simple_cartesian< Lazy_FT >   MyKernel;
+    typedef CGAL::Lazy_exact_nt<CORE::Expr>         Lazy_FT;
+    typedef CGAL::Simple_cartesian< Lazy_FT >       MyKernel;
 
     //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
-    typedef MyKernel::FT                                                        My_Number_type;
-    typedef CGAL::Arr_segment_traits_2<MyKernel>                                MyTraits_2;
+    typedef MyKernel::FT                            My_Number_type;
+    typedef CGAL::Arr_segment_traits_2<MyKernel>    MyTraits_2;
 
-    typedef MyTraits_2::Point_2                                                 MyPoint_2;
-    typedef MyTraits_2::Segment_2                                               MySegment_2;
-    typedef MyTraits_2::Line_2                                                  MyLine_2;
-    typedef MyTraits_2::Intersect_2                                             MyIntersect_2;
+    typedef MyTraits_2::Point_2                     MyPoint_2;
+    typedef MyTraits_2::Segment_2                   MySegment_2;
+    typedef MyTraits_2::Line_2                      MyLine_2;
+    typedef MyTraits_2::Intersect_2                 MyIntersect_2;
 
-    typedef MyTraits_2::Direction_2                                             MyDirection_2;
-
-    typedef CGAL::Polygon_2<MyKernel>                                           MyPolygon_2;
-    typedef CGAL::Polygon_with_holes_2<MyKernel>                                MyPolygon_with_holes_2;
-    typedef CGAL::Polygon_set_2<MyKernel>                                       MyPolygon_set_2;
+    typedef MyTraits_2::Direction_2                 MyDirection_2;
+    
 
     //enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
     struct MyFaceData 
@@ -171,7 +157,6 @@ namespace One_St_Pt_GPA
     //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
     //Might only be able to use extended faces 
     //typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
-    //typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                             MyArrangement_2;
     typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
     typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
 

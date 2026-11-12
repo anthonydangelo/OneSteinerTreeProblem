@@ -58,6 +58,7 @@
 #include "1ST-Constants-Utilities.h"
 #include "ComputationResult.hpp"
 
+#include <ctime>
 #include <chrono>  // for high_resolution_clock
 
 #include <fcntl.h>           /* For O_* constants */
