@@ -43,7 +43,7 @@ namespace One_St_Pt_GPA
         {
             if (pointSet.size() < numPoints)
             {
-                std::pair<std::set< MyPoint_2 >::iterator, bool> ret;
+                pair< set< MyPoint_2 >::iterator, bool> ret;
                 ret = pointSet.emplace(pt.x(), pt.y());
                 if (ret.second == false)
                 { //Maybe we should disable this output... don't want it messing up the json
@@ -59,7 +59,7 @@ namespace One_St_Pt_GPA
         //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
         while (pointSet.size() < numPoints)
         {
-            std::pair<std::set< MyPoint_2 >::iterator, bool> ret;
+            pair< set< MyPoint_2 >::iterator, bool> ret;
             MyPoint_2 temp = *randPointGen;
             ++randPointGen;
             bool inSet = false;
@@ -75,7 +75,6 @@ namespace One_St_Pt_GPA
             {
                 continue;
             }
-            //does the move const get called w this insert? or does it have to be a heap obj for that?
             ret = pointSet.insert(temp);
             if (ret.second == false)
             {
@@ -85,7 +84,6 @@ namespace One_St_Pt_GPA
 
         for (set< MyPoint_2 >::const_iterator it = pointSet.begin(); it != pointSet.end(); ++it)
         {
-            //are the two calls to the members as costly as the push_back?
             inputPtVector.emplace_back(it->x(), it->y());
         }
 
@@ -105,16 +103,15 @@ namespace One_St_Pt_GPA
         MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
         MyOverlay_Traits overlayTraits;
         //The arrangements and their overlays are the same type...
-        //don't know what overlay returns, better not const the array arrs
         CGAL::array<MyArrangement_2, 2> myTempArrangements;
         size_t arrIndex = 0;
         //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
         for(size_t i = 0; i < inputPtVector.size(); ++i)
         {
             const MyPoint_2 &cellOrigin = inputPtVector[i];
-    //        size_t originPtIndex;
-    //        //TODO throw an error or something instead
-    //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
+            //        size_t originPtIndex;
+            //        //TODO throw an error or something instead
+            //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
             for (size_t j = 0; j < coneRaysSize; ++j)
             {
                 size_t nextJ = j + 1;
@@ -170,8 +167,6 @@ namespace One_St_Pt_GPA
             }
             else
             {
-    //            MyEMSTData stMST = myEMST.testPointInsertion(s.medPoint);
-    //            steinerPoints.emplace_back(s, stMST);
                 steinerPoints.emplace_back(s, myEMST.testPointInsertion(s.medPoint));
             }
         }

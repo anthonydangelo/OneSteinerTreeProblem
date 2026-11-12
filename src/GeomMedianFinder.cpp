@@ -82,8 +82,6 @@ namespace One_St_Pt_GPA
                 const MyPoint_2 secondIntPoint = findEqTriIntPoint(myPts[0], myPts[2], myPts[1]);
                 const MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
                 //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
-    //            CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSimpsonLine, secondSimpsonLine);
-    //compiler doesn't like the previous line declaration... 
                 auto intRes = intersection(firstSimpsonLine, secondSimpsonLine);
                 if (intRes)
                 { //these two non-par segments will intersect... do i really have to test for result?
@@ -230,7 +228,6 @@ namespace
                                                         DegeneratePointIndex &degenPt)
     {
         //Assume non-collinear points a,b,c
-        //need to fill the vec w assignable elements
         vector<MyDirection_2> coneRays(6);
         const MyLine_2 baseLine = MyLine_2(pointA, pointB);
         const MyDirection_2 initialDirection = MyDirection_2(baseLine);

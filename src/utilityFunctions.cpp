@@ -33,7 +33,7 @@ namespace One_St_Pt_GPA
                 return false;
             }
 
-            while (strIndex != std::string::npos)
+            while (strIndex != string::npos)
             {
                 strIndex = inputString.find_first_of("[", strIndex + 1);
                 if (strIndex != string::npos)
@@ -102,7 +102,7 @@ namespace One_St_Pt_GPA
             return false;
         }
 
-        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
+        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec)
         {
             set<MyPoint_2> arrPoints;
@@ -116,7 +116,7 @@ namespace One_St_Pt_GPA
             }    
             for (const MyPoint_2& p : arrPoints)
             {
-                //we could probably turn this into a vec of refs, but it's not clear if the obvious way works
+                //we could probably turn this into a vec of refs
                 arrPointsVec.emplace_back(p.x(), p.y());
             }
             return;

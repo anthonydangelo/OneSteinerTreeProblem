@@ -237,7 +237,7 @@ namespace One_St_Pt_GPA
             return;
         }
 
-        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles (I've experienced this...)
+        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec);
 
     } // namespace Utility_Functions
@@ -280,13 +280,13 @@ namespace One_St_Pt_GPA
         inline void print_ccb (MyArrangement_2::Ccb_halfedge_const_circulator circ)
         {
             MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
-            std::cout << "(" << curr->source()->point() << ")";
+            cout << "(" << curr->source()->point() << ")";
             do {
                 MyArrangement_2::Halfedge_const_handle he = curr;
-                std::cout << " [" << he->curve() << "] "
+                cout << " [" << he->curve() << "] "
                 << "(" << he->target()->point() << ")";
             } while (++curr != circ);
-            std::cout << std::endl;
+            cout << endl;
         }
 #   endif
 

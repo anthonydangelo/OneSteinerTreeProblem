@@ -51,7 +51,6 @@ namespace One_St_Pt_GPA
     {
         vector<MyEdge_descriptor> mstEdgeList;
 
-        //didn't like all the consts
         vector<pair<pair<size_t, size_t>,
                             pair<bool, bool>>>
             mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
