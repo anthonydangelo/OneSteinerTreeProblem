@@ -1,3 +1,20 @@
+/*
+** Geometric median (Fermat–Weber point) for 3 or 4 points.
+**
+** For 3 collinear points, it's the middle point.
+** For 3 non-collinear points: if all angles < 120 degrees, the median is the
+** intersection of two "Simpson lines" (lines from each vertex through the
+** apex of an equilateral triangle on the opposite side). If any angle >= 120 degrees,
+** the median is that vertex (degenerate case).
+**
+** For 4 points: if all collinear, the median is any point on the middle 
+** segment defined by the 4 points. 
+** If not collinear, if one point is inside the triangle of the other three, 
+** it is the median.
+** Otherwise, the median is the intersection of the diagonals of the
+** convex quadrilateral.
+*/
+
 #include "GeomMedianFinder.hpp"
 
 //See OneSteinerTreeProblem.cpp for project notes
