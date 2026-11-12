@@ -222,11 +222,15 @@ namespace
 
     } 
 
+#if (MY_VERBOSE)
+    using std::boolalpha;
+#endif
+
     bool testForDegenerateGeomMedian3Pts(const MyPoint_2 &pointA, const MyPoint_2 &pointB, const MyPoint_2 &pointC,
                                                         DegeneratePointIndex &degenPt)
     {
         //Assume non-collinear points a,b,c
-        //need to fill the vec w assignable elements. not sure if reserve would work...
+        //need to fill the vec w assignable elements
         vector<MyDirection_2> coneRays(6);
         const MyLine_2 baseLine = MyLine_2(pointA, pointB);
         const MyDirection_2 initialDirection = MyDirection_2(baseLine);

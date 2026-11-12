@@ -28,12 +28,11 @@ namespace One_St_Pt_GPA
         
 #   if (MY_VERBOSE)
         cout << odcArr << endl;
-        for (auto fit = odcArr.faces_begin(); fit != odcArr.faces_end(); ++fit)
+        for (MyArrangement_2::Face_const_iterator fit = odcArr.faces_begin(); fit != odcArr.faces_end(); ++fit)
         {
             if (!fit->is_unbounded())
             {
-                //static cast instead?
-                MyFaceData tempStruct = (MyFaceData)(fit->data());
+                const MyFaceData & tempStruct = fit->data();
                 cout << "face data contains the following indices: [" << endl;
                 for (size_t temp : tempStruct.myInputPointIndices)
                 {

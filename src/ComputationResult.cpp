@@ -134,14 +134,13 @@ namespace One_St_Pt_GPA
 #   if (MY_VERBOSE)
         cout << myTempArrangements.at(arrIndex % 2) << endl;
         size_t faceIndex = 0;
-        for (auto fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
+        for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
         {
             if (!fit->is_unbounded())
             {
                 cout << "face # " << faceIndex << ": " << endl;
                 Pretty_Print::print_ccb(fit->outer_ccb());
-                //static cast instead?
-                MyFaceData tempStruct = (MyFaceData)(fit->data());
+                const MyFaceData & tempStruct = fit->data();
                 cout << "face data contains the following indices: [" << endl;
                 for (size_t temp : tempStruct.myInputPointIndices)
                 {
@@ -268,8 +267,7 @@ namespace One_St_Pt_GPA
             if (!fit->is_unbounded())
             {
                 vector<size_t> siteIndices;
-                //static cast instead?
-                MyFaceData myFaceStruct = (MyFaceData)(fit->data());
+                const MyFaceData & myFaceStruct = fit->data();
                 auto endIt = end(myFaceStruct.myInputPointIndices);
                 for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it)
                 {

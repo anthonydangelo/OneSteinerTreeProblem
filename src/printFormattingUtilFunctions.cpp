@@ -246,8 +246,7 @@ namespace One_St_Pt_GPA
             sStream << insertTabs(tabLevel + 1);
             sStream << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [ \n";
 
-            //static cast instead?
-            MyFaceData myFaceStruct = (MyFaceData)(fit->data());
+            const MyFaceData & myFaceStruct = fit->data();
             auto endIt = end(myFaceStruct.myInputPointIndices);
             for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it) {
                 sStream << insertTabs(tabLevel + 3);
