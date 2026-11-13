@@ -119,7 +119,7 @@ namespace One_St_Pt_GPA
         MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
         MyOverlay_Traits overlayTraits;
         //The arrangements and their overlays are the same type...
-        CGAL::array<MyArrangement_2, 2> myTempArrangements;
+        CGAL::array< MyArrangement_2, 2 > myTempArrangements;
         size_t arrIndex = 0;
         //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
         for(size_t i = 0; i < inputPtVector.size(); ++i)
@@ -172,7 +172,7 @@ namespace One_St_Pt_GPA
         DelaunayTriEMST myEMST(inputPtVector);
         origMST = myEMST.getEMSTData();
 
-        vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
+        vector< GeomMedianData > rawStPtList = computeStPtsForOODC();
         for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
         {
             const GeomMedianData & s = rawStPtList[ptIndex];

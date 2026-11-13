@@ -235,7 +235,6 @@ namespace One_St_Pt_GPA
                 MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
                 for (const MyPoint_2 & pt : boundaryList)
                 {
-                    //don't want to mess with push vs emplace, i don't know what that const looks like
                     vertexHandles.push_back(result.insert_in_face_interior(pt, unboundedFace));
                 }
                 auto endBLIt = boundaryList.end();
