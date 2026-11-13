@@ -8,7 +8,7 @@ namespace One_St_Pt_GPA
                                         int randomSeed,
                                         int inputGridLength,
                                         bool onlyProducePoints,
-                                        const vector<MyPoint_2> &userPointList) : numPoints(numInputPoints),
+                                        const vector<MyPoint_2> & userPointList) : numPoints(numInputPoints),
                                                                                 randSeed(randomSeed),
                                                                                 gridLength(inputGridLength),
                                                                                 onlyPoints(onlyProducePoints),
@@ -35,11 +35,11 @@ namespace One_St_Pt_GPA
     } //constructor
 
 
-    void ComputationResult::preparePointSet(const vector< MyPoint_2 > &userPointList)
+    void ComputationResult::preparePointSet(const vector< MyPoint_2 > & userPointList)
     {
         set< MyPoint_2 > pointSet;
         //sanitize input a bit
-        for (const MyPoint_2 &pt : userPointList)
+        for (const MyPoint_2 & pt : userPointList)
         {
             if (pointSet.size() < numPoints)
             {
@@ -63,7 +63,7 @@ namespace One_St_Pt_GPA
             MyPoint_2 temp = *randPointGen;
             ++randPointGen;
             bool inSet = false;
-            for (const MyPoint_2 &pt : pointSet)
+            for (const MyPoint_2 & pt : pointSet)
             {
                 if (Utility_Functions::pointsAreTooClose(pt, temp))
                 {
@@ -90,7 +90,23 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    //Pre-condition: convexHullList is populated
+    /*
+    ** Pre-condition: convexHullList is populated
+    **
+    ** Computes the Overlaid Oriented Dirichlet Cell (OODC) / 
+    ** overlaid oriented Voronoi diagram arrangement by overlaying
+    ** the individual cell arrangements. 
+    ** For each input point and each of the
+    ** 6 cone directions, a single ODC cell is computed (via Nef_2), converted
+    ** to an arrangement, and overlaid onto the running result.
+    **
+    ** The overlay functor merges the site-index sets of intersecting faces,
+    ** so each face in the final arrangement knows which input sites "see" it.  
+    **
+    ** In the future, this code should be replaced by an implementation
+    ** of an O(n log n) time algorithm for computing oriented Voronoi diagrams.
+    ** See project notes.
+    */
     void ComputationResult::computeOODC()
     {
         Utility_Functions::computeConeRays(MyDirection_2(1, 0), coneRays);
@@ -98,7 +114,7 @@ namespace One_St_Pt_GPA
         assert(coneRaysSize == 6);
         
         //TODO try switching ch to const points
-        const vector< MyPoint_2 > &clippingPolygonList = convexHullList;
+        const vector< MyPoint_2 > & clippingPolygonList = convexHullList;
 
         MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
         MyOverlay_Traits overlayTraits;
@@ -108,7 +124,7 @@ namespace One_St_Pt_GPA
         //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
         for(size_t i = 0; i < inputPtVector.size(); ++i)
         {
-            const MyPoint_2 &cellOrigin = inputPtVector[i];
+            const MyPoint_2 & cellOrigin = inputPtVector[i];
             //        size_t originPtIndex;
             //        //TODO throw an error or something instead
             //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
@@ -159,7 +175,7 @@ namespace One_St_Pt_GPA
         vector<GeomMedianData> rawStPtList = computeStPtsForOODC();
         for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
         {
-            const GeomMedianData& s = rawStPtList[ptIndex];
+            const GeomMedianData & s = rawStPtList[ptIndex];
             //test its insertion into the pt set if it's not degenerate
             if(s.coincidesWithInputPt)
             {
@@ -174,9 +190,9 @@ namespace One_St_Pt_GPA
         //Now we have to properly assign the st pt indices so they print out correctly
         for (size_t stPtIndex = 0; stPtIndex < steinerPoints.size(); ++stPtIndex)
         {
-            vector<pair<pair<size_t, size_t>,
-                        pair<bool, bool>>>& mstEdgePairData = steinerPoints[stPtIndex].mstData.mstEdgePointIndices;
-            for (pair<pair<size_t, size_t>, pair<bool, bool>>& tempEdgeData : mstEdgePairData)
+            vector< pair< pair< size_t, size_t>,
+                        pair< bool, bool>>> & mstEdgePairData = steinerPoints[stPtIndex].mstData.mstEdgePointIndices;
+            for (pair< pair< size_t, size_t>, pair< bool, bool>> & tempEdgeData : mstEdgePairData)
             {
                 //there won't be any degenerate edges, so either the first is a st pt, or the second, or neither
                 if (tempEdgeData.second.first)
@@ -217,8 +233,8 @@ namespace One_St_Pt_GPA
         return sStream.str();
     }
 
-    void ComputationResult::computePotentialStPts(const vector<size_t> &siteIndices, const int numComboPts,
-                                                vector<GeomMedianData> &results, set<vector<size_t>> &seenList) const
+    void ComputationResult::computePotentialStPts(const vector<size_t> & siteIndices, const int numComboPts,
+                                                vector<GeomMedianData> & results, set<vector<size_t>> & seenList) const
     {
         if (numComboPts > siteIndices.size())
         {
@@ -241,7 +257,7 @@ namespace One_St_Pt_GPA
                 vector<MyPoint_2> siteTuples;
                 for (int i = 0; i < numComboPts; ++i)
                 {
-                    const MyPoint_2 &tempSitePt = inputPtVector.at(siteComboIndices[i]);
+                    const MyPoint_2 & tempSitePt = inputPtVector.at(siteComboIndices[i]);
                     siteTuples.emplace_back(tempSitePt.x(), tempSitePt.y());
                 }
                 results.push_back(GeomMedianFinder::computeGeomMedian(siteTuples, siteComboIndices));

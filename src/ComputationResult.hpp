@@ -25,13 +25,13 @@ namespace One_St_Pt_GPA
         GeomMedianData steinerPt;
         MyEMSTData mstData;
 
-        bool operator<(const CandidateSteinerPointData &other) const
+        bool operator<(const CandidateSteinerPointData & other) const
         {
             return mstData < other.mstData; //compares lengths
         }
 
         //need ctor because GeomMedData needs one for its reference
-        CandidateSteinerPointData(const GeomMedianData &myStPt, const MyEMSTData &myMstData) : steinerPt(myStPt), mstData(myMstData) {}
+        CandidateSteinerPointData(const GeomMedianData & myStPt, const MyEMSTData & myMstData) : steinerPt(myStPt), mstData(myMstData) {}
 
     };
 
@@ -62,16 +62,16 @@ namespace One_St_Pt_GPA
                             int randomSeed = RAND_SEED_DEFAULT,
                             int inputGridLength = GRID_LENGTH_DEFAULT,
                             bool onlyProducePoints = ONLY_POINTS_DEFAULT,
-                            const vector< MyPoint_2 > &userPointList = vector<MyPoint_2>());
+                            const vector< MyPoint_2 > & userPointList = vector<MyPoint_2>());
             
             string outputResultToJSONString() const;
 
         protected:
-            void preparePointSet(const vector< MyPoint_2 > &userPointList);
+            void preparePointSet(const vector< MyPoint_2 > & userPointList);
             void computeOODC();
             void computeMSTAndStPts(); 
-            void computePotentialStPts(const vector<size_t> &siteIndices, const int numComboPts, 
-                                        vector<GeomMedianData> &results, set< vector<size_t> > &seenList) const; 
+            void computePotentialStPts(const vector<size_t> & siteIndices, const int numComboPts, 
+                                        vector<GeomMedianData> & results, set< vector<size_t> > & seenList) const; 
             vector<GeomMedianData> computeStPtsForOODC() const;
     };
 } // namespace One_St_Pt_GPA
