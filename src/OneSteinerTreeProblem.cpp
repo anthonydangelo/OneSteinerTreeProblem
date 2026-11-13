@@ -58,8 +58,8 @@
 **              That will let us find the solution without computing the MST every time. 
 **              Then return the MST at the end with the solution.
 **              If you for some reason want to continue inserting/removing a point at a time
-**              from a Delaunay triangulation, consider using an algorithm for a dynamic data structure
-**              (which offer some tradeoff to allow quicker insertions/deletions).
+**              from a Delaunay triangulation, make sure CGAL is using an algorithm for a "dynamic" data structure
+**              (which offers some tradeoff to allow quicker insertions/deletions), or write one yourself.
 **
 **              Also, with regards to testing Steiner points: whenever we compute a MST
 **              (including when testing Steiner points), we then run a O(n^2) scan to 
