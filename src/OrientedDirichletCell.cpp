@@ -4,12 +4,12 @@
 
 namespace One_St_Pt_GPA
 {
-    OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 &dirA,
-                                                const MyDirection_2 &dirB,
-                                                const MyPoint_2 &cellOrigin,
-                                                const size_t &originPtIndex,
-                                                const vector<MyPoint_2> &inputPointSet,
-                                                const MyNef_polyhedron &clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
+    OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 & dirA,
+                                                const MyDirection_2 & dirB,
+                                                const MyPoint_2 & cellOrigin,
+                                                const size_t & originPtIndex,
+                                                const vector<MyPoint_2> & inputPointSet,
+                                                const MyNef_polyhedron & clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                                 secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                                 cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
     {
@@ -44,8 +44,42 @@ namespace One_St_Pt_GPA
 #   endif
     }
 
-    void OrientedDirichletCell::computeCell(MyNef_polyhedron &result, const MyNef_polyhedron &clippingPolygon,
-                                            const vector<MyPoint_2> &inputPointSet, size_t originPtIndex)
+    /*
+    ** Computes the oriented Dirichlet cell of site `originPtIndex` within the
+    ** 60 degree cone defined by `firstDir` and `secondDir`, clipped to the convex
+    ** hull polygon.
+    ** 
+    ** There are two methods implemented. The method used is toggled by a 
+    ** compiler flag in "1ST-Constants-Utilities.h"
+    ** I was hoping one would be clearly more practically efficient than the other,
+    ** but I didn't notice a difference.
+    ** A future work would be to replace this code with an algorithm for computing
+    ** the oriented Voronoi / Dirichlet diagram. See project notes.
+    **
+    ** Method: 
+    **  (! BUILD_ODCELL_BY_DIFFERENCES):
+    **      This method builds the cell by complementing regions.
+    **      -- start with the union of two halfplanes whose complement
+    **      is the cone apexed at the point dictated by originPtIndex
+    **      -- then, for each other site, union the region where
+    **      that site is "closer". This is done by building a cone apexed at that second point,
+    **      computing the perpendicular bisector of the origin point and this second point,
+    **      clipping the second cone with the bisector, then unioning this to the complement
+    **      of origin's cone. This way we build the regions that are NOT the cell, then we take
+    **      the complement (i.e., the cell we ARE looking for) and clip it to the convex hull.
+    **
+    **  BUILD_ODCELL_BY_DIFFERENCES:
+    **      -- start with the intersection of two half-planes (the cone apexed at 
+    **      the point dictated by originPtIndex) and clip to the convex hull
+    **      -- call this the origin's region 
+    **      -- then, for each other site, subtract the region where
+    **      that site is "closer". This is done by building a cone apexed at that second point,
+    **      computing the perpendicular bisector of the origin point and this second point,
+    **      clipping the second cone with the bisector, then subtracting this shape from
+    **      the origin's region.
+    */
+    void OrientedDirichletCell::computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon,
+                                            const vector<MyPoint_2> & inputPointSet, size_t originPtIndex)
     {
 #   if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
         //build odcell by complementing
@@ -63,7 +97,7 @@ namespace One_St_Pt_GPA
             {
                 continue;
             }
-            const MyPoint_2 &otherSite = inputPointSet[i];
+            const MyPoint_2 & otherSite = inputPointSet[i];
             const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
             MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
                                             cellBoundaryInclusion);
@@ -102,7 +136,7 @@ namespace One_St_Pt_GPA
             {
                 continue;
             }
-            const MyPoint_2 &otherSite = inputPointSet[i];
+            const MyPoint_2 & otherSite = inputPointSet[i];
             const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
             MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
                                             cellBoundaryInclusion);
@@ -131,7 +165,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    void OrientedDirichletCell::extractArrangement(MyArrangement_2 &result, const Nef_Explorer &myExplorer, const size_t &originIndex)
+    void OrientedDirichletCell::extractArrangement(MyArrangement_2 & result, const Nef_Explorer & myExplorer, const size_t & originIndex)
     {
         //According to info in a cgal example (which is not in the docs), the first face is the infinite one
         auto fit = myExplorer.faces_begin();
@@ -199,7 +233,7 @@ namespace One_St_Pt_GPA
                 } while (hafc != done);
                 vector<MyArrangement_2::Vertex_handle> vertexHandles;
                 MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
-                for (const MyPoint_2 &pt : boundaryList)
+                for (const MyPoint_2 & pt : boundaryList)
                 {
                     //don't want to mess with push vs emplace, i don't know what that const looks like
                     vertexHandles.push_back(result.insert_in_face_interior(pt, unboundedFace));
