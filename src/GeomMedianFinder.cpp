@@ -32,7 +32,7 @@ namespace
     bool testForDegenerateGeomMedian3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
                                      DegeneratePointIndex & degenPt);
     void findCollinearMedian_3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
-                              const vector<size_t> & originalInputPtIndices, GeomMedianData & fillMe); 
+                              const vector< size_t > & originalInputPtIndices, GeomMedianData & fillMe); 
 
 } // anon namespace
 
@@ -40,8 +40,8 @@ namespace
 
 namespace One_St_Pt_GPA
 {
-    GeomMedianData GeomMedianFinder::computeGeomMedian(const vector<MyPoint_2> & myPts,
-                                                    const vector<size_t> & originalInputPtIndices)
+    GeomMedianData GeomMedianFinder::computeGeomMedian(const vector< MyPoint_2 > & myPts,
+                                                    const vector< size_t > & originalInputPtIndices)
     {
         assert((myPts.size() == 3) || (myPts.size() == 4));
         if (myPts.size() == 3)
@@ -54,7 +54,7 @@ namespace One_St_Pt_GPA
         }
     }
 
-    GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 > & myPts, const vector<size_t> & originalInputPtIndices)
+    GeomMedianData GeomMedianFinder::computeGeomMedian_3Pts(const vector< MyPoint_2 > & myPts, const vector< size_t > & originalInputPtIndices)
     {
         assert(3 == myPts.size());
 
@@ -139,7 +139,7 @@ namespace One_St_Pt_GPA
     }
 
 
-    GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 > & myPts, const vector<size_t> & originalInputPtIndices)
+    GeomMedianData GeomMedianFinder::computeGeomMedian_4Pts(const vector< MyPoint_2 > & myPts, const vector< size_t > & originalInputPtIndices)
     {
         assert(4 == myPts.size());
 
@@ -154,7 +154,7 @@ namespace One_St_Pt_GPA
             findCollinearMedian_3Pts(myPts[0], myPts[1], myPts[2], originalInputPtIndices, result);
         }
 
-        vector<MyPoint_2>   convexHullList;
+        vector< MyPoint_2 >   convexHullList;
 
         Utility_Functions::computeConvexHull(myPts, convexHullList);
 
@@ -192,7 +192,7 @@ namespace One_St_Pt_GPA
             auto intRes = intersection(firstSeg, secondSeg);
             if (intRes)
             { //these two non-par segments will intersect... do i really have to test for result?
-                result.medPoint = boost::get<MyPoint_2>(*intRes);
+                result.medPoint = boost::get< MyPoint_2 >(*intRes);
             } //TODO Else throw error or something...
         }
 
@@ -210,7 +210,7 @@ namespace
     MyPoint_2 findEqTriIntPoint(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & avoidMe)
     {
         MyPoint_2 intersectionPoint;
-        vector<MyDirection_2> coneRays(6);
+        vector< MyDirection_2 > coneRays(6);
         const MyLine_2 baseLine = MyLine_2(pointA, pointB);
         const MyDirection_2 initialDirection = MyDirection_2(baseLine);
         Utility_Functions::computeConeRays(initialDirection, coneRays);
@@ -247,7 +247,7 @@ namespace
                                                         DegeneratePointIndex & degenPt)
     {
         //Assume non-collinear points a,b,c
-        vector<MyDirection_2> coneRays(6);
+        vector< MyDirection_2 > coneRays(6);
         const MyLine_2 baseLine = MyLine_2(pointA, pointB);
         const MyDirection_2 initialDirection = MyDirection_2(baseLine);
         Utility_Functions::computeConeRays(initialDirection, coneRays);
@@ -315,7 +315,7 @@ namespace
 
         const MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
         const MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
-        vector<MyDirection_2> secondConeRays(6);
+        vector< MyDirection_2 > secondConeRays(6);
         Utility_Functions::computeConeRays(secondInitDirection, secondConeRays);    
         MyLine_2 thirdTestLine;
         thirdTestLine = MyLine_2(pointC, secondConeRays[1]);
@@ -333,7 +333,7 @@ namespace
     }
 
     void findCollinearMedian_3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC, 
-                                                    const vector<size_t> & originalInputPtIndices, GeomMedianData & fillMe)
+                                                    const vector< size_t > & originalInputPtIndices, GeomMedianData & fillMe)
     {
         fillMe.coincidesWithInputPt = true;
         if (collinear_are_strictly_ordered_along_line(pointA, pointB, pointC))

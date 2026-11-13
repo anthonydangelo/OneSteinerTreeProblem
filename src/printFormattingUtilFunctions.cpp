@@ -16,7 +16,7 @@ namespace One_St_Pt_GPA
     {
         using std::boolalpha;
         
-        string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel)
+        string mstEdgeToJSONString(const pair< pair< size_t, size_t>, pair< bool, bool> > & edgeData, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -44,7 +44,7 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }
 
-        string mstDataToJSONString(const MyEMSTData &mst, int tabLevel)
+        string mstDataToJSONString(const MyEMSTData & mst, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -80,7 +80,7 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }
 
-        string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel)
+        string geomMedDataToJSONString(const GeomMedianData & stPtData, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -118,7 +118,7 @@ namespace One_St_Pt_GPA
             return sStream.str();    
         }
 
-        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel)
+        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData & stPtData, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -132,7 +132,7 @@ namespace One_St_Pt_GPA
             return sStream.str();  
         }
 
-        string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel)
+        string steinerPointsToJSONString(const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -159,7 +159,7 @@ namespace One_St_Pt_GPA
             return sStream.str();     
         }
 
-        string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel)
+        string pointVectorToJSONString(string name, const vector< MyPoint_2 > & myColl, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -183,8 +183,8 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }
 
-        string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                        const vector<MyPoint_2> &myPtSet, int tabLevel)
+        string vertexIndicesToJSONString(string name, const vector< MyPoint_2 > & myColl,
+                                                        const vector< MyPoint_2 > & myPtSet, int tabLevel)
         {
 
             ostringstream sStream;
@@ -212,7 +212,7 @@ namespace One_St_Pt_GPA
         }    
 
         string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                            const vector<MyPoint_2> &myPtSet, int tabLevel)
+                                                            const vector< MyPoint_2 > & myPtSet, int tabLevel)
         {
 
             ostringstream sStream;
@@ -266,7 +266,7 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }    
 
-        string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel)
+        string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel)
         {
             vector< MyPoint_2 > arrPoints;
             Utility_Functions::insertArrangementPointsIntoPointSet(resultODCArrangement, arrPoints);

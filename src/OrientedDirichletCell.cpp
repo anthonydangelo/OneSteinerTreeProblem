@@ -8,7 +8,7 @@ namespace One_St_Pt_GPA
                                                 const MyDirection_2 & dirB,
                                                 const MyPoint_2 & cellOrigin,
                                                 const size_t & originPtIndex,
-                                                const vector<MyPoint_2> & inputPointSet,
+                                                const vector< MyPoint_2 > & inputPointSet,
                                                 const MyNef_polyhedron & clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                                 secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                                 cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
@@ -79,7 +79,7 @@ namespace One_St_Pt_GPA
     **      the origin's region.
     */
     void OrientedDirichletCell::computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon,
-                                            const vector<MyPoint_2> & inputPointSet, size_t originPtIndex)
+                                            const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex)
     {
 #   if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
         //build odcell by complementing
@@ -231,7 +231,7 @@ namespace One_St_Pt_GPA
                     ++hafc;
                     ++nextHC;
                 } while (hafc != done);
-                vector<MyArrangement_2::Vertex_handle> vertexHandles;
+                vector< MyArrangement_2::Vertex_handle > vertexHandles;
                 MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
                 for (const MyPoint_2 & pt : boundaryList)
                 {

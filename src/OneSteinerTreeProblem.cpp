@@ -85,20 +85,20 @@ namespace
                 close(mutexFD); 
             }
         }
-        OneStPtResourceMutex(const OneStPtResourceMutex&) = delete;
-        OneStPtResourceMutex& operator=(const OneStPtResourceMutex&) = delete;
-        OneStPtResourceMutex(OneStPtResourceMutex&&) = delete;
-        OneStPtResourceMutex& operator=(OneStPtResourceMutex&&) = delete;        
+        OneStPtResourceMutex(const OneStPtResourceMutex &) = delete;
+        OneStPtResourceMutex & operator=(const OneStPtResourceMutex &) = delete;
+        OneStPtResourceMutex(OneStPtResourceMutex &&) = delete;
+        OneStPtResourceMutex & operator=(OneStPtResourceMutex &&) = delete;        
     };
 
     struct OneStPtConfig
     {
-        vector<MyPoint_2> pointsVec;
-        int numPoints = DEFAULT_NUM_INPUT_POINTS;
-        int randSeed = RAND_SEED_DEFAULT;
-        int gridLength = GRID_LENGTH_DEFAULT;
+        vector< MyPoint_2 > pointsVec;
+        int numPoints   = DEFAULT_NUM_INPUT_POINTS;
+        int randSeed    = RAND_SEED_DEFAULT;
+        int gridLength  = GRID_LENGTH_DEFAULT;
         OneStPtResourceMutex flockMutex;
-        bool useMutex = true;
+        bool useMutex   = true;
         bool trueRandom = TRUE_RANDOM_DEFAULT;
         bool onlyPoints = ONLY_POINTS_DEFAULT;
     };
@@ -131,7 +131,7 @@ namespace
     
 
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-    bool ProcessArgs(int argc, char **argv, OneStPtConfig &config)
+    bool ProcessArgs(int argc, char **argv, OneStPtConfig & config)
     {
         const char *const short_opts = "pn:rs:g:i:h";
         const option long_opts[] = {
@@ -251,7 +251,7 @@ namespace
         return true;
     }
 
-    void initializeOrDie(int argc, char **argv, OneStPtConfig &config)
+    void initializeOrDie(int argc, char **argv, OneStPtConfig & config)
     {
         if ( !ProcessArgs(argc, argv, config))
         {
@@ -378,9 +378,9 @@ int main(int argc, char **argv)
     // Record end time
     auto finish = std::chrono::high_resolution_clock::now();  
 
-    std::chrono::duration<double> elapsed = finish - start;
+    std::chrono::duration< double > elapsed = finish - start;
     double timeInSecs = elapsed.count();
-    long timeNumb = static_cast<long>(floor(timeInSecs));
+    long timeNumb = static_cast< long >(floor(timeInSecs));
 
     sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
     timeNumb /= 60;

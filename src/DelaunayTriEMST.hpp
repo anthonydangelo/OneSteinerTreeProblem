@@ -72,7 +72,7 @@ namespace One_St_Pt_GPA
     //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
     struct MyEMSTData 
     {
-        vector<MyEdge_descriptor> mstEdgeList;
+        vector< MyEdge_descriptor > mstEdgeList;
 
         vector< pair< pair< size_t, size_t>,
                             pair< bool, bool>>>

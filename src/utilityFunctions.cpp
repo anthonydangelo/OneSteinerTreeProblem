@@ -12,7 +12,7 @@ namespace One_St_Pt_GPA
     {
         using std::exception;
 
-        bool extractPointsFromJSON2DArrayString(const string &inputString, vector< MyPoint_2 > &result)
+        bool extractPointsFromJSON2DArrayString(const string & inputString, vector< MyPoint_2 > & result)
         {
             //NB: The string processing is a bit more flexible than the PrintHelp message suggests
             //TODO: consider switching to using a regex here
@@ -51,7 +51,7 @@ namespace One_St_Pt_GPA
                             result.emplace_back(firstD, secondD);
                         }
                     }
-                    catch (exception &e)
+                    catch (exception & e)
                     {
                         cerr << endl << "Exception caught: " << e.what() << endl;
                         cerr << "ERROR: Input point list string malformed. Try surrounding the list in quotes." << endl;
@@ -73,9 +73,9 @@ namespace One_St_Pt_GPA
             return true;
         }   
 
-        bool findOriginIndex(const MyPoint_2 &cellOrigin, 
-                            const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                            size_t &resultIndex)
+        bool findOriginIndex(const MyPoint_2 & cellOrigin, 
+                            const vector< reference_wrapper< const MyPoint_2 > > & inputPointSet,
+                            size_t & resultIndex)
         {
             resultIndex = 0;
             for (auto it = inputPointSet.begin(); it != inputPointSet.end(); ++it, ++resultIndex)
@@ -88,7 +88,7 @@ namespace One_St_Pt_GPA
             return false;
         }    
 
-        bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex)
+        bool findPointIndex(const MyPoint_2 & pt, const vector< MyPoint_2 > & myColl, size_t & myIndex)
         {
             myIndex = 0;
             if(!myColl.empty()){
@@ -103,18 +103,18 @@ namespace One_St_Pt_GPA
         }
 
         //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
-        void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec)
+        void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec)
         {
             set<MyPoint_2> arrPoints;
             for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
             {
                 if (! it->is_isolated() && ! it->is_at_open_boundary())
                 {
-                    const MyPoint_2& tempPt = it->point();
+                    const MyPoint_2 & tempPt = it->point();
                     arrPoints.emplace(tempPt.x(), tempPt.y());
                 }
             }    
-            for (const MyPoint_2& p : arrPoints)
+            for (const MyPoint_2 & p : arrPoints)
             {
                 //we could probably turn this into a vec of refs
                 arrPointsVec.emplace_back(p.x(), p.y());

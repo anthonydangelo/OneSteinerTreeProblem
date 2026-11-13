@@ -243,18 +243,18 @@ namespace One_St_Pt_GPA
     ** store which combinations of input points we've worked on by updating
     ** "seenList".
     */
-    void ComputationResult::computePotentialStPts(const vector<size_t> & siteIndices, const int numComboPts,
-                                                vector<GeomMedianData> & results, set< vector< size_t>> & seenList) const
+    void ComputationResult::computePotentialStPts(const vector< size_t > & siteIndices, const int numComboPts,
+                                                vector< GeomMedianData > & results, set< vector< size_t>> & seenList) const
     {
         if (numComboPts > siteIndices.size())
         {
             //TODO throw some kind of error...
             return;
         }
-        CGAL::Combination_enumerator<vector<size_t>::const_iterator> combi(numComboPts, siteIndices.begin(), siteIndices.end());
+        CGAL::Combination_enumerator< vector< size_t>::const_iterator> combi(numComboPts, siteIndices.begin(), siteIndices.end());
         while (!combi.finished())
         {
-            vector<size_t> siteComboIndices;
+            vector< size_t > siteComboIndices;
             for (int i = 0; i < numComboPts; ++i)
             {
                 size_t myInd = *combi[i];
@@ -285,17 +285,17 @@ namespace One_St_Pt_GPA
     ** Deduplicate via `seenList` (the same 3- or 4-point set may appear in
     ** multiple faces).
     */
-    vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
+    vector< GeomMedianData > ComputationResult::computeStPtsForOODC() const
     {
-        vector<GeomMedianData> results;
-        set< vector<size_t> > seenList;
+        vector< GeomMedianData > results;
+        set< vector< size_t > > seenList;
 
         auto endFit = resultODCArrangement.faces_end();
         for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
         {
             if (!fit->is_unbounded())
             {
-                vector<size_t> siteIndices;
+                vector< size_t > siteIndices;
                 const MyFaceData & myFaceStruct = fit->data();
                 auto endIt = end(myFaceStruct.myInputPointIndices);
                 for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it)

@@ -16,7 +16,7 @@
 namespace One_St_Pt_GPA
 {
     //https://doc.cgal.org/latest/Generator/index.html
-    typedef CGAL::Creator_uniform_2<double, MyPoint_2> Creator;
+    typedef CGAL::Creator_uniform_2<double, MyPoint_2>          Creator;
     typedef CGAL::Random_points_in_square_2<MyPoint_2, Creator> Point_generator;
 
     struct CandidateSteinerPointData
@@ -47,22 +47,22 @@ namespace One_St_Pt_GPA
 
             CGAL::Random rand;
             Point_generator     randPointGen;
-            vector<MyPoint_2>   convexHullList;
+            vector< MyPoint_2 > convexHullList;
 
-            vector<MyDirection_2> coneRays;
-            vector< MyPoint_2 > inputPtVector;
-            MyArrangement_2       resultODCArrangement;
+            vector< MyDirection_2 > coneRays;
+            vector< MyPoint_2 >     inputPtVector;
+            MyArrangement_2         resultODCArrangement;
 
             MyEMSTData origMST;
 
-            vector<CandidateSteinerPointData> steinerPoints;
+            vector< CandidateSteinerPointData > steinerPoints;
 
         public:
             ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
                             int randomSeed = RAND_SEED_DEFAULT,
                             int inputGridLength = GRID_LENGTH_DEFAULT,
                             bool onlyProducePoints = ONLY_POINTS_DEFAULT,
-                            const vector< MyPoint_2 > & userPointList = vector<MyPoint_2>());
+                            const vector< MyPoint_2 > & userPointList = vector< MyPoint_2 >());
             
             string outputResultToJSONString() const;
 
@@ -70,9 +70,9 @@ namespace One_St_Pt_GPA
             void preparePointSet(const vector< MyPoint_2 > & userPointList);
             void computeOODC();
             void computeMSTAndStPts(); 
-            void computePotentialStPts(const vector<size_t> & siteIndices, const int numComboPts, 
-                                        vector<GeomMedianData> & results, set< vector<size_t> > & seenList) const; 
-            vector<GeomMedianData> computeStPtsForOODC() const;
+            void computePotentialStPts(const vector<size_t > & siteIndices, const int numComboPts, 
+                                        vector< GeomMedianData > & results, set< vector< size_t > > & seenList) const; 
+            vector< GeomMedianData > computeStPtsForOODC() const;
     };
 } // namespace One_St_Pt_GPA
 #endif

@@ -204,29 +204,29 @@ namespace One_St_Pt_GPA
             return ((x >= lowEnd) && (x <= highEnd));
         }
 
-        bool extractPointsFromJSON2DArrayString(const string &inputString, vector< MyPoint_2 > &result);
+        bool extractPointsFromJSON2DArrayString(const string & inputString, vector< MyPoint_2 > & result);
 
         //Assume the numbers aren't too large or small for doubles
-        inline bool pointsAreTooClose(const MyPoint_2 &first, const MyPoint_2 &second)
+        inline bool pointsAreTooClose(const MyPoint_2 & first, const MyPoint_2 & second)
         {
             return ( (fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
                     && (fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
         }
 
-        bool findOriginIndex(const MyPoint_2 &cellOrigin, 
-                            const vector< reference_wrapper<const MyPoint_2> > &inputPointSet,
-                            size_t &resultIndex);
+        bool findOriginIndex(const MyPoint_2 & cellOrigin, 
+                            const vector< reference_wrapper< const MyPoint_2 > > & inputPointSet,
+                            size_t & resultIndex);
 
-        bool findPointIndex(const MyPoint_2 &pt, const vector< MyPoint_2 > &myColl, size_t &myIndex);
+        bool findPointIndex(const MyPoint_2 & pt, const vector< MyPoint_2 > & myColl, size_t & myIndex);
 
-        inline void computeConvexHull(const vector< MyPoint_2 > &pointVec, vector<MyPoint_2> &convexHullList)
+        inline void computeConvexHull(const vector< MyPoint_2 > & pointVec, vector< MyPoint_2 > & convexHullList)
         {
             //TODO does convex hull work w const mypoints?
             ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
             return;
         }    
 
-        inline void computeConeRays(const MyDirection_2 &initialDirection, vector<MyDirection_2> &coneRays)
+        inline void computeConeRays(const MyDirection_2 & initialDirection, vector< MyDirection_2 > & coneRays)
         {
             //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
             // construct the functor
@@ -238,7 +238,7 @@ namespace One_St_Pt_GPA
         }
 
         //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
-        void insertArrangementPointsIntoPointSet(const MyArrangement_2 &resultODCArrangement, vector< MyPoint_2 > &arrPointsVec);
+        void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec);
 
     } // namespace Utility_Functions
 
@@ -249,12 +249,12 @@ namespace One_St_Pt_GPA
     */
     namespace Pretty_Print
     {
-        inline string wrapStringInQuotes(const string &s)
+        inline string wrapStringInQuotes(const string & s)
         {
             return ("\"" + s + "\"");
         }
 
-        inline string point2ToJSON(const MyPoint_2 &p)
+        inline string point2ToJSON(const MyPoint_2 & p)
         {
             ostringstream sStream;
 
@@ -290,25 +290,25 @@ namespace One_St_Pt_GPA
         }
 #   endif
 
-        string mstEdgeToJSONString(const pair< pair<size_t, size_t>, pair<bool, bool> > &edgeData, int tabLevel = 0);
+        string mstEdgeToJSONString(const pair< pair< size_t, size_t>, pair< bool, bool> > & edgeData, int tabLevel = 0);
 
-        string mstDataToJSONString(const MyEMSTData &mst, int tabLevel = 0);
+        string mstDataToJSONString(const MyEMSTData & mst, int tabLevel = 0);
 
-        string geomMedDataToJSONString(const GeomMedianData &stPtData, int tabLevel = 0);
+        string geomMedDataToJSONString(const GeomMedianData & stPtData, int tabLevel = 0);
 
-        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData &stPtData, int tabLevel = 0);
+        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData & stPtData, int tabLevel = 0);
 
-        string steinerPointsToJSONString(const vector<CandidateSteinerPointData> &steinerPoints, int tabLevel = 0);
+        string steinerPointsToJSONString(const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel = 0);
 
-        string pointVectorToJSONString(string name, const vector< MyPoint_2 > &myColl, int tabLevel = 0);
+        string pointVectorToJSONString(string name, const vector< MyPoint_2 > & myColl, int tabLevel = 0);
 
-        string vertexIndicesToJSONString(string name, const vector<MyPoint_2> &myColl,
-                                                        const vector<MyPoint_2> &myPtSet, int tabLevel = 0);    
+        string vertexIndicesToJSONString(string name, const vector< MyPoint_2 > & myColl,
+                                                        const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
 
         string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                            const vector<MyPoint_2> &myPtSet, int tabLevel = 0);
+                                                            const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);
 
-        string arrangementToJSONString(const MyArrangement_2 &resultODCArrangement, int tabLevel = 0);
+        string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
 
     } // namespace Pretty_Print
 } // namespace One_St_Pt_GPA
