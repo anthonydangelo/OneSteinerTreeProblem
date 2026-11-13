@@ -233,8 +233,18 @@ namespace One_St_Pt_GPA
         return sStream.str();
     }
 
+    /*
+    ** Called by computeStPtsForOODC() with numComboPts \in {3,4}.
+    **
+    ** Enumerate all C(k,numComboPts) combinations of the input site indices 
+    ** (where k is the number of sites). 
+    ** Compute the geometric median of each combination.
+    ** In addition to storing the results in the "results" in/out variable,
+    ** store which combinations of input points we've worked on by updating
+    ** "seenList".
+    */
     void ComputationResult::computePotentialStPts(const vector<size_t> & siteIndices, const int numComboPts,
-                                                vector<GeomMedianData> & results, set<vector<size_t>> & seenList) const
+                                                vector<GeomMedianData> & results, set< vector< size_t>> & seenList) const
     {
         if (numComboPts > siteIndices.size())
         {
@@ -251,7 +261,7 @@ namespace One_St_Pt_GPA
                 siteComboIndices.push_back(myInd);
             }
             sort(siteComboIndices.begin(), siteComboIndices.end());
-            pair<set<vector<size_t>>::iterator, bool> ret = seenList.insert(siteComboIndices);
+            pair< set< vector< size_t>>::iterator, bool> ret = seenList.insert(siteComboIndices);
             if (ret.second)
             {
                 vector<MyPoint_2> siteTuples;
@@ -267,6 +277,14 @@ namespace One_St_Pt_GPA
         return;
     }
 
+    /*
+    ** For each bounded face of the OODC arrangement, 
+    ** use computePotentialStPts() to compute the geometric median of 
+    ** each combination of C(k,3) and C(k,4) of the face's site indices (where k is the number of
+    ** sites defining that face in the OODC arrangement). 
+    ** Deduplicate via `seenList` (the same 3- or 4-point set may appear in
+    ** multiple faces).
+    */
     vector<GeomMedianData> ComputationResult::computeStPtsForOODC() const
     {
         vector<GeomMedianData> results;
