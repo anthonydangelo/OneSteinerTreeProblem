@@ -4,6 +4,8 @@
 /*
 ** Geometric median (Fermat–Weber point) for 3 or 4 points.
 **
+** Do not call this unless your input is exactly 3 or 4 points.
+**
 ** For 3 collinear points, it's the middle point.
 ** For 3 non-collinear points: if all angles < 120 degrees, the median is the
 ** intersection of two "Simpson lines" (lines from each vertex through the
@@ -27,19 +29,18 @@ namespace One_St_Pt_GPA
     //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
     struct GeomMedianData
     {
-        //compiler didn't like the const vector, wanted me to make some kind of copy op, but that's not doable with const casts... w/e.
         MyPoint_2 medPoint;
         vector<size_t> inputPtIndices;
         bool coincidesWithInputPt = false;
         size_t coincidentInputPtIndex = 0;
-        GeomMedianData(const vector<size_t> &inputSet) : inputPtIndices(inputSet) {}
+        GeomMedianData(const vector<size_t> & inputSet) : inputPtIndices(inputSet) {}
     };
 
     namespace GeomMedianFinder
     {
-        GeomMedianData computeGeomMedian(const vector< MyPoint_2 > &myPts, const vector<size_t> &originalInputPtIndices);
-        GeomMedianData computeGeomMedian_3Pts(const vector< MyPoint_2 > &myPts, const vector<size_t> &originalInputPtIndices);
-        GeomMedianData computeGeomMedian_4Pts(const vector< MyPoint_2 > &myPts, const vector<size_t> &originalInputPtIndices);
+        GeomMedianData computeGeomMedian(const vector< MyPoint_2 > & myPts, const vector<size_t> & originalInputPtIndices);
+        GeomMedianData computeGeomMedian_3Pts(const vector< MyPoint_2 > & myPts, const vector<size_t> & originalInputPtIndices);
+        GeomMedianData computeGeomMedian_4Pts(const vector< MyPoint_2 > & myPts, const vector<size_t> & originalInputPtIndices);
     }
 } // namespace One_St_Pt_GPA
 #endif

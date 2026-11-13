@@ -49,5 +49,7 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "utility": "cpp"
-    }
+    },
+    "C_Cpp.intelliSenseEngine": "disabled",
+//    "C_Cpp.errorSquiggles": "disabled",
 }
