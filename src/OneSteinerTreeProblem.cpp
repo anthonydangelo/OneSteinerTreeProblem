@@ -15,18 +15,70 @@
                 }
 */
 // Version     :
-// Description : Implementation of (most of) Georgakopolous and Papadimitriou's 
-//               O(n^2) 1 Steiner tree algorithm from Journal of Algorithms, 1987.
-//               Use CGAL for everything, e.g., OODC arrangement creation.
-//               We don't do their n^2 pre-processing to figure out MST length changes.
-//               Instead, we compute the new MSTs with the test Steiner points
-//               by inserting them into a Delaunay tri., taking the MST, then removing
-//               the candidate St point so we can re-use the tri. This might make this
-//               implementation (n^2)log(n) (depends on how CGAL does this)...
-//               Future work: implement the monma-suri approach to help find the MST deltas.
-//                      (see Transitions in geometric minimum spanning trees by 
-//                          Monma and Suri, 1992, Journal of Discrete and Computational Geometry,
-//                          Lemma 4.1 on page "277" for the idea)
+/* 
+******************************************************
+** Read project's readme.md for a fuller elaboration.
+******************************************************
+** Description : Implementation of the Georgakopoulos–Papadimitriou 1-Steiner tree
+**               algorithm (GPA):  (Georgakopoulos, Papadimitriou) 
+**                                 The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
+**
+** Approach: Compute the Overlaid Oriented Dirichlet Cell (OODC) arrangement of the
+**          input sites, then for each bounded face, enumerate all 3- and 4-point
+**          combinations of the face's site indices, compute the geometric median
+**          of each combination, and test its insertion into the EMST (via Delaunay
+**          triangulation). The candidate with the shortest resulting EMST is a
+**          1-Steiner point.
+**
+**          We do not implement the paper's O(n^2) MST-delta pre-processing to enable
+**          constant-time MST-update queries. 
+**          Instead, we compute each candidate's MST by inserting it into the Delaunay
+**          triangulation, re-running Kruskal's on the updated triangulaion, 
+**          and removing the point (in preparation for the next iteration). 
+**          This was simpler to implement but makes each of the O(n^2) tests
+**          for a candidate Steiner point take O(n log n) time 
+**          (depending on how CGAL manages updating a Delaunay triangulation
+**           and if their Kruskal's implementation is O(n log n) ).
+**
+**          I used c++11 and CGAL 4.11.2 (and its dependencies) heavily as a geometry library.
+**
+** Future work: Rather than implementing the preprocessing from the GPA paper that lets them
+**              find MST deltas in constant time to test each candidate Steiner point,
+**              implement the improvement described in the paper I co-authored (first described in other references):
+**                  (Bose, P., D'Angelo, A., & Durocher, S.) 
+**                      "On the Restricted k-Steiner Tree Problem.", 
+**                      ( J. Comb. Optim. 44(4): 2893-2918 (2022))
+**              See also:
+**                  (Bose, Maheshwari, Narasimhan, Smid, and Zeh) 
+**                      "Approximating geometric bottle-neck shortest paths.",
+**                      (Comput. Geom., 29(3):233–249, 2004.)
+**                  (Monma and Suri) 
+**                      "Transitions in geometric minimum spanning trees.",
+**                      (Discret. Comput. Geom., 8:265–293, 1992.)
+**              That will let us find the solution without computing the MST every time. 
+**              Then return the MST at the end with the solution.
+**              If you for some reason want to continue inserting/removing a point at a time
+**              from a Delaunay triangulation, consider using an algorithm for a dynamic data structure
+**              (which offer some tradeoff to allow quicker insertions/deletions).
+**
+**              Also, with regards to testing Steiner points: whenever we compute a MST
+**              (including when testing Steiner points), we then run a O(n^2) scan to 
+**              map each endpoint of each edge from the MST (which has been extracted from the Delaunay triangulation) 
+**              to an input point (testing for points being "close enough" because, for all I know, they may have 
+**              been slightly changed by the Delaunay insertion). This is not efficient, but was fast to code. 
+**              It should eventually be replaced by either using augmented vertices/edges/faces that keep track
+**              of the necessary data (which may require writing a custom MST algorithm, but I wouldn't be surprised
+**              if CGAL can use such augmented structures), or using a map with a custom "compare" function
+**              that returns the index for the point that's "close enough".
+**                    
+**              Other future work would be to replace the OODC code with an O(n log n) 
+**              algorithm for computing the oriented Voronoi / Dirichlet diagram.
+**              For example:
+**                  (Chang, Huang, and Tang)
+**                      "An optimal algorithm for constructing oriented Voronoi diagrams 
+**                       and geographic neighborhood graphs.", 
+**                      (Inf. Process. Lett. 35(5):255–260, 1990)
+*/
 // Copyright   : This uses CGAL and the dependencies of CGAL, which have their own licences 
 //               and copyrights and stuff that probably apply virally to this too.
 //               From some random CGAL demos (they're probably all the same):
@@ -50,7 +102,6 @@
 //              These files are provided as a kind of example, I guess... If you use stuff from it,
 //              please give the others (CGAL, authors of the papers...) and I credit.
 //              I hope I've done that properly myself...
-//              If any papers come out of this, you'll probably have to cite the individual chapters of the CGAL manual too.
 //============================================================================
 
 #include <getopt.h>

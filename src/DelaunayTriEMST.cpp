@@ -18,7 +18,7 @@
 **  "On the Restricted k-Steiner Tree Problem.", 
 **    ( J. Comb. Optim. 44(4): 2893-2918 (2022))
 **
-** This is an improvement on what is done in 
+** What is described in that paper is an improvement on what is done in 
 ** Georgakopoulos–Papadimitriou The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
 ** While it would not improve the asymptotic runtime of their algorithm, it would improve
 ** the asymptotic runtime of this implementation.
@@ -116,6 +116,7 @@ namespace One_St_Pt_GPA
 
 
     //We assume an unfound point is the steiner point... probably okay...
+    // TODO This is inefficient. Replace. See project notes.
     void DelaunayTriEMST::findEdgePointIndices(MyEMSTData & fillMe, bool containsSteinerPoint)
     {
         auto endELIt = fillMe.mstEdgeList.end();
