@@ -1,12 +1,35 @@
 #include "DelaunayTriEMST.hpp"
-
+/*
+** Euclidean Minimum Spanning Tree via Delaunay triangulation + Kruskal's.
+**
+** Built off of the CGAL BGL_triangulation_2/emst.cpp example.
+** In addition to computing the EMST of a point set 
+** (by creating the Delaunay triangulation then running Kruskal's),
+** this is also being used to test candidate Steiner points.
+** This is done by inserting the candidate point into the existing triangulation,
+** whereby CGAL takes care of updating the triangulation, 
+** recomputing the EMST on the updated triangulation (the "new" result is saved and returned),
+** then the candidate is removed from the triangulation. 
+** This is an inefficient way to test Steiner points, but it was quick to implement.
+** For a much better way (implementing it is future work), 
+** see the paper I co-authored (and its references):
+**
+** (Bose, P., D'Angelo, A., & Durocher, S.) 
+**  "On the Restricted k-Steiner Tree Problem.", 
+**    ( J. Comb. Optim. 44(4): 2893-2918 (2022))
+**
+** This is an improvement on what is done in 
+** Georgakopoulos–Papadimitriou The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
+** While it would not improve the asymptotic runtime of their algorithm, it would improve
+** the asymptotic runtime of this implementation.
+*/
 //See OneSteinerTreeProblem.cpp for project notes
 
 
 namespace One_St_Pt_GPA
 {
     //https://doc.cgal.org/latest/BGL/index.html#title15 and cgal examples BGL_triangulation_2/emst.cpp
-    DelaunayTriEMST::DelaunayTriEMST(const vector<MyPoint_2> &pointSet) : initialPointSet(pointSet),
+    DelaunayTriEMST::DelaunayTriEMST(const vector<MyPoint_2> & pointSet) : initialPointSet(pointSet),
                                                                         is_finite(MyTriFilter(delaunayTri)),
                                                                         finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
                                                                         idMapIndex(0)
@@ -15,7 +38,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    const MyEMSTData& DelaunayTriEMST::getEMSTData()
+    const MyEMSTData & DelaunayTriEMST::getEMSTData()
     {
         return emstData;
     }
@@ -23,7 +46,7 @@ namespace One_St_Pt_GPA
     //adds point set and computes emst
     void DelaunayTriEMST::addPointSet()
     {
-        for(const MyPoint_2 &pt : initialPointSet)
+        for(const MyPoint_2 & pt : initialPointSet)
         {
             delaunayTri.insert(pt);
         }
@@ -46,7 +69,7 @@ namespace One_St_Pt_GPA
 
 
     //!!!IMPORTANT!!! addPointSet first, otherwise you'll get a null ptr exception...
-    MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2 &myPoint)
+    MyEMSTData DelaunayTriEMST::testPointInsertion(const MyPoint_2 & myPoint)
     {
         MyEMSTData result;
 
@@ -64,7 +87,7 @@ namespace One_St_Pt_GPA
         return result;
     }
 
-    void DelaunayTriEMST::findMST(MyEMSTData &fillMe)
+    void DelaunayTriEMST::findMST(MyEMSTData & fillMe)
     {
         MyVertexIdPropertyMap vertex_index_pmap(vertex_id_map);
         //from cgal example comments: " We use the default edge weight which is the squared length of the edge
@@ -93,7 +116,7 @@ namespace One_St_Pt_GPA
 
 
     //We assume an unfound point is the steiner point... probably okay...
-    void DelaunayTriEMST::findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint)
+    void DelaunayTriEMST::findEdgePointIndices(MyEMSTData & fillMe, bool containsSteinerPoint)
     {
         auto endELIt = fillMe.mstEdgeList.end();
         for (auto it = fillMe.mstEdgeList.begin(); it != endELIt; ++it)

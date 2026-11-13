@@ -1,6 +1,29 @@
 #ifndef DTEMST_HPP
 #define DTEMST_HPP
-
+/*
+** Euclidean Minimum Spanning Tree via Delaunay triangulation + Kruskal's.
+**
+** Built off of the CGAL BGL_triangulation_2/emst.cpp example.
+** In addition to computing the EMST of a point set 
+** (by creating the Delaunay triangulation then running Kruskal's),
+** this is also being used to test candidate Steiner points.
+** This is done by inserting the candidate point into the existing triangulation,
+** whereby CGAL takes care of updating the triangulation, 
+** recomputing the EMST on the updated triangulation (the "new" result is saved and returned),
+** then the candidate is removed from the triangulation. 
+** This is an inefficient way to test Steiner points, but it was quick to implement.
+** For a much better way (implementing it is future work), 
+** see the paper I co-authored (and its references):
+**
+** (Bose, P., D'Angelo, A., & Durocher, S.) 
+**  "On the Restricted k-Steiner Tree Problem.", 
+**    ( J. Comb. Optim. 44(4): 2893-2918 (2022))
+**
+** This is an improvement on what is done in 
+** Georgakopoulos–Papadimitriou The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
+** While it would not improve the asymptotic runtime of their algorithm, it would improve
+** the asymptotic runtime of this implementation.
+*/
 //See OneSteinerTreeProblem.cpp for project notes
 
 #include "1ST-Constants-Utilities.h"
@@ -51,15 +74,15 @@ namespace One_St_Pt_GPA
     {
         vector<MyEdge_descriptor> mstEdgeList;
 
-        vector<pair<pair<size_t, size_t>,
-                            pair<bool, bool>>>
-            mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+        vector< pair< pair< size_t, size_t>,
+                            pair< bool, bool>>>
+                        mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
 
         My_Number_type length = 0.0;
 
         //The answer here says pulling the overload outside is 'best practice', though no explanation why...
         //https://stackoverflow.com/questions/3882467/defining-operator-for-a-struct
-        bool operator<(const MyEMSTData &other) const
+        bool operator<(const MyEMSTData & other) const
         {
             return length < other.length;
         }
@@ -69,23 +92,23 @@ namespace One_St_Pt_GPA
     class DelaunayTriEMST
     {
         protected:
-            MyTriangulation delaunayTri;
-            MyTriFilter is_finite;
-            MyFinite_triangulation finiteDT;  
-            MyVertexIndexMap vertex_id_map;
-            int idMapIndex;
-            const vector< MyPoint_2 > &initialPointSet;
-            MyEMSTData      emstData;
+            MyTriangulation             delaunayTri;
+            MyTriFilter                 is_finite;
+            MyFinite_triangulation      finiteDT;  
+            MyVertexIndexMap            vertex_id_map;
+            int                         idMapIndex;
+            const vector< MyPoint_2 > & initialPointSet;
+            MyEMSTData                  emstData;
 
         public:
-            DelaunayTriEMST(const vector< MyPoint_2 > &pointSet);
+            DelaunayTriEMST(const vector< MyPoint_2 > & pointSet);
             //adds point set and computes emst
-            const MyEMSTData& getEMSTData();
-            MyEMSTData testPointInsertion(const MyPoint_2 &myPoint);
+            const MyEMSTData & getEMSTData();
+            MyEMSTData testPointInsertion(const MyPoint_2 & myPoint);
 
         protected:
-            void findMST(MyEMSTData &fillMe);
-            void findEdgePointIndices(MyEMSTData &fillMe, bool containsSteinerPoint = false);
+            void findMST(MyEMSTData & fillMe);
+            void findEdgePointIndices(MyEMSTData & fillMe, bool containsSteinerPoint = false);
             void addPointSet();
     };
 } // namespace One_St_Pt_GPA
