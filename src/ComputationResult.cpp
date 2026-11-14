@@ -41,7 +41,7 @@ namespace One_St_Pt_GPA
         //sanitize input a bit
         for (const MyPoint_2 & pt : userPointList)
         {
-            if (pointSet.size() < numPoints)
+            if (pointSet.size() <  static_cast< size_t >(numPoints))
             {
                 pair< set< MyPoint_2 >::iterator, bool> ret;
                 ret = pointSet.emplace(pt.x(), pt.y());
@@ -57,7 +57,7 @@ namespace One_St_Pt_GPA
         }
 
         //https://doc.cgal.org/latest/Generator/index.html#GeneratorExample_2
-        while (pointSet.size() < numPoints)
+        while (pointSet.size() < static_cast< size_t >(numPoints))
         {
             pair< set< MyPoint_2 >::iterator, bool> ret;
             MyPoint_2 temp = *randPointGen;
@@ -246,7 +246,7 @@ namespace One_St_Pt_GPA
     void ComputationResult::computePotentialStPts(const vector< size_t > & siteIndices, const int numComboPts,
                                                 vector< GeomMedianData > & results, set< vector< size_t>> & seenList) const
     {
-        if (numComboPts > siteIndices.size())
+        if (static_cast< size_t >(numComboPts) > siteIndices.size())
         {
             //TODO throw some kind of error...
             return;

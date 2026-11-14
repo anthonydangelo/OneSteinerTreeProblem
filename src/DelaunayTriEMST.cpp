@@ -29,10 +29,10 @@
 namespace One_St_Pt_GPA
 {
     //https://doc.cgal.org/latest/BGL/index.html#title15 and cgal examples BGL_triangulation_2/emst.cpp
-    DelaunayTriEMST::DelaunayTriEMST(const vector< MyPoint_2 > & pointSet) : initialPointSet(pointSet),
-                                                                        is_finite(MyTriFilter(delaunayTri)),
+    DelaunayTriEMST::DelaunayTriEMST(const vector< MyPoint_2 > & pointSet) : is_finite(MyTriFilter(delaunayTri)),
                                                                         finiteDT(MyFinite_triangulation(delaunayTri, is_finite, is_finite)),
-                                                                        idMapIndex(0)
+                                                                        idMapIndex(0),
+                                                                        initialPointSet(pointSet)
     {
         addPointSet();
         return;
