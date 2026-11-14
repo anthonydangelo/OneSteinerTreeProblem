@@ -102,6 +102,7 @@ namespace One_St_Pt_GPA
                 const MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
                 //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
                 auto intRes = intersection(firstSimpsonLine, secondSimpsonLine);
+                assert(intRes);
                 if (intRes)
                 { //these two non-par segments will intersect... do i really have to test for result?
                     result.medPoint = boost::get<MyPoint_2>(*intRes);
@@ -153,49 +154,51 @@ namespace One_St_Pt_GPA
             //Thus, this still works for 4 pts.
             findCollinearMedian_3Pts(myPts[0], myPts[1], myPts[2], originalInputPtIndices, result);
         }
-
-        vector< MyPoint_2 >   convexHullList;
-
-        Utility_Functions::computeConvexHull(myPts, convexHullList);
-
-        if (4 != convexHullList.size())
+        else
         {
-            //The one not on the hull is the geom med.
-            //Even if it's collinear with two others, if we take the int. of the diagonals, it'll be that fourth pt.
-            //TODO Better way to test this?
-            for (size_t ptInd = 0; ptInd < myPts.size(); ++ptInd)
+            vector< MyPoint_2 >   convexHullList;
+
+            Utility_Functions::computeConvexHull(myPts, convexHullList);
+
+            if (4 != convexHullList.size())
             {
-                bool foundPt = false;
-                for (size_t chInd = 0; chInd < convexHullList.size(); ++chInd)
+                //The one not on the hull is the geom med.
+                //Even if it's collinear with two others, if we take the int. of the diagonals, it'll be that fourth pt.
+                //TODO Better way to test this?
+                for (size_t ptInd = 0; ptInd < myPts.size(); ++ptInd)
                 {
-                    if (Utility_Functions::pointsAreTooClose(myPts[ptInd], convexHullList[chInd]))
+                    bool foundPt = false;
+                    for (size_t chInd = 0; chInd < convexHullList.size(); ++chInd)
                     {
-                        foundPt = true;
+                        if (Utility_Functions::pointsAreTooClose(myPts[ptInd], convexHullList[chInd]))
+                        {
+                            foundPt = true;
+                            break;
+                        }
+                    }
+                    if (!foundPt)
+                    {
+                        //this is the pt missing from the ch list
+                        result.medPoint = myPts[ptInd];
+                        result.coincidentInputPtIndex = originalInputPtIndices[ptInd];
+                        result.coincidesWithInputPt = true;
                         break;
                     }
                 }
-                if (!foundPt)
-                {
-                    //this is the pt missing from the ch list
-                    result.medPoint = myPts[ptInd];
-                    result.coincidentInputPtIndex = originalInputPtIndices[ptInd];
-                    result.coincidesWithInputPt = true;
-                    break;
-                }
+            }
+            else
+            {
+                const MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
+                const MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
+                //  CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
+                auto intRes = intersection(firstSeg, secondSeg);
+                assert(intRes);
+                if (intRes)
+                { //these two non-par segments will intersect... do i really have to test for result?
+                    result.medPoint = boost::get< MyPoint_2 >(*intRes);
+                } //TODO Else throw error or something...
             }
         }
-        else
-        {
-            const MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
-            const MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
-    //        CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
-            auto intRes = intersection(firstSeg, secondSeg);
-            if (intRes)
-            { //these two non-par segments will intersect... do i really have to test for result?
-                result.medPoint = boost::get< MyPoint_2 >(*intRes);
-            } //TODO Else throw error or something...
-        }
-
 #   if (MY_VERBOSE)
         cout << "geom med 4 pts: " << result.medPoint << endl;
 #   endif
@@ -230,6 +233,7 @@ namespace
         //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
     //    CGAL::cpp11::result_of<MyIntersect_2(MyLine_2, MyLine_2)>::type intRes = intersection(firstEqTriSide, secondEqTriSide);
         auto intRes = intersection(firstEqTriSide, secondEqTriSide);
+        assert(intRes);
         if (intRes)
         { //these two non-par lines will intersect... do i really have to test for result?
             intersectionPoint = boost::get<MyPoint_2>(*intRes);

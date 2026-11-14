@@ -33,7 +33,7 @@
 **          We do not implement the paper's O(n^2) MST-delta pre-processing to enable
 **          constant-time MST-update queries. 
 **          Instead, we compute each candidate's MST by inserting it into the Delaunay
-**          triangulation, re-running Kruskal's on the updated triangulaion, 
+**          triangulation, re-running Kruskal's on the updated triangulation, 
 **          and removing the point (in preparation for the next iteration). 
 **          This was simpler to implement but makes each of the O(n^2) tests
 **          for a candidate Steiner point take O(n log n) time 
