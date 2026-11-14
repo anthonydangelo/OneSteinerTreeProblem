@@ -195,7 +195,8 @@ namespace One_St_Pt_GPA
                 auto endIt = end(myColl);
                 for (auto it = begin(myColl); it != endIt; ++it) {
                     size_t index = 0;
-                    assert(Utility_Functions::findPointIndex(*it, myPtSet, index));
+                    bool found = Utility_Functions::findPointIndex(*it, myPtSet, index);
+                    assert(found);
                     sStream << insertTabs(tabLevel + 2);
                     sStream << "{\"index\":\"" << index << "\"}"; 
                     if(next(it) != endIt){
@@ -230,7 +231,8 @@ namespace One_St_Pt_GPA
             do {
                 MyArrangement_2::Halfedge_const_handle he = curr;
                 size_t index = 0;
-                assert(Utility_Functions::findPointIndex(he->target()->point(), myPtSet, index));
+                bool found = Utility_Functions::findPointIndex(he->target()->point(), myPtSet, index);
+                assert(found);
                 sStream << insertTabs(tabLevel + 3);
                 sStream << "{\"index\":\"" << index << "\"}";
                 if(he->next() != heEnd){
