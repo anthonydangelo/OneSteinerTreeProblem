@@ -236,8 +236,8 @@ namespace One_St_Pt_GPA
     /*
     ** Called by computeStPtsForOODC() with numComboPts \in {3,4}.
     **
-    ** Enumerate all C(k,numComboPts) combinations of the input site indices 
-    ** (where k is the number of sites). 
+    ** Enumerate all C(k,numComboPts) combinations of the given site indices 
+    ** (k = siteIndices.size(), at most 6: one site per cone direction).
     ** Compute the geometric median of each combination.
     ** In addition to storing the results in the "results" in/out variable,
     ** store which combinations of input points we've worked on by updating
