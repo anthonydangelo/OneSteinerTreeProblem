@@ -1,108 +1,118 @@
 //============================================================================
 // Name        : OneSteinerTreeProblem.cpp
-// Author      : Anthony D'Angelo and the CGAL demos I re-worked. I tried to cite them in the code.
-//               Also, random internet examples (also tried to cite those).
-//              " CGAL, Computational Geometry Algorithms Library, https://www.cgal.org"
-/*              https://doc.cgal.org/latest/Manual/how_to_cite_cgal.html
-                Note: I used CGAL 4.11.2, but the manual for 4.12.1. They're pretty close.
-                @book{ cgal:eb-18b
-                , title        = "{CGAL} User and Reference Manual"
-                , author      = "{The CGAL Project}"
-                , publisher     = "{CGAL Editorial Board}"
-                , edition     = "{4.12.1}"
-                , year         = 2018
-                , url =    "https://doc.cgal.org/4.12.1/Manual/packages.html"
-                }
-*/
-// Version     :
-/* 
-******************************************************
-** Read project's readme.md for a fuller elaboration.
-******************************************************
-** Description : Implementation of the Georgakopoulos–Papadimitriou 1-Steiner tree
-**               algorithm (GPA):  (Georgakopoulos, Papadimitriou) 
-**                                 The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
-**
-** Approach: Compute the Overlaid Oriented Dirichlet Cell (OODC) arrangement of the
-**          input sites, then for each bounded face, enumerate all 3- and 4-point
-**          combinations of the face's site indices, compute the geometric median
-**          of each combination, and test its insertion into the EMST (via Delaunay
-**          triangulation). The candidate with the shortest resulting EMST is a
-**          1-Steiner point.
-**
-**          We do not implement the paper's O(n^2) MST-delta pre-processing to enable
-**          constant-time MST-update queries. 
-**          Instead, we compute each candidate's MST by inserting it into the Delaunay
-**          triangulation, re-running Kruskal's on the updated triangulation, 
-**          and removing the point (in preparation for the next iteration). 
-**          This was simpler to implement but makes each of the O(n^2) tests
-**          for a candidate Steiner point take O(n log n) time 
-**          (depending on how CGAL manages updating a Delaunay triangulation
-**           and if their Kruskal's implementation is O(n log n) ).
-**
-**          I used c++11 and CGAL 4.11.2 (and its dependencies) heavily as a geometry library.
-**
-** Future work: Rather than implementing the preprocessing from the GPA paper that lets them
-**              find MST deltas in constant time to test each candidate Steiner point,
-**              implement the improvement described in the paper I co-authored (first described in other references):
-**                  (Bose, P., D'Angelo, A., & Durocher, S.) 
-**                      "On the Restricted k-Steiner Tree Problem.", 
-**                      ( J. Comb. Optim. 44(4): 2893-2918 (2022))
-**              See also:
-**                  (Bose, Maheshwari, Narasimhan, Smid, and Zeh) 
-**                      "Approximating geometric bottle-neck shortest paths.",
-**                      (Comput. Geom., 29(3):233–249, 2004.)
-**                  (Monma and Suri) 
-**                      "Transitions in geometric minimum spanning trees.",
-**                      (Discret. Comput. Geom., 8:265–293, 1992.)
-**              That will let us find the solution without computing the MST every time. 
-**              Then return the MST at the end with the solution.
-**              If you for some reason want to continue inserting/removing a point at a time
-**              from a Delaunay triangulation, make sure CGAL is using an algorithm for a "dynamic" data structure
-**              (which offers some tradeoff to allow quicker insertions/deletions), or write one yourself.
-**
-**              Also, with regards to testing Steiner points: whenever we compute a MST
-**              (including when testing Steiner points), we then run a O(n^2) scan to 
-**              map each endpoint of each edge from the MST (which has been extracted from the Delaunay triangulation) 
-**              to an input point (testing for points being "close enough" because, for all I know, they may have 
-**              been slightly changed by the Delaunay insertion). This is not efficient, but was fast to code. 
-**              It should eventually be replaced by either using augmented vertices/edges/faces that keep track
-**              of the necessary data (which may require writing a custom MST algorithm, but I wouldn't be surprised
-**              if CGAL can use such augmented structures), or using a map with a custom "compare" function
-**              that returns the index for the point that's "close enough".
-**                    
-**              Other future work would be to replace the OODC code with an O(n log n) 
-**              algorithm for computing the oriented Voronoi / Dirichlet diagram.
-**              For example:
-**                  (Chang, Huang, and Tang)
-**                      "An optimal algorithm for constructing oriented Voronoi diagrams 
-**                       and geographic neighborhood graphs.", 
-**                      (Inf. Process. Lett. 35(5):255–260, 1990)
-*/
-// Copyright   : This uses CGAL and the dependencies of CGAL, which have their own licences 
-//               and copyrights and stuff that probably apply virally to this too.
-//               From some random CGAL demos (they're probably all the same):
-//                  Copyright (c) 2005-2009  INRIA Sophia-Antipolis (France).
-//                  All rights reserved.
+// Author      : Anthony D'Angelo
+//               Portions adapted from CGAL examples and other sources,
+//               cited inline where used.
+// Uses        : CGAL 4.11.2 (https://www.cgal.org), C++11
 //
-//                  This file is part of CGAL (www.cgal.org); you can redistribute it and/or
-//                  modify it under the terms of the GNU Lesser General Public License as
-//                  published by the Free Software Foundation; either version 3 of the License,
-//                  or (at your option) any later version.
+// Copyright (c) 2018 Anthony D'Angelo
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//                  Licensees holding a valid commercial license may use this file in
-//                  accordance with the commercial license agreement provided with the software.
-//
-//                  This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-//                  WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-//
-//              This stuff goes for me too:
-//              These files are provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-//              WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-//              These files are provided as a kind of example, I guess... If you use stuff from it,
-//              please give the others (CGAL, authors of the papers...) and I credit.
-//              I hope I've done that properly myself...
+// This program uses CGAL packages (Nef_2, Arrangement_on_surface_2,
+// Triangulation_2, Convex_hull_2) licensed under the GPL v3 or later.
+// See the LICENSE file for details.
 //============================================================================
+/****************************************************************************
+** See README.md for a fuller discussion, including complexity analysis.
+*****************************************************************************
+** Description:
+**   Implementation of the Georgakopoulos-Papadimitriou algorithm (GPA) for
+**   the 1-Steiner tree problem:
+**     Georgakopoulos and Papadimitriou, "The 1-Steiner Tree Problem,"
+**     J. Algorithms 8(1):122-130, 1987.
+**   Given n points in the plane, find one additional (Steiner) point that
+**   minimizes the length of the minimum spanning tree (MST) of the points
+**   plus the new point.
+**
+** Approach:
+**   1. Compute the overlaid oriented Dirichlet cell (OODC) arrangement of the
+**      input sites, clipped to their convex hull. This loses nothing: an
+**      optimal Steiner point is a geometric median of its MST neighbours
+**      (Georgakopoulos and Papadimitriou, Sec. 3, p. 127), and a geometric
+**      median lies in the convex hull of its points (Morrison, "The FedEx
+**      Problem," College Math. J. 41(3):222-232, 2010, Thm. 1; cf. Gilbert
+**      and Pollak, "Steiner minimal trees," SIAM J. Appl. Math.
+**      16(1):1-29, 1968, Sec. 3.5).
+**   2. Each bounded face is labelled with at most 6 sites (one per 60-degree
+**      cone direction), so it yields a constant number of candidates: the
+**      geometric median of every 3- and 4-site subset of its label.
+**   3. Evaluate each candidate by inserting it into the Delaunay
+**      triangulation, computing the MST with Kruskal's algorithm, and
+**      removing it again. A candidate with a shortest MST is a
+**      1-Steiner point.
+**
+** Differences from the paper:
+**   - GPA evaluates every proper subset (up to 5 sites) of each face's
+**     label; this implementation uses only 3- and 4-site subsets, since
+**     an optimal Steiner point has degree 3 or 4. Degree > 2 follows from
+**     the triangle inequality, and degree 5 is ruled out by:
+**       Rubinstein, Thomas, and Weng, "Degree-five Steiner points cannot
+**       reduce network costs for planar sets," Networks 22(6):531-537, 1992.
+**   - GPA uses O(n^2) preprocessing to evaluate each candidate in O(1)
+**     time. This implementation recomputes the MST per candidate, which
+**     costs O(n^2) per candidate (dominated by mapping MST endpoints back
+**     to input indices with a linear scan), for O(n^4) overall.
+**   - GPA builds the OODC partition in O(n^2) time. This implementation
+**     builds each cell with CGAL Nef_2 Boolean operations and overlays
+**     the cells one at a time, for O(n^3 log n) total time.
+**
+** Future work (see README.md for details and tradeoffs):
+**   - Candidate evaluation, from most to least improvement:
+**     * Constant-time MST updates per candidate, using either GPA's O(n^2)
+**       preprocessing or the O(n log n) preprocessing described in:
+**         Bose, D'Angelo, and Durocher, "On the Restricted k-Steiner Tree
+**         Problem," J. Comb. Optim. 44(4):2893-2918, 2022.
+**       See also:
+**         Bose, Maheshwari, Narasimhan, Smid, and Zeh, "Approximating
+**         geometric bottleneck shortest paths," Comput. Geom.
+**         29(3):233-249, 2004.
+**         Monma and Suri, "Transitions in geometric minimum spanning
+**         trees," Discrete Comput. Geom. 8:265-293, 1992.
+**     * Without preprocessing: compute the MST of the sites once, then for
+**       each candidate x run Kruskal's on the MST's n-1 edges plus edges
+**       from x to its closest site in each of the six cones (at most 6),
+**       which suffices by Brazil, Ras, Swanepoel, and Thomas, "Generalised
+**       k-Steiner Tree Problems in Normed Planes," Algorithmica
+**       71:66-86, 2015, Lemma 5 and Thm. 10 (the latter from Korte and
+**       Vygen, "Combinatorial Optimization," Springer, 2008, pp. 120-121).
+**       With the MST edges sorted once, this is nearly linear per
+**       candidate, needs no Delaunay updates, and gives each edge's
+**       endpoint indices directly.
+**     * Keeping the Delaunay approach: store each vertex's index and kind
+**       (input or Steiner) in the vertex
+**       (CGAL::Triangulation_vertex_base_with_info_2) instead of searching
+**       by coordinates. This is O(n log n) per candidate in practice, but
+**       removing a vertex of degree d costs O(d^2) in the worst case, so
+**       O(n^2) per candidate remains possible. Copying the triangulation
+**       per candidate instead of removing guarantees O(n log n), but is
+**       usually slower. Point location for insertions currently walks
+**       from a fixed face (O(n) worst case); starting the walk at a face
+**       next to one of the candidate's median sites usually makes it
+**       short, and CGAL::Triangulation_hierarchy_2 would give expected
+**       O(log n).
+**   - JSON output: look up each arrangement vertex's index in O(1) (a hash
+**     map keyed by vertex handle, or index data stored in the arrangement's
+**     vertices) instead of a linear scan; this reduces writing the
+**     arrangement from O(n^4) to O(n^2) without changing the output.
+**   - OODC construction: build the six oriented Voronoi diagrams directly
+**     (O(n log n) each), e.g. using:
+**       Chang, Huang, and Tang, "An optimal algorithm for constructing
+**       oriented Voronoi diagrams and geographic neighborhood graphs,"
+**       Inf. Process. Lett. 35(5):255-260, 1990,
+**     and combine them with 5 overlays instead of overlaying the 6n cells
+**     one at a time. With CGAL's sweep-line overlay this would cost
+**     O(n^2 log n). An O(n^2) method would make this phase O(n^2): GPA's
+**     overlay (Theorem 1); Finke and Hinrichs, "Overlaying simply
+**     connected planar subdivisions in linear time," Proc. 11th ACM SoCG,
+**     119-126, 1995; or computing all intersections at once with
+**     Chazelle and Edelsbrunner, "An optimal algorithm for intersecting
+**     line segments in the plane," J. ACM 39(1):1-54, 1992.
+**   - The JSON output lists every candidate's MST, so its size is
+**     Theta(n^3) in the worst case. An O(n^2) implementation would need a
+**     smaller output format (e.g., only the best tree), which would require
+**     changes to the companion web page; a runtime flag could switch
+**     between the full and compact output.
+**===========================================================================*/
 
 #include <getopt.h>
 
