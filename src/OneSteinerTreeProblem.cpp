@@ -57,6 +57,16 @@
 **     the cells one at a time, for O(n^3 log n) total time.
 **
 ** Future work (see README.md for details and tradeoffs):
+**   - OODC overlays (highest practical priority): even with the current
+**     cell construction, overlaying each cell into a running arrangement
+**     for its own cone direction (each stays O(n), since same-direction
+**     cells only share boundaries) and then combining the six partitions
+**     with 5 overlays reduces the overlay phase from O(n^3 log n) to
+**     O(n^2 log n). Profiling (n = 6) showed the overlays take roughly 80%
+**     of the running time, so this should give a large speed-up. The
+**     Nef_2 cell construction (O(n^3 log n)) would then be the next
+**     bottleneck; building each direction's partition directly with
+**     Chang, Huang, and Tang's algorithm (below) would replace it.
 **   - Candidate evaluation, from most to least improvement:
 **     * Constant-time MST updates per candidate, using either GPA's O(n^2)
 **       preprocessing or the O(n log n) preprocessing described in:
