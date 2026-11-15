@@ -68,9 +68,18 @@
 // "/var/lib/myapp-locks/myapp.lock".   
 #define FLOCK_PATH ("/tmp/one-st-tree-mutex.lock")
 
-
+// When set to 1 outputs debug messages
 #define MY_VERBOSE                  (0)
-#define EXCLUDE_CELL_BOUNDARY       (1)   //doesn't seem to make a diff. thought it would at least include the isolated pts on ch boundary...
+
+// EXCLUDE_CELL_BOUNDARY has no visible effect on the output or runtime: it is only used
+// by the complement-based ODC construction (the difference-based construction
+// always uses INCLUDED), and cell boundaries become arrangement edges either
+// way, while only faces yield candidates.
+#define EXCLUDE_CELL_BOUNDARY       (1)  
+
+// 1: build each ODC by subtracting the other sites' regions from the cone
+//    (much faster in practice).
+// 0: build the union of everything that is not the cell, then complement it.
 #define BUILD_ODCELL_BY_DIFFERENCES (1)
 
 //magic numbers
