@@ -3,25 +3,34 @@
 
 //See OneSteinerTreeProblem.cpp for project notes
 
+// C / POSIX
+#include <math.h>       // fabs
+
+// C++ standard library
+#include <algorithm>    // std::sort
+#include <cassert>      // assert
+#include <cstddef>      // std::size_t
+#include <cstdlib>
+#include <functional>   // std::reference_wrapper
 #include <iostream>
-#include <sstream> // for ostringstream
-#include <string>
+#include <iterator>     // std::back_inserter, std::next
+#include <list>
 #include <set>
+#include <sstream>      // std::ostringstream
+#include <string>
 #include <vector>
 
-#include <unistd.h>
-#include <cstdlib>
-#include <cstddef> // std::size_t
-
-#include <math.h> /* fabs */
-
-#include <functional>   // std::reference_wrapper
-
-#include <algorithm> //std::next_permutation, std::sort
-
+// CGAL
+#include <CGAL/CORE_Expr.h>                  // CORE::Expr (used in the Lazy_FT typedef)
 #include <CGAL/Lazy_exact_nt.h>
+#include <CGAL/Simple_cartesian.h>           // MyKernel
 
-#include <CGAL/Polygon_set_2.h>
+#include <CGAL/Arr_segment_traits_2.h>       // MyTraits_2
+#include <CGAL/Arr_extended_dcel.h>          // Arr_face_extended_dcel
+#include <CGAL/Arrangement_2.h>              // MyArrangement_2
+#include <CGAL/Arr_overlay_2.h>              // CGAL::overlay
+#include <CGAL/Arr_default_overlay_traits.h> // Arr_face_overlay_traits
+
 #include <CGAL/Compute_cone_boundaries_2.h>
 
 #include <CGAL/squared_distance_2.h> //for 2D functions

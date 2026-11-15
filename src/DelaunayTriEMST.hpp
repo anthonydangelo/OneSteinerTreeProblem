@@ -28,6 +28,8 @@
 
 #include "1ST-Constants-Utilities.h"
 
+#include <map>  // std::map for the vertex index map
+
 #include <CGAL/Delaunay_triangulation_2.h> //cgal examples  BGL_triangulation_2/emst.cpp, https://doc.cgal.org/latest/BGL/index.html#title15
 #include <CGAL/boost/graph/graph_traits_Delaunay_triangulation_2.h>
 #include <boost/graph/kruskal_min_spanning_tree.hpp>

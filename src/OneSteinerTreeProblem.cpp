@@ -111,6 +111,7 @@
 
 #include <ctime>
 #include <chrono>  // for high_resolution_clock
+#include <cstring> // for strerror
 
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>        /* For mode constants */
