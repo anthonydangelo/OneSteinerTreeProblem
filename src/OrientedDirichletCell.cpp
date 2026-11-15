@@ -58,24 +58,32 @@ namespace One_St_Pt_GPA
     **
     ** Method: 
     **  (! BUILD_ODCELL_BY_DIFFERENCES):
-    **      This method builds the cell by complementing regions.
+    **      This method builds everything that is NOT the cell, then takes
+    **      the complement.    
     **      -- start with the union of two halfplanes whose complement
-    **      is the cone apexed at the point dictated by originPtIndex
-    **      -- then, for each other site, union the region where
-    **      that site is "closer". This is done by building a cone apexed at that second point,
-    **      computing the perpendicular bisector of the origin point and this second point,
-    **      clipping the second cone with the bisector, then unioning this to the complement
-    **      of origin's cone. This way we build the regions that are NOT the cell, then we take
-    **      the complement (i.e., the cell we ARE looking for) and clip it to the convex hull.
+    **      is the cone apexed at the origin (i.e., the point dictated by originPtIndex)
+    **      -- then, for each other site, add (union) the region where
+    **      that second site is also a candidate (based on the cone apexed 
+    **      at that second site) and is closer. 
+    **      To do this, build a cone apexed at that second point, then compute
+    **      the perpendicular bisector of the origin point and this second point.
+    **      Keep only the part of the second site's cone that lies on its side of 
+    **      the bisector (i.e., closer to the second site than to the origin).
+    **      -- finally, we take the complement of this union 
+    **      (i.e., the cell we ARE looking for) and clip it to the convex hull.
     **
     **  BUILD_ODCELL_BY_DIFFERENCES:
     **      -- start with the intersection of two half-planes (the cone apexed at 
     **      the point dictated by originPtIndex) and clip to the convex hull
     **      -- call this the origin's region 
-    **      -- then, for each other site, subtract the region where
-    **      that site is "closer". This is done by building a cone apexed at that second point,
-    **      computing the perpendicular bisector of the origin point and this second point,
-    **      clipping the second cone with the bisector, then subtracting this shape from
+    **      -- then, for each other site, subtract the region where that
+    **      site is also a candidate (based on its own cone) and is closer. 
+    **      This is done by building a cone apexed at that second point.
+    **      We then compute the perpendicular bisector of the origin point and this second point.
+    **      We use the bisector to keep the part of the second cone that lies on the second site's 
+    **      side of the bisector (i.e., the part that is closer to this second
+    **      site than to the origin): in this region, the second site is a nearer candidate in 
+    **      this cone direction. Finally, we subtract this shape (what's left of the second cone) from
     **      the origin's region.
     */
     void OrientedDirichletCell::computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon,

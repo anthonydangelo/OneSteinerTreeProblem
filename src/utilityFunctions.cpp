@@ -105,7 +105,7 @@ namespace One_St_Pt_GPA
         //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec)
         {
-            set<MyPoint_2> arrPoints;
+            set< MyPoint_2 > arrPoints;
             for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
             {
                 if (! it->is_isolated() && ! it->is_at_open_boundary())
