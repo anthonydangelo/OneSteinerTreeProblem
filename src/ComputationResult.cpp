@@ -99,6 +99,9 @@ namespace One_St_Pt_GPA
     ** For each input point and each of the
     ** 6 cone directions, a single ODC cell is computed (via Nef_2), converted
     ** to an arrangement, and overlaid onto the running result.
+    ** The arrangement is clipped to the convex hull of the input sites
+    ** which is OK since an optimal Steiner point must lie in the convex hull
+    ** (see project notes).
     **
     ** The overlay functor merges the site-index sets of intersecting faces,
     ** so each face in the final arrangement knows which input sites "see" it.  
