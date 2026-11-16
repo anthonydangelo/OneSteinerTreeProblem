@@ -47,6 +47,7 @@ namespace One_St_Pt_GPA
         string mstDataToJSONString(const MyEMSTData & mst, int tabLevel)
         {
             ostringstream sStream;
+            sStream << std::setprecision(std::numeric_limits<double>::max_digits10);
             sStream << insertTabs(tabLevel);
             sStream << wrapStringInQuotes(MST_NAME_STRING) << ": { ";
 

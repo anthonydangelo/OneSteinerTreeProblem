@@ -12,8 +12,10 @@
 #include <cstddef>      // std::size_t
 #include <cstdlib>
 #include <functional>   // std::reference_wrapper
+#include <iomanip>      // std::setprecision
 #include <iostream>
 #include <iterator>     // std::back_inserter, std::next
+#include <limits>       // std::numeric_limits
 #include <list>
 #include <set>
 #include <sstream>      // std::ostringstream
@@ -298,7 +300,9 @@ namespace One_St_Pt_GPA
         inline string point2ToJSON(const MyPoint_2 & p)
         {
             ostringstream sStream;
-
+            // Lazy_exact_nt prints its double approximation; the default stream
+            // precision (6 significant digits) would drop most of it.
+            sStream << std::setprecision(std::numeric_limits<double>::max_digits10);
             sStream << "{\"x\":\"" << p.x() << "\", "
                     << "\"y\":\"" << p.y() << "\"}";
             return sStream.str();
