@@ -121,7 +121,15 @@ namespace One_St_Pt_GPA
         //The arrangements and their overlays are the same type...
         CGAL::array< MyArrangement_2, 2 > myTempArrangements;
         size_t arrIndex = 0;
-        //Which is better as the outer loop? Maybe doing all 6 directions for one point at a time will lead to fewer crossings in the overlay...
+
+        // Swapping these loops alone (still one running arrangement) helps only
+        // a little: once a second cone direction is added, every overlay
+        // re-sweeps a growing arrangement of up to O(n^2) size, and re-processes
+        // crossings already found. Keeping six running arrangements, one per
+        // cone direction (each stays O(n), since same-direction cells only share
+        // boundaries), and combining them with 5 overlays at the end finds each
+        // crossing once and reduces the overlay phase from O(n^3 log n) to
+        // O(n^2 log n); see the file header's Future work.       
         for(size_t i = 0; i < inputPtVector.size(); ++i)
         {
             const MyPoint_2 & cellOrigin = inputPtVector[i];
@@ -284,6 +292,8 @@ namespace One_St_Pt_GPA
     ** sites defining that face in the OODC arrangement). 
     ** Deduplicate via `seenList` (the same 3- or 4-point set may appear in
     ** multiple faces).
+    ** Each face has at most 6 site indices (see MyFaceData), so this is
+    ** constant work per face.
     */
     vector< GeomMedianData > ComputationResult::computeStPtsForOODC() const
     {

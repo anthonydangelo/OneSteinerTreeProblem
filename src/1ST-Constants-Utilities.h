@@ -146,8 +146,13 @@ namespace One_St_Pt_GPA
     using std::set;
 
 
-//  Exact kernel with lazy interval-arithmetic evaluation (faster than
-//  "EPECK_with_root_of" for typical inputs; both are fully exact).
+//  Exact kernel: Lazy_exact_nt evaluates with interval arithmetic first and
+//  falls back to exact CORE::Expr computation only when the intervals can't
+//  decide a comparison. CORE::Expr is needed because MST lengths are sums of
+//  square roots (CGAL::sqrt in DelaunayTriEMST::findMST), which are compared
+//  exactly when sorting candidates; all other constructions (bisectors,
+//  intersections, cone boundaries) only need exact rational arithmetic.
+//  In practice this was faster than EPECK_with_root_of; both are exact.
     typedef CGAL::Lazy_exact_nt<CORE::Expr>         Lazy_FT;
     typedef CGAL::Simple_cartesian< Lazy_FT >       MyKernel;
 
@@ -163,7 +168,12 @@ namespace One_St_Pt_GPA
     typedef MyTraits_2::Direction_2                 MyDirection_2;
     
 
-    //enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
+    // Label of an arrangement face: the indices of the sites whose oriented
+    // Dirichlet cell (ODC) contains the face. Cells of the same cone
+    // direction have disjoint interiors (together they partition the convex
+    // hull), so a face lies in at most one cell per direction: at most 6
+    // labels per face. This is what makes the number of candidate Steiner
+    // points per face constant (at most C(6,3) + C(6,4) = 35).
     struct MyFaceData 
     {
     //    vector< size_t > myInputPointIndices;
@@ -174,16 +184,21 @@ namespace One_St_Pt_GPA
     //https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
     //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
     //Might only be able to use extended faces 
+    //enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
     //typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
     typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
     typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
 
+
+    // Overlay functor: each face of an overlay lies inside one face of each
+    // input arrangement, so its label is the union of those two labels. The
+    // unbounded face of a single cell's arrangement has an empty label, so it
+    // adds nothing.
     // Define a functor for creating a label.
     struct Overlay_faces
     {
         MyFaceData operator() (MyFaceData first, MyFaceData second) const
         {
-            //This should work out since the outer faces of the arrangements will have empty sets //vectors
                 MyFaceData result;
 
                 for(const auto ind : first.myInputPointIndices)
@@ -244,6 +259,14 @@ namespace One_St_Pt_GPA
             return;
         }    
 
+        // Note: for MyKernel, CGAL's Compute_cone_boundaries_2 uses its generic
+        // version, which rotates the initial direction using std::sin/std::cos
+        // (double precision); the exact version exists only for
+        // Exact_predicates_exact_constructions_kernel_with_root_of. So the six
+        // boundaries are 60 degrees apart only up to double rounding (they are
+        // stored exactly as rationals). Also used for the 60-degree rotations in
+        // GeomMedianFinder, so 3-point geometric medians are likewise accurate
+        // to double precision rather than exact.
         inline void computeConeRays(const MyDirection_2 & initialDirection, vector< MyDirection_2 > & coneRays)
         {
             //https://doc.cgal.org/latest/Cone_spanners_2/index.html  

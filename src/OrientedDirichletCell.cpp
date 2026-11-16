@@ -4,6 +4,12 @@
 
 namespace One_St_Pt_GPA
 {
+    // secondDir is dirB negated on purpose. A Nef_polyhedron_2 built from a
+    // line is the half-plane to the line's left. Through the cell's origin,
+    // the left side of the line with direction dirA is the counter-clockwise
+    // side of dirA, and the left side of the line with direction -dirB is the
+    // clockwise side of dirB. Intersecting the two gives the 60-degree wedge
+    // from dirA counter-clockwise to dirB (the next cone boundary).    
     OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 & dirA,
                                                 const MyDirection_2 & dirB,
                                                 const MyPoint_2 & cellOrigin,

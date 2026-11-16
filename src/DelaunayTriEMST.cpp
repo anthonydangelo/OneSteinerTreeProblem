@@ -90,11 +90,14 @@ namespace One_St_Pt_GPA
     void DelaunayTriEMST::findMST(MyEMSTData & fillMe)
     {
         MyVertexIdPropertyMap vertex_index_pmap(vertex_id_map);
-        //from cgal example comments: " We use the default edge weight which is the squared length of the edge
-        // This property map is defined in graph_traits_Triangulation_2.h "
-
+        //from cgal example comments: "This property map is defined in graph_traits_Triangulation_2.h "
         // In the function call you can see a named parameter: vertex_index_map
 
+        // Kruskal's algorithm only compares edge weights, so the default weight
+        // (squared edge length, from CGAL's graph traits for Triangulation_2)
+        // gives the same MST as true lengths: squaring preserves the order of
+        // non-negative numbers, and it avoids square roots inside Kruskal's.
+        // The square roots are taken once per MST edge below, for the total.        
         boost::kruskal_minimum_spanning_tree(finiteDT,
                                             std::back_inserter(fillMe.mstEdgeList),
                                             vertex_index_map(vertex_index_pmap));

@@ -55,6 +55,11 @@
 **   - GPA builds the OODC partition in O(n^2) time. This implementation
 **     builds each cell with CGAL Nef_2 Boolean operations and overlays
 **     the cells one at a time, for O(n^3 log n) total time.
+**   - CGAL computes the 60-degree cone boundaries (and the 60-degree
+**     rotations used for 3-point geometric medians) with double-precision
+**     sin/cos for the selected kernel, so they are exact only up to double
+**     rounding; all later constructions and predicates are exact. This
+**     could only matter for degenerate inputs.
 **
 ** Future work (see README.md for details and tradeoffs):
 **   - OODC overlays (highest practical priority): even with the current
