@@ -195,26 +195,17 @@ namespace One_St_Pt_GPA
     typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
 
 
-    // Overlay functor: each face of an overlay lies inside one face of each
-    // input arrangement, so its label is the union of those two labels. The
-    // unbounded face of a single cell's arrangement has an empty label, so it
-    // adds nothing.
-    // Define a functor for creating a label.
+    // Overlay functor: creates the label of each overlay face. Each face of an
+    // overlay lies inside one face of each input arrangement, so its label is
+    // the union of those two labels. The unbounded face of a single cell's
+    // arrangement has an empty label, so it adds nothing.
     struct Overlay_faces
     {
-        MyFaceData operator() (MyFaceData first, MyFaceData second) const
+        MyFaceData operator() (const MyFaceData & first, const MyFaceData & second) const
         {
-                MyFaceData result;
-
-                for(const auto ind : first.myInputPointIndices)
-                {
-                    result.myInputPointIndices.insert(ind);
-                }
-                for(const auto ind : second.myInputPointIndices)
-                {
-                    result.myInputPointIndices.insert(ind);
-                }        
-
+                MyFaceData result = first;
+                result.myInputPointIndices.insert(second.myInputPointIndices.begin(),
+                                                  second.myInputPointIndices.end());
                 return result;
         }
     };
