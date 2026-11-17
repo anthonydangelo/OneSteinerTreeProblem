@@ -33,7 +33,7 @@ namespace One_St_Pt_GPA
     public:
         OrientedDirichletCell(const MyDirection_2 & dirA, const MyDirection_2 & dirB,
                             const MyPoint_2 & cellOrigin, 
-                            const size_t & originPtIndex,
+                            size_t originPtIndex,
                             const vector< MyPoint_2 > & inputPointSet, //vector instead of a set so we can use 'reliable' indices
                             const MyNef_polyhedron & clippingPolygon);
         const MyArrangement_2 & getCellArrangement() const;
@@ -41,7 +41,7 @@ namespace One_St_Pt_GPA
     protected:
         void computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon, 
                         const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex);  
-        void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, const size_t & originIndex);
+        void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex);
     };
 } // namespace One_St_Pt_GPA
 #endif

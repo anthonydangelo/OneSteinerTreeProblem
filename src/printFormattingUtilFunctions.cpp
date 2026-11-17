@@ -158,7 +158,7 @@ namespace One_St_Pt_GPA
             return sStream.str();     
         }
 
-        string pointVectorToJSONString(string name, const vector< MyPoint_2 > & myColl, int tabLevel)
+        string pointVectorToJSONString(const string & name, const vector< MyPoint_2 > & myColl, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -182,8 +182,8 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }
 
-        string vertexIndicesToJSONString(string name, const vector< MyPoint_2 > & myColl,
-                                                        const vector< MyPoint_2 > & myPtSet, int tabLevel)
+        string vertexIndicesToJSONString(const string & name, const vector< MyPoint_2 > & myColl,
+                                                              const vector< MyPoint_2 > & myPtSet, int tabLevel)
         {
 
             ostringstream sStream;
@@ -211,8 +211,8 @@ namespace One_St_Pt_GPA
             return sStream.str();
         }    
 
-        string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                            const vector< MyPoint_2 > & myPtSet, int tabLevel)
+        string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                                                    const vector< MyPoint_2 > & myPtSet, int tabLevel)
         {
 
             ostringstream sStream;

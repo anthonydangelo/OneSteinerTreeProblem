@@ -13,7 +13,7 @@ namespace One_St_Pt_GPA
     OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 & dirA,
                                                 const MyDirection_2 & dirB,
                                                 const MyPoint_2 & cellOrigin,
-                                                const size_t & originPtIndex,
+                                                size_t originPtIndex,
                                                 const vector< MyPoint_2 > & inputPointSet,
                                                 const MyNef_polyhedron & clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                                 secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
@@ -181,7 +181,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    void OrientedDirichletCell::extractArrangement(MyArrangement_2 & result, const Nef_Explorer & myExplorer, const size_t & originIndex)
+    void OrientedDirichletCell::extractArrangement(MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex)
     {
         // Nef_2 with an extended kernel (Extended_cartesian) adds a frame: a box with
         // "infinitely far" corners that stands in for infinity. So the explorer has 3

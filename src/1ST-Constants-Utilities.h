@@ -339,13 +339,13 @@ namespace One_St_Pt_GPA
 
         string steinerPointsToJSONString(const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel = 0);
 
-        string pointVectorToJSONString(string name, const vector< MyPoint_2 > & myColl, int tabLevel = 0);
+        string pointVectorToJSONString(const string & name, const vector< MyPoint_2 > & myColl, int tabLevel = 0);
 
-        string vertexIndicesToJSONString(string name, const vector< MyPoint_2 > & myColl,
-                                                        const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
+        string vertexIndicesToJSONString(const string & name, const vector< MyPoint_2 > & myColl,
+                                                              const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
 
-        string arrangementFaceToJSONString(string faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                            const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);
+        string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                                                    const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);
 
         string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
 
