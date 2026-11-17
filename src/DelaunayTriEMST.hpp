@@ -74,6 +74,9 @@ namespace One_St_Pt_GPA
     //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
     struct MyEMSTData 
     {
+        // Temporary: handles into the triangulation, valid only until it next changes.
+        // Used only to fill mstEdgePointIndices, then cleared (see addPointSet and
+        // testPointInsertion). Use mstEdgePointIndices for anything that is kept.       
         vector< MyEdge_descriptor > mstEdgeList;
 
         vector< pair< pair< size_t, size_t>,

@@ -63,6 +63,7 @@ namespace One_St_Pt_GPA
 
         findMST(emstData);
         findEdgePointIndices(emstData);
+        emstData.mstEdgeList.clear();   // handles go stale once candidates are inserted/removed
         
         return;
     }
@@ -80,6 +81,7 @@ namespace One_St_Pt_GPA
 
         findMST(result);    
         findEdgePointIndices(result, true);
+        result.mstEdgeList.clear();     // these handles go stale when the candidate is removed
 
         delaunayTri.remove(sPointHandle);
         vertex_id_map.erase(sPointHandle);
