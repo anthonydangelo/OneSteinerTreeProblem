@@ -252,14 +252,14 @@ namespace One_St_Pt_GPA
 #   endif
                         if (firstTime)
                         {
-                            //auto sourcePt = sourceVH->point();
+                            // Use the explorer's point(), not vh->point(): the latter
+                            // is an extended-kernel point; point() converts it to a standard one.
                             auto sourcePt = myExplorer.point(sourceVH);
                             boundaryList.emplace_back(sourcePt.x(), sourcePt.y());
                             firstTime = false;
                         }
                         if (nextHC != done)
                         {
-                            //auto targetPt = targetVH->point();
                             auto targetPt = myExplorer.point(targetVH);
                             boundaryList.emplace_back(targetPt.x(), targetPt.y());
                         }

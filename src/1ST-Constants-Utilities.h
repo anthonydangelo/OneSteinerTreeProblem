@@ -181,16 +181,16 @@ namespace One_St_Pt_GPA
     // points per face constant (at most C(6,3) + C(6,4) = 35).
     struct MyFaceData 
     {
-    //    vector< size_t > myInputPointIndices;
         set< size_t > myInputPointIndices;
         //TODO augment with something that lets us do a colouring of the faces
     };
 
-    //https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
-    //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
-    //Might only be able to use extended faces 
-    //enum class PointTypeEnum {INPUT, BEST_STEINER, STEINER, OTHER};
-    //typedef CGAL::Arr_extended_dcel<MyTraits_2, PointTypeEnum, bool, MyFaceData>       MyDcel; //vertices, edges, then faces
+    // Only faces carry data (their labels), so a face-extended DCEL is enough.
+    // TODO: a fully extended DCEL (CGAL::Arr_extended_dcel) could also store
+    // vertex data, e.g. the type of each point (input, best Steiner,
+    // candidate Steiner, other), and edge data.
+    // https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
+    // https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
     typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
     typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
 

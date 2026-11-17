@@ -139,9 +139,7 @@ namespace One_St_Pt_GPA
         for(size_t i = 0; i < inputPtVector.size(); ++i)
         {
             const MyPoint_2 & cellOrigin = inputPtVector[i];
-            //        size_t originPtIndex;
-            //        //TODO throw an error or something instead
-            //        assert(findOriginIndex(cellOrigin, inputPtVector, originPtIndex)); 
+
             for (size_t j = 0; j < coneRaysSize; ++j)
             {
                 size_t nextJ = j + 1;
