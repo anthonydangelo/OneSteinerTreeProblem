@@ -200,7 +200,8 @@ namespace One_St_Pt_GPA
                 steinerPoints.emplace_back(s, myEMST.testPointInsertion(s.medPoint));
             }
         }
-        sort(steinerPoints.begin(), steinerPoints.end());
+        // stable_sort keeps candidates with equal MST length in a deterministic order.
+        std::stable_sort(steinerPoints.begin(), steinerPoints.end());
         //Now we have to properly assign the st pt indices so they print out correctly
         for (size_t stPtIndex = 0; stPtIndex < steinerPoints.size(); ++stPtIndex)
         {
