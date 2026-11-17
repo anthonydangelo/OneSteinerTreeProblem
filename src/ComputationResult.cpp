@@ -311,22 +311,18 @@ namespace One_St_Pt_GPA
         {
             if (!fit->is_unbounded())
             {
-                vector< size_t > siteIndices;
                 const MyFaceData & myFaceStruct = fit->data();
-                auto endIt = end(myFaceStruct.myInputPointIndices);
-                for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it)
+                const vector< size_t > siteIndices(myFaceStruct.myInputPointIndices.begin(),
+                                                    myFaceStruct.myInputPointIndices.end()); 
+                // An optimal Steiner point has degree 3 or 4 (see the file header), so
+                // only the 3- and 4-site subsets of the face's label give candidates.
+                for (int subsetSize = 3; subsetSize <= 4; ++subsetSize)
                 {
-                    siteIndices.push_back(*it);
-                }
-                //These can be extracted into a function...
-                if (siteIndices.size() >= 3)
-                {
-                    computePotentialStPts(siteIndices, 3, results, seenList);
-                }
-                if (siteIndices.size() >= 4)
-                {
-                    computePotentialStPts(siteIndices, 4, results, seenList);
-                }   
+                    if (siteIndices.size() >= static_cast< size_t >(subsetSize))
+                    {
+                        computePotentialStPts(siteIndices, subsetSize, results, seenList);
+                    }
+                }                
             } // if (!fit->is_unbounded())
         } // for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
 
