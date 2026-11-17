@@ -24,7 +24,6 @@ namespace One_St_Pt_GPA
         cout << "input pt is: " << cellOrigin.x() << ", " << cellOrigin.y() << endl;
 #   endif
 
-    //    MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
         MyNef_polyhedron myCell;
         computeCell(myCell, clippingPolygon, inputPointSet, originPtIndex);
 
@@ -142,7 +141,9 @@ namespace One_St_Pt_GPA
         auto cellBoundaryInclusion = MyNef_polyhedron::INCLUDED;
         MyNef_polyhedron stencil(firstDirLine, cellBoundaryInclusion);
         stencil = stencil.intersection(MyNef_polyhedron(secondDirLine, cellBoundaryInclusion));
-        //does clipping here speed it up?
+        // Clip the cone to the convex hull before subtracting (the optimal Steiner
+        // point lies inside the hull; see the file header). Clipping at the end
+        // instead would give the same cell; which order is faster hasn't been measured.        
         stencil = stencil.intersection(clippingPolygon);
         for (size_t i = 0; i < inputPointSet.size(); ++i)
         {
@@ -168,7 +169,8 @@ namespace One_St_Pt_GPA
                 perpBi = perpBi.opposite();
             }
             polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, cellBoundaryInclusion));
-            //should i bother to clip the polygonToRemove?
+            // No need to clip this to the hull: the difference only removes the part
+            // that overlaps the stencil, which is already clipped.
 
             stencil = stencil.difference(polygonToRemove);
         }
@@ -181,15 +183,35 @@ namespace One_St_Pt_GPA
 
     void OrientedDirichletCell::extractArrangement(MyArrangement_2 & result, const Nef_Explorer & myExplorer, const size_t & originIndex)
     {
-        //According to info in a cgal example (which is not in the docs), the first face is the infinite one
+        // Nef_2 with an extended kernel (Extended_cartesian) adds a frame: a box with
+        // "infinitely far" corners that stands in for infinity. So the explorer has 3
+        // faces for a bounded cell, not 2:
+        //  - the face outside the frame: the map's unbounded face (CGAL's example calls
+        //    it "the infinite one"); never part of the set; always first;
+        //  - the face just inside the frame, outside the cell: it represents the rest
+        //    of the (unbounded) plane; not part of the set (unmarked);
+        //  - the cell itself (marked).
+        // An empty cell leaves only the first two. The "first face" ordering is shown in
+        // CGAL's Nef_2 polylines example (linked below); I couldn't find it stated in the
+        // reference manual, so this code relies on it as observed.
         auto fit = myExplorer.faces_begin();
 #   if (MY_VERBOSE)
-        //You really have to dig to find it, but apparently mark signifies set exclusion/inclusion
+        // mark(f) is true if face f belongs to the set (the cell).        
         cout << "face 'mark': " << myExplorer.mark(fit) << endl;
         cout << "num faces: " << myExplorer.number_of_faces() << endl;
 #   endif
         //https://doc.cgal.org/latest/Nef_2/Nef_2_2nef_2_polylines_8cpp-example.html#_a2
-        //    assert(myExplorer.number_of_faces() == 2); //should be 2 but it's not...
+        // We skip unmarked faces and take the marked one; a cell is connected, so
+        // there is at most one.
+#   ifndef NDEBUG
+        size_t markedFaces = 0;
+        for (auto f = myExplorer.faces_begin(); f != myExplorer.faces_end(); ++f)
+        {
+            if (myExplorer.mark(f)) { ++markedFaces; }
+        }
+        assert(markedFaces <= 1);
+#   endif
+        
         while (!myExplorer.mark(fit) && (fit != myExplorer.faces_end()))
         {
 #   if (MY_VERBOSE)
@@ -280,12 +302,12 @@ namespace One_St_Pt_GPA
         {
             if (!fit->is_unbounded())
             {
-                //unclear if the struct already exists...
+                // Faces start with default (empty) data; label the cell with its site.
                 MyFaceData temp;
                 temp.myInputPointIndices.insert(originIndex);
                 fit->set_data(temp);
-                //in theory we should only be doing this to one face anyway, so break.
-                break;
+                // The cell's arrangement has exactly one bounded face, so stop here.
+                break;                
             }
         }
 
