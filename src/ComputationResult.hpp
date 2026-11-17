@@ -58,13 +58,20 @@ namespace One_St_Pt_GPA
             vector< CandidateSteinerPointData > steinerPoints;
 
         public:
-            ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
-                            int randomSeed = RAND_SEED_DEFAULT,
-                            int inputGridLength = GRID_LENGTH_DEFAULT,
-                            bool onlyProducePoints = ONLY_POINTS_DEFAULT,
-                            const vector< MyPoint_2 > & userPointList = vector< MyPoint_2 >());
+            explicit ComputationResult(int numInputPoints = DEFAULT_NUM_INPUT_POINTS,
+                                        int randomSeed = RAND_SEED_DEFAULT,
+                                        int inputGridLength = GRID_LENGTH_DEFAULT,
+                                        bool onlyProducePoints = ONLY_POINTS_DEFAULT,
+                                        const vector< MyPoint_2 > & userPointList = vector< MyPoint_2 >());
             
             string outputResultToJSONString() const;
+
+            // Not copyable or movable: randPointGen refers to this object's own rand, so a
+            // copy's generator would keep using the original's random number generator.
+            ComputationResult(const ComputationResult &)                = delete;
+            ComputationResult & operator=(const ComputationResult &)    = delete;
+            ComputationResult(ComputationResult &&)                     = delete;
+            ComputationResult & operator=(ComputationResult &&)         = delete;                        
 
         protected:
             void preparePointSet(const vector< MyPoint_2 > & userPointList);

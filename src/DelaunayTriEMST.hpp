@@ -99,14 +99,21 @@ namespace One_St_Pt_GPA
             MyFinite_triangulation      finiteDT;  
             MyVertexIndexMap            vertex_id_map;
             int                         idMapIndex;
-            const vector< MyPoint_2 > & initialPointSet;
+            const vector< MyPoint_2 > & initialPointSet;    // not owned: the vector must outlive this object
             MyEMSTData                  emstData;
 
         public:
-            DelaunayTriEMST(const vector< MyPoint_2 > & pointSet);
+            explicit DelaunayTriEMST(const vector< MyPoint_2 > & pointSet);
             //adds point set and computes emst
             const MyEMSTData & getEMSTData();
             MyEMSTData testPointInsertion(const MyPoint_2 & myPoint);
+
+            // Not copyable or movable: is_finite and finiteDT refer to this object's own
+            // delaunayTri, so a copy would refer to the original's triangulation.
+            DelaunayTriEMST(const DelaunayTriEMST &)                = delete;
+            DelaunayTriEMST & operator=(const DelaunayTriEMST &)    = delete;
+            DelaunayTriEMST(DelaunayTriEMST &&)                     = delete;
+            DelaunayTriEMST & operator=(DelaunayTriEMST &&)         = delete;            
 
         protected:
             void findMST(MyEMSTData & fillMe);
