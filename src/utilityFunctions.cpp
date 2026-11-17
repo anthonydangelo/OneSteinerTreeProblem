@@ -6,12 +6,14 @@ namespace One_St_Pt_GPA
 {
     namespace Utility_Functions
     {
-        using std::exception;
 
         bool extractPointsFromJSON2DArrayString(const string & inputString, vector< MyPoint_2 > & result)
         {
             //NB: The string processing is a bit more flexible than the PrintHelp message suggests
             //TODO: consider switching to using a regex here
+            // Note: the parser is lenient (e.g. "[1x, 2]" reads as (1, 2), because stod
+            // stops at the first non-numeric character). That is not part of the
+            // supported input format; a stricter parser may reject such input.
 
             size_t strIndex = inputString.find_first_of("(");
             if (strIndex != string::npos) 
@@ -53,7 +55,9 @@ namespace One_St_Pt_GPA
                             result.emplace_back(firstD, secondD);
                         }
                     }
-                    catch (exception & e)
+                    // stod throws invalid_argument or out_of_range, and the isfinite check
+                    // above throws invalid_argument; both derive from std::logic_error.
+                    catch (const std::logic_error & e)
                     {
                         cerr << endl << "Exception caught: " << e.what() << endl;
                         cerr << "ERROR: Input point list string malformed. Try surrounding the list in quotes." << endl;
