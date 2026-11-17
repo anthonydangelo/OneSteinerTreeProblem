@@ -291,6 +291,10 @@ namespace One_St_Pt_GPA
             {
                 if (!fit->is_unbounded())
                 {
+                    if (faceIndex > 0)
+                    {
+                        sStream << ",\n";   // separator before every face except the first
+                    }
                     ostringstream faceSStream;
                     faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
                     sStream << insertTabs(tabLevel + 4);
@@ -300,13 +304,9 @@ namespace One_St_Pt_GPA
 
                     sStream << insertTabs(tabLevel + 4);
                     sStream << "}";
-                    if(next(fit) != endFit) 
-                    {
-                        sStream << ",";
-                    } 
-                    sStream << "\n";
                 }
             }
+            sStream << "\n";
 
             sStream << insertTabs(tabLevel+4);
             sStream << "]\n";

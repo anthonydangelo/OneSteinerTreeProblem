@@ -276,9 +276,10 @@ namespace One_St_Pt_GPA
         inline void computeConeRays(const MyDirection_2 & initialDirection, vector< MyDirection_2 > & coneRays)
         {
             //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
-            // construct the functor
-            //TODO does the cones function work w vector of const dirs?
-            CGAL::Compute_cone_boundaries_2<MyKernel> cones;    
+            // Construct the functor. The functor writes the 6 rays through an output iterator, so coneRays
+            // must already hold 6 (writable, so non-const) elements.            
+            assert(coneRays.size() == 6);
+            CGAL::Compute_cone_boundaries_2< MyKernel > cones;    
             cones(6, initialDirection, coneRays.begin());
 
             return;
@@ -336,6 +337,8 @@ namespace One_St_Pt_GPA
                 << "(" << he->target()->point() << ")";
             } while (++curr != circ);
             cout << endl;
+            
+            return;
         }
 #   endif
 
