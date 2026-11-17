@@ -180,7 +180,7 @@ namespace
         bool onlyPoints = ONLY_POINTS_DEFAULT;
     };
 
-    void PrintHelp()
+    void PrintHelp(std::ostream & outStream = cout)
     {
         ostringstream msg;
         msg <<  "\nOneSteinerTreeProblem / OneSteinerTreeProblem_d : Help\n"
@@ -197,18 +197,19 @@ namespace
                             << GRID_LENGTH_DEFAULT << ")\n"                            
                 "--no-mutex:                Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
                 "                           This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
-                "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (comes out of numPoints' budget). Needs quotes around list.\n"
+                "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (up to --numPoints of them; if -n is not \n"
+                "                                                      given, all of them, up to 10). Needs quotes around list.\n"
                 "--help       (-h):         Show help\n"
                 "\ne.g., -i \"[[1,0], [2,0], [3,0]]\"\n"
                 "All arguments are optional.\n";
 
-        cout << msg.str();
+        outStream << msg.str();
         return;
     }
     
-
+    enum class ArgsResult { OK, HELP, ERROR };
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
-    bool ProcessArgs(int argc, char **argv, OneStPtConfig & config)
+    ArgsResult ProcessArgs(int argc, char **argv, OneStPtConfig & config)
     {
         const char *const short_opts = "pn:rs:g:i:h";
         const option long_opts[] = {
@@ -222,6 +223,7 @@ namespace
             {"help", no_argument, nullptr, 'h'},
             {nullptr, no_argument, nullptr, 0}};
         string inputListString = "";
+        bool numPointsGiven = false;   // was -n/--numPoints on the command line?
 
         //note: string(optarg) is to take in and make a string
         while (true)
@@ -240,6 +242,7 @@ namespace
                 break;
 
             case 'n':
+                numPointsGiven = true;
                 if (optarg)
                 {
                     try
@@ -314,95 +317,107 @@ namespace
                         // malformed input point list. bounce back to user.
                         // error message printed in function
                         // pointsVec is returned empty
-                        return false;
+                        return ArgsResult::ERROR;
                     }                                
                 }
                 break;
 
             case 'h': // -h or --help
+                return ArgsResult::HELP;
+
             case '?': // Unrecognized option
             default:
-                return false;
+                return ArgsResult::ERROR;
             }
         }
-        return true;
+
+        // With -i but no -n, use all the given points (clamped to the allowed range),
+        // rather than silently keeping only the default number.
+        if (!numPointsGiven && !config.pointsVec.empty())
+        {
+            const int given = static_cast< int >(config.pointsVec.size());
+            config.numPoints = std::max(MIN_NUM_INPUT_POINTS, std::min(given, MAX_NUM_INPUT_POINTS));
+        }    
+
+        return ArgsResult::OK;
+    }
+
+    void printPointList(std::ostream & outStream, const vector< MyPoint_2 > & points)
+    {
+        outStream << "\"";
+        for (size_t ind = 0; ind < points.size(); ++ind)
+        {
+            outStream << "( " << points[ind].x() << ", " << points[ind].y() << ") ";
+            if (ind + 1 < points.size())
+            {
+                outStream << ", ";
+            }
+        }
+        outStream << "\"" << endl;
     }
 
     void initializeOrDie(int argc, char **argv, OneStPtConfig & config)
     {
-        if ( !ProcessArgs(argc, argv, config))
+        const ArgsResult result = ProcessArgs(argc, argv, config);
+
+        if(ArgsResult::HELP == result)
         {
-            cout << "\nThere was an error starting up the program. Review the following and ensure the inputs are legal." << endl;
             PrintHelp();
+            exit(0);
+        }
+
+        if(ArgsResult::ERROR == result)
+        {
+            cerr << "\nThere was an error starting up the program. Review the following and ensure the inputs are legal." << endl;
+            PrintHelp(cerr);
             if( config.onlyPoints)
             {
-                cout << "\nYour request is that we only generate and return up to " << config.numPoints << " random point(s) "
+                cerr << "\nYour request is that we only generate and return up to " << config.numPoints << " random point(s) "
                         "from a square with side length " << config.gridLength <<
                         " using the following value to seed the random number generator: ";
                 if(config.trueRandom)
                 {
-                    cout << "the current time\n";
+                    cerr << "the current time\n";
                 } else
                 {
-                    cout << config.randSeed << endl;
+                    cerr << config.randSeed << endl;
                 }
 
                 if( !config.pointsVec.empty())
                 {
-                    cout << "You have requested up to " << config.numPoints << " of the following points be part of the output:\n";
-                    cout << "\"";
-                    for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
-                    {
-                        MyPoint_2 p = config.pointsVec[ind];
-                        cout << "( " << p.x() << ", " << p.y() << ") ";
-                        if(ind < config.pointsVec.size() - 1)
-                        {
-                            cout << ", ";
-                        }
-                    }
-                    cout << "\"" << endl;                 
+                    cerr << "You have requested up to " << config.numPoints << " of the following points be part of the output:\n";
+                    printPointList(cerr, config.pointsVec);
                 }
             } else
             {
-                int ptsRemain = config.numPoints - config.pointsVec.size();
+                int ptsRemain = config.numPoints - static_cast< int >(config.pointsVec.size());
 
-                cout << "\nYour request is to compute the 1-Steiner tree on ";
+                cerr << "\nYour request is to compute the 1-Steiner tree on ";
 
                 if( !config.pointsVec.empty())
                 {
-                    cout << "the following points:\n";
-                    cout << "\"";
-                    for(size_t ind = 0; ind < config.pointsVec.size(); ++ind)
-                    {
-                        MyPoint_2 p = config.pointsVec[ind];
-                        cout << "( " << p.x() << ", " << p.y() << ") ";
-                        if(ind < config.pointsVec.size() - 1)
-                        {
-                            cout << ", ";
-                        }
-                    }
-                    cout << "\"" << endl; 
-                    
+                    cerr << "the following points:\n";
+                    printPointList(cerr, config.pointsVec);                    
                     if( ptsRemain > 0 )
                     {
-                        cout << "with an additional " << ptsRemain;
+                        cerr << "with an additional " << ptsRemain;
                     }               
                 } else
                 {
-                    cout << config.numPoints;
+                    cerr << config.numPoints;
                 }
 
                 if( ptsRemain > 0 )
                 {
-                    cout << " random points generated with a random number generator using the following seed: \n";
+                    cerr << " random points generated with a random number generator using the following seed: \n";
                     if(config.trueRandom)
                     {
-                        cout << "the current time\n";
+                        cerr << "the current time\n";
                     } else
                     {
-                        cout << config.randSeed << endl;
+                        cerr << config.randSeed << endl;
                     }    
-                    cout << "with the points chosen from a square of side length " << config.gridLength << endl; 
+                    cerr << "with the points chosen from the square [-g, g) x [-g, g) with g = " << config.gridLength << endl; 
                 }                                  
             }
             exit(1);

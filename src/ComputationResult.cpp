@@ -46,12 +46,15 @@ namespace One_St_Pt_GPA
                 pair< set< MyPoint_2 >::iterator, bool> ret;
                 ret = pointSet.emplace(pt.x(), pt.y());
                 if (ret.second == false)
-                { //Maybe we should disable this output... don't want it messing up the json
+                { // Goes to stderr, so it doesn't affect the JSON on stdout.
                     cerr << "tried to add an element that was already in there. size is " << pointSet.size() << endl;
                 }
             }
             else
             {
+                // More user points than numPoints: the rest are ignored.
+                cerr << "WARNING: using only the first " << numPoints << " of the "
+                     << userPointList.size() << " input points (see --numPoints)." << endl;                
                 break;
             }
         }
