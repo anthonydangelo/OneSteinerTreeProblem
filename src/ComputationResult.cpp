@@ -119,7 +119,7 @@ namespace One_St_Pt_GPA
         size_t coneRaysSize = coneRays.size();
         assert(coneRaysSize == 6);
         
-        //TODO try switching ch to const points
+        // The convex hull is the clipping polygon for every cell.
         const vector< MyPoint_2 > & clippingPolygonList = convexHullList;
 
         MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);

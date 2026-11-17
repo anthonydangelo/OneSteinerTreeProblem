@@ -260,7 +260,9 @@ namespace One_St_Pt_GPA
 
         inline void computeConvexHull(const vector< MyPoint_2 > & pointVec, vector< MyPoint_2 > & convexHullList)
         {
-            //TODO does convex hull work w const mypoints?
+            // Reads the points through const iterators; writes the hull vertices
+            // (counter-clockwise; points in the interior of hull edges are omitted)
+            // to convexHullList.
             ch_akl_toussaint(pointVec.begin(), pointVec.end(), back_inserter(convexHullList));
             return;
         }    
