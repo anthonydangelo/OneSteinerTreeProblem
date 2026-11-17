@@ -185,21 +185,22 @@ namespace
         ostringstream msg;
         msg <<  "\nOneSteinerTreeProblem / OneSteinerTreeProblem_d : Help\n"
                 "====================================================================================================================\n"
-                "--onlyPoints (-p):         Only create new random points and return\n"
-                "--numPoints  (-n) <int>:   Number of random points to generate (between "
+                "--onlyPoints (-p):          Only create new random points and return\n"
+                "--numPoints  (-n) <int>:    Number of random points to generate (between "
                             << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
                             << DEFAULT_NUM_INPUT_POINTS << ")\n"
-                "--trueRandom (-r):         Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
+                "--trueRandom (-r):          Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
                             << TRUE_RANDOM_DEFAULT << ")\n"
-                "--randSeed   (-s) <int>:   Use the following fixed seed for the rand. num. gen. (default is "
+                "--randSeed   (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
                             << RAND_SEED_DEFAULT << ")\n"
-                "--gridLength (-g) <int>:   Generated points are drawn uniformly from the square [-g, g) x [-g, g) (default g = "
+                "--gridLength (-g) <int g >: Generated points are drawn uniformly from the square [-g, g) x [-g, g)\n"
+                "                            (g >= " << GRID_LENGTH_MIN << ", default g = "
                             << GRID_LENGTH_DEFAULT << ")\n"                            
-                "--no-mutex:                Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
-                "                           This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
+                "--no-mutex:                 Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
+                "                            This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
                 "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (up to --numPoints of them; if -n is not \n"
                 "                                                      given, all of them, up to 10). Needs quotes around list.\n"
-                "--help       (-h):         Show help\n"
+                "--help       (-h):          Show help\n"
                 "\ne.g., -i \"[[1,0], [2,0], [3,0]]\"\n"
                 "All arguments are optional.\n";
 
@@ -291,7 +292,15 @@ namespace
                 {
                     try
                     {
-                        config.gridLength = stoi(optarg);
+                        int temp = stoi(optarg);
+                        if (temp >= GRID_LENGTH_MIN)
+                        {
+                            config.gridLength = temp;
+                        } else
+                        {
+                            cerr << "ERROR: Grid length must be at least " << GRID_LENGTH_MIN
+                                 << ". Using default of " << GRID_LENGTH_DEFAULT << endl;
+                        }
                     }
                     catch (...)
                     {

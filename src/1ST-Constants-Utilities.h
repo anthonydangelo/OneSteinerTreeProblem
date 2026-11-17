@@ -92,6 +92,7 @@ constexpr int MAX_NUM_INPUT_POINTS      = 10;
 constexpr int DEFAULT_NUM_INPUT_POINTS  = MIN_NUM_INPUT_POINTS;
 
 constexpr int GRID_LENGTH_DEFAULT   = 10;
+constexpr int GRID_LENGTH_MIN       = 1;
 
 constexpr int  RAND_SEED_DEFAULT    = 10;
 constexpr bool TRUE_RANDOM_DEFAULT  = false;
