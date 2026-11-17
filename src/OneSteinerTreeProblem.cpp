@@ -448,11 +448,24 @@ namespace
                 exit(1);
             }
 
-            // N.B.: the non-blocking version returns -1 if in use -- flock(mutexFD, LOCK_EX | LOCK_NB) 
-            flock(config.flockMutex.mutexFD, LOCK_EX);
+            // Blocking lock: waits while another run holds it. It still returns -1 on
+            // failure (e.g. interrupted by a signal: EINTR, so retry; or a bad descriptor).
+            // (The non-blocking version, flock(mutexFD, LOCK_EX | LOCK_NB), also returns -1 if in use.)
+            int lockResult;
+            do
+            {
+                lockResult = flock(config.flockMutex.mutexFD, LOCK_EX);
+            } while ((-1 == lockResult) && (EINTR == errno));   // retry if a signal interrupted the wait
             // Lock is released automatically:
             // when you close(fd), when the process exits (even SIGKILL, even segfault)
             // for us, the destructor of the struct is called when it goes out of scope and calls close
+            if (-1 == lockResult)
+            {
+                int err = errno;
+                cerr << "Failed to lock the file \'" << FLOCK_PATH << "\' (used as a resource mutex): "
+                     << strerror(err) << " (" << err << ")\n";
+                exit(1);
+            }            
         }        
 
         return;
