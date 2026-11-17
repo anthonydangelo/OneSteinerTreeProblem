@@ -39,11 +39,9 @@
 namespace One_St_Pt_GPA
 {
     typedef CGAL::Delaunay_triangulation_2<MyKernel>      MyTriangulation;
-    /*
-    //cgal examples  BGL_triangulation_2/emst.cpp, https://doc.cgal.org/latest/BGL/index.html#title15
-    */
-    // "As we only consider finite vertices and edges
-    // we need the following filter"
+    // Is_finite filter from the CGAL example BGL_triangulation_2/emst.cpp
+    // (https://doc.cgal.org/latest/BGL/index.html#title15), which notes:
+    // "As we only consider finite vertices and edges we need the following filter"
     template <typename T>
     struct Is_finite 
     {

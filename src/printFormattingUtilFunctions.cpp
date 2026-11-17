@@ -8,10 +8,6 @@
 
 namespace One_St_Pt_GPA
 {
-    /*
-    **
-    **
-    */
     namespace Pretty_Print
     {
         using std::boolalpha;

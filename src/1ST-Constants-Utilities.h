@@ -222,10 +222,7 @@ namespace One_St_Pt_GPA
     /////////////////////
     // Namespaces for utilities and printing.
 
-    /*
-    **
-    **
-    */
+    // Utility_Functions: range checks, input parsing, and arrangement/point-set helpers.
     namespace Utility_Functions
     {
 
@@ -284,10 +281,7 @@ namespace One_St_Pt_GPA
     } // namespace Utility_Functions
 
 
-    /*
-    **
-    **
-    */
+    // Pretty_Print: JSON and text formatting of points, MSTs, candidates, and the arrangement.
     namespace Pretty_Print
     {
         inline string wrapStringInQuotes(const string & s)

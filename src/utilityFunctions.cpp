@@ -4,10 +4,6 @@
 
 namespace One_St_Pt_GPA
 {
-    /*
-    **
-    **
-    */
     namespace Utility_Functions
     {
         using std::exception;
