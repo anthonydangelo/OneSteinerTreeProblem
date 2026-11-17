@@ -33,6 +33,9 @@ namespace
                                      DegeneratePointIndex & degenPt);
     void findCollinearMedian_3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
                               const vector< size_t > & originalInputPtIndices, GeomMedianData & fillMe); 
+    // The unique point where a and b meet (see the definition below).
+    template< class Obj1, class Obj2 >
+    MyPoint_2 uniqueIntersectionPoint(const Obj1 & a, const Obj2 & b);
 
 } // anon namespace
 
@@ -70,9 +73,13 @@ namespace One_St_Pt_GPA
         {
             DegeneratePointIndex degenPt;
             bool detectedDegen = false;
-            //Test for an angle of 120 degrees or greater
-            //This doesn't work like it should since we can't specify precision and we lose things to input noise...
-            //We have to do an explicit check afterwards
+            // Test for an angle of 120 degrees or more (then the median is that vertex).
+            // The test uses 60-degree rotations that are only accurate to double
+            // precision (see computeConeRays), so a borderline case can be missed.
+            // The pointsAreTooClose check after this block catches those, and also
+            // treats a median within the (absolute) tolerance of a vertex as that vertex:
+            // that keeps findEdgePointIndices, which matches points by coordinates within
+            // the same tolerance, from mistaking the candidate for an input point.        
             if (testForDegenerateGeomMedian3Pts(myPts[0], myPts[1], myPts[2], degenPt))
             {
                 detectedDegen = true;
@@ -101,12 +108,8 @@ namespace One_St_Pt_GPA
                 const MyPoint_2 secondIntPoint = findEqTriIntPoint(myPts[0], myPts[2], myPts[1]);
                 const MySegment_2 secondSimpsonLine = MySegment_2(secondIntPoint, myPts[1]);
                 //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
-                auto intRes = intersection(firstSimpsonLine, secondSimpsonLine);
-                assert(intRes);
-                if (intRes)
-                { //these two non-par segments will intersect... do i really have to test for result?
-                    result.medPoint = boost::get<MyPoint_2>(*intRes);
-                } //TODO Else throw error or something...
+                // All angles are < 120 degrees, so the Simpson lines meet at the Fermat point.
+                result.medPoint = uniqueIntersectionPoint(firstSimpsonLine, secondSimpsonLine);                
             }
             //check if it's too close to an input pt
             if (!detectedDegen)
@@ -190,13 +193,8 @@ namespace One_St_Pt_GPA
             {
                 const MySegment_2 firstSeg = MySegment_2(convexHullList[0], convexHullList[2]);
                 const MySegment_2 secondSeg = MySegment_2(convexHullList[1], convexHullList[3]);
-                //  CGAL::cpp11::result_of<MyIntersect_2(MySegment_2, MySegment_2)>::type intRes = intersection(firstSeg, secondSeg);
-                auto intRes = intersection(firstSeg, secondSeg);
-                assert(intRes);
-                if (intRes)
-                { //these two non-par segments will intersect... do i really have to test for result?
-                    result.medPoint = boost::get< MyPoint_2 >(*intRes);
-                } //TODO Else throw error or something...
+                // The diagonals of a convex quadrilateral cross inside it.
+                result.medPoint = uniqueIntersectionPoint(firstSeg, secondSeg);                
             }
         }
 #   if (MY_VERBOSE)
@@ -231,13 +229,8 @@ namespace
             secondEqTriSide = MyLine_2(pointB, coneRays[4]);
         }
         //https://doc.cgal.org/latest/Kernel_23/group__intersection__linear__grp.html && Kernel_23/intersection_get.cpp
-    //    CGAL::cpp11::result_of<MyIntersect_2(MyLine_2, MyLine_2)>::type intRes = intersection(firstEqTriSide, secondEqTriSide);
-        auto intRes = intersection(firstEqTriSide, secondEqTriSide);
-        assert(intRes);
-        if (intRes)
-        { //these two non-par lines will intersect... do i really have to test for result?
-            intersectionPoint = boost::get<MyPoint_2>(*intRes);
-        } //TODO Else throw error or something...
+        // The two sides leave the base's endpoints at +/-60 degrees, so they meet at the apex.
+        intersectionPoint = uniqueIntersectionPoint(firstEqTriSide, secondEqTriSide);    
 
         return intersectionPoint;
 
@@ -357,5 +350,22 @@ namespace
         }
         return;
     }
+
+    // The unique point where a and b meet. CGAL's intersection() returns an empty
+    // optional if they don't meet, or a variant holding a point or (for overlapping
+    // collinear inputs) a segment; callers guarantee a single point, so anything else
+    // is a logic error.
+    template< class Obj1, class Obj2 >
+    MyPoint_2 uniqueIntersectionPoint(const Obj1 & a, const Obj2 & b)
+    {
+        auto intRes = intersection(a, b);
+        const MyPoint_2 * p = intRes ? boost::get< MyPoint_2 >(intRes.get_ptr()) : nullptr;
+        assert(p != nullptr);
+        if (nullptr == p)
+        {
+            throw std::logic_error("uniqueIntersectionPoint: the objects do not meet in a single point");
+        }
+        return *p;
+    }    
 
 }  // anon namespace
