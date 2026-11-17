@@ -82,10 +82,9 @@ namespace One_St_Pt_GPA
         VertexRef first;
         VertexRef second; 
     };
-
-    //Interesting read about typedef'ing structs in c++, though apparently unnecessary in most situations:
-    //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
-    struct MyEMSTData 
+    
+    // A minimum spanning tree: its edges (as endpoint indices) and its total length.
+    struct MyEMSTData
     {
         // Temporary: handles into the triangulation, valid only until it next changes.
         // Used only to fill mstEdgePointIndices, then cleared (see addPointSet and
@@ -97,8 +96,7 @@ namespace One_St_Pt_GPA
 
         My_Number_type length = 0.0;
 
-        //The answer here says pulling the overload outside is 'best practice', though no explanation why...
-        //https://stackoverflow.com/questions/3882467/defining-operator-for-a-struct
+        // Orders trees by total length; used to sort the candidates.
         bool operator<(const MyEMSTData & other) const
         {
             return length < other.length;

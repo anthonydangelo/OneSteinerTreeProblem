@@ -30,9 +30,12 @@ namespace One_St_Pt_GPA
             return mstData < other.mstData; //compares lengths
         }
 
-        //need ctor because GeomMedData needs one for its reference
-        CandidateSteinerPointData(const GeomMedianData & myStPt, const MyEMSTData & myMstData) : steinerPt(myStPt), mstData(myMstData) {}
-
+        // Constructs both members directly from the given values. Needed because:
+        //  - GeomMedianData has no default constructor (it must be given its input
+        //    indices), so steinerPt can't be created empty and assigned later; and
+        //  - emplace_back(steinerPt, mstData) constructs the element with parentheses,
+        //    which (before C++20) requires a constructor rather than an aggregate.
+        CandidateSteinerPointData(const GeomMedianData & myStPt, const MyEMSTData & myMstData) : steinerPt(myStPt), mstData(myMstData) {}        
     };
 
     class ComputationResult

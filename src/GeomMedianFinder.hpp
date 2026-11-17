@@ -25,15 +25,15 @@
 
 namespace One_St_Pt_GPA
 {
-    //Interesting read about typedef'ing structs in c++, though apparently unnecessary in most situations:
-    //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
+    // A candidate Steiner point: the geometric median of the input points whose
+    // indices are in inputPtIndices, and whether it coincides with one of them.
     struct GeomMedianData
     {
         MyPoint_2 medPoint;
         vector<size_t> inputPtIndices;
         bool coincidesWithInputPt = false;
         size_t coincidentInputPtIndex = 0;
-        GeomMedianData(const vector< size_t > & inputSet) : inputPtIndices(inputSet) {}
+        explicit GeomMedianData(const vector< size_t > & inputSet) : inputPtIndices(inputSet) {}
     };
 
     namespace GeomMedianFinder
