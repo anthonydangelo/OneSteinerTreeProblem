@@ -41,7 +41,7 @@ namespace One_St_Pt_GPA
     class ComputationResult
     {
 
-        protected:
+        private:
             //https://stackoverflow.com/questions/11594846/default-member-values-best-practice
             int numPoints;
             int randSeed;
@@ -76,7 +76,7 @@ namespace One_St_Pt_GPA
             ComputationResult(ComputationResult &&)                     = delete;
             ComputationResult & operator=(ComputationResult &&)         = delete;                        
 
-        protected:
+        private:
             void preparePointSet(const vector< MyPoint_2 > & userPointList);
             void computeOODC();
             void computeMSTAndStPts(); 

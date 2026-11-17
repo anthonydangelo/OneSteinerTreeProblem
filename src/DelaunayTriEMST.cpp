@@ -15,7 +15,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    const MyEMSTData & DelaunayTriEMST::getEMSTData()
+    const MyEMSTData & DelaunayTriEMST::getEMSTData() const
     {
         return emstData;
     }

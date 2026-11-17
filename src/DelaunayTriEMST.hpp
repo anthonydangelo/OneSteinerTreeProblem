@@ -105,7 +105,7 @@ namespace One_St_Pt_GPA
 
     class DelaunayTriEMST
     {
-        protected:
+        private:
             MyTriangulation             delaunayTri;
             MyTriFilter                 is_finite;
             MyFinite_triangulation      finiteDT;  
@@ -117,7 +117,7 @@ namespace One_St_Pt_GPA
         public:
             explicit DelaunayTriEMST(const vector< MyPoint_2 > & pointSet);
             //adds point set and computes emst
-            const MyEMSTData & getEMSTData();
+            const MyEMSTData & getEMSTData() const;
             MyEMSTData testPointInsertion(const MyPoint_2 & myPoint);
 
             // Not copyable or movable: is_finite and finiteDT refer to this object's own
@@ -127,7 +127,7 @@ namespace One_St_Pt_GPA
             DelaunayTriEMST(DelaunayTriEMST &&)                     = delete;
             DelaunayTriEMST & operator=(DelaunayTriEMST &&)         = delete;            
 
-        protected:
+        private:
             void findMST(MyEMSTData & fillMe);
             void findEdgePointIndices(MyEMSTData & fillMe, bool containsSteinerPoint = false);
             void addPointSet();

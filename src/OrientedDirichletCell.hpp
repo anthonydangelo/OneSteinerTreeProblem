@@ -23,25 +23,25 @@ namespace One_St_Pt_GPA
 
     class OrientedDirichletCell
     {
-    protected: 
-        //member initialization order depends on the order we list them here
-        const Nef_Direction     firstDir;
-        const Nef_Direction     secondDir;
-        const Nef_Point         cellOriginPoint;
-        MyArrangement_2   odcArr;
+        private: 
+            //member initialization order depends on the order we list them here
+            const Nef_Direction     firstDir;
+            const Nef_Direction     secondDir;
+            const Nef_Point         cellOriginPoint;
+            MyArrangement_2   odcArr;
 
-    public:
-        OrientedDirichletCell(const MyDirection_2 & dirA, const MyDirection_2 & dirB,
-                            const MyPoint_2 & cellOrigin, 
-                            size_t originPtIndex,
-                            const vector< MyPoint_2 > & inputPointSet, //vector instead of a set so we can use 'reliable' indices
-                            const MyNef_polyhedron & clippingPolygon);
-        const MyArrangement_2 & getCellArrangement() const;
+        public:
+            OrientedDirichletCell(const MyDirection_2 & dirA, const MyDirection_2 & dirB,
+                                const MyPoint_2 & cellOrigin, 
+                                size_t originPtIndex,
+                                const vector< MyPoint_2 > & inputPointSet, //vector instead of a set so we can use 'reliable' indices
+                                const MyNef_polyhedron & clippingPolygon);
+            const MyArrangement_2 & getCellArrangement() const;
 
-    protected:
-        void computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon, 
-                        const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex);  
-        void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex);
+        private:
+            void computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon, 
+                            const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex);  
+            void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex);
     };
 } // namespace One_St_Pt_GPA
 #endif
