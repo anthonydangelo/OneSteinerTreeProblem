@@ -75,9 +75,10 @@ namespace One_St_Pt_GPA
         MyEMSTData result;
 
         MyTriangulation::Vertex_handle sPointHandle = delaunayTri.insert(myPoint);
-        //vertex handles and vertex descriptors are typedef'd to the same thing... 
-        //I don't know why they use both in the mst example to print things out...
-        vertex_id_map[sPointHandle] = idMapIndex; //no need to post-increment, we'd just decrement it later...
+        // Kruskal's needs an index for every vertex: give the candidate the next one
+        // (idMapIndex = number of input points). It's erased again after the removal
+        // below, so idMapIndex itself never changes.
+        vertex_id_map[sPointHandle] = idMapIndex;        
 
         findMST(result);    
         findEdgePointIndices(result, true);
@@ -120,8 +121,13 @@ namespace One_St_Pt_GPA
     }
 
 
-    //We assume an unfound point is the steiner point... probably okay...
-    // TODO This is inefficient. Replace. See project notes.
+    // Converts each MST edge's triangulation handles into indices of input points
+    // (or marks the endpoint as the Steiner point). Each endpoint is found by
+    // comparing coordinates with every input point: a linear scan, so O(n^2) per
+    // MST, the dominant per-candidate cost. The Future work section in the header
+    // of OneSteinerTreeProblem.cpp gives two ways to avoid it: store each vertex's
+    // index in the vertex (Triangulation_vertex_base_with_info_2), or build each
+    // candidate's MST from the original MST's edges, where indices are known.
     void DelaunayTriEMST::findEdgePointIndices(MyEMSTData & fillMe, bool containsSteinerPoint)
     {
         auto endELIt = fillMe.mstEdgeList.end();
@@ -142,7 +148,6 @@ namespace One_St_Pt_GPA
             // Only one point is added for a candidate, so an endpoint not found among the
             // input points is the Steiner point. Its index is set after the candidates are
             // sorted (see ComputationResult::computeMSTAndStPts).
-//            size_t sourceIndex, targetIndex;
             bool foundSrc = Utility_Functions::findPointIndex(vhSource->point(),  initialPointSet, sourceV.index);
             if( !foundSrc && containsSteinerPoint)
             {
