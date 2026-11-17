@@ -48,6 +48,12 @@ namespace One_St_Pt_GPA
                         if (strIndex != string::npos)
                         {
                             double secondD = stod(inputString.substr(strIndex + 1));
+                            // stod accepts "nan", "inf" and "infinity"; non-finite coordinates
+                            // are undefined behaviour in the exact kernel, so reject them.
+                            if (!std::isfinite(firstD) || !std::isfinite(secondD))
+                            {
+                                throw std::invalid_argument("coordinate is not a finite number");
+                            }
                             result.emplace_back(firstD, secondD);
                         }
                     }

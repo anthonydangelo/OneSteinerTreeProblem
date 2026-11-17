@@ -9,6 +9,7 @@
 // C++ standard library
 #include <algorithm>    // std::sort
 #include <cassert>      // assert
+#include <cmath>        // std::isfinite
 #include <cstddef>      // std::size_t
 #include <cstdlib>
 #include <functional>   // std::reference_wrapper
@@ -19,6 +20,7 @@
 #include <list>
 #include <set>
 #include <sstream>      // std::ostringstream
+#include <stdexcept>    // std::invalid_argument
 #include <string>
 #include <vector>
 
