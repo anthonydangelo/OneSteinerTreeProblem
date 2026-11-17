@@ -128,35 +128,35 @@ namespace One_St_Pt_GPA
         for (auto it = fillMe.mstEdgeList.begin(); it != endELIt; ++it)
         {
             MyEdge_descriptor ed = *it;
-            //vertex handles and vertex descriptors are typedef'd to the same thing...
-            //MyVertex_descriptor and MyTriangulation::Vertex_handle seem to have the same interface...
-            //the cgal example has us use an intermediary MyVertex_descriptor...
+            // For Triangulation_2, vertex descriptors and vertex handles are the same type.
+            // source()/target() are the Boost Graph Library's generic functions; they return
+            // graph_traits<...>::vertex_descriptor (CGAL's emst example uses that name so the
+            // code works for any BGL graph). For Triangulation_2 that type is Vertex_handle,
+            // so we use Vertex_handle directly.
             MyTriangulation::Vertex_handle vhSource = source(ed, delaunayTri);
             MyTriangulation::Vertex_handle vhTarget = target(ed, delaunayTri);
 
-            size_t sourceIndex, targetIndex;
-            bool foundSrc = Utility_Functions::findPointIndex(vhSource->point(),  initialPointSet, sourceIndex);
-            bool firstIsStPt = false;
-            bool secondIsStPt = false;
+            VertexRef sourceV  = { VertexRef::Kind::INPUT, 0 };
+            VertexRef targetV = { VertexRef::Kind::INPUT, 0 };
+
+            // Only one point is added for a candidate, so an endpoint not found among the
+            // input points is the Steiner point. Its index is set after the candidates are
+            // sorted (see ComputationResult::computeMSTAndStPts).
+//            size_t sourceIndex, targetIndex;
+            bool foundSrc = Utility_Functions::findPointIndex(vhSource->point(),  initialPointSet, sourceV.index);
             if( !foundSrc && containsSteinerPoint)
             {
-                //this must be the steiner point
-                sourceIndex = 0; //won't be used yet, we need to wait until we sort the collection of points before we set this properly
+                sourceV.kind = VertexRef::Kind::STEINER;
                 foundSrc = true;
-                firstIsStPt = true;
             }
-            bool foundTarget = Utility_Functions::findPointIndex(vhTarget->point(),  initialPointSet, targetIndex);
-            if( !foundTarget && containsSteinerPoint && !firstIsStPt)
+            bool foundTarget = Utility_Functions::findPointIndex(vhTarget->point(),  initialPointSet, targetV.index);
+            if( !foundTarget && containsSteinerPoint && (sourceV.kind != VertexRef::Kind::STEINER))
             {
-                //this must be the steiner point
-                targetIndex = 0; //won't be used yet, we need to wait until we sort the collection of points before we set this properly
+                targetV.kind = VertexRef::Kind::STEINER;
                 foundTarget = true;
-                secondIsStPt = true;
             }        
             assert(foundSrc && foundTarget);
-
-            fillMe.mstEdgePointIndices.emplace_back(pair< size_t, size_t>(sourceIndex, targetIndex),
-                                                    pair< bool, bool>(firstIsStPt, secondIsStPt));
+            fillMe.mstEdgePointIndices.push_back(MstEdgeEndpoints{ sourceV, targetV });
         }  
 
         return;    

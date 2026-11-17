@@ -225,6 +225,7 @@ namespace One_St_Pt_GPA
     ////// Forward-declare Structs used in printing and utils ///////
     struct GeomMedianData;
     struct MyEMSTData;
+    struct MstEdgeEndpoints;
     struct CandidateSteinerPointData;
 
     /////////////////////
@@ -338,7 +339,7 @@ namespace One_St_Pt_GPA
         }
 #   endif
 
-        string mstEdgeToJSONString(const pair< pair< size_t, size_t>, pair< bool, bool> > & edgeData, int tabLevel = 0);
+        string mstEdgeToJSONString(const MstEdgeEndpoints & edgeData, int tabLevel = 0);
 
         string mstDataToJSONString(const MyEMSTData & mst, int tabLevel = 0);
 

@@ -204,18 +204,17 @@ namespace One_St_Pt_GPA
         //Now we have to properly assign the st pt indices so they print out correctly
         for (size_t stPtIndex = 0; stPtIndex < steinerPoints.size(); ++stPtIndex)
         {
-            vector< pair< pair< size_t, size_t>,
-                        pair< bool, bool>>> & mstEdgePairData = steinerPoints[stPtIndex].mstData.mstEdgePointIndices;
-            for (pair< pair< size_t, size_t>, pair< bool, bool>> & tempEdgeData : mstEdgePairData)
+            vector< MstEdgeEndpoints > & mstEdgePairData = steinerPoints[stPtIndex].mstData.mstEdgePointIndices;
+            for (MstEdgeEndpoints & tempEdgeData : mstEdgePairData)
             {
-                //there won't be any degenerate edges, so either the first is a st pt, or the second, or neither
-                if (tempEdgeData.second.first)
+                // At most one endpoint of an edge is the Steiner point.
+                if (VertexRef::Kind::STEINER == tempEdgeData.first.kind)
                 {
-                    tempEdgeData.first.first = stPtIndex;
+                    tempEdgeData.first.index = stPtIndex;
                 }
-                else if (tempEdgeData.second.second)
+                else if (VertexRef::Kind::STEINER == tempEdgeData.second.kind)
                 {
-                    tempEdgeData.first.second = stPtIndex;
+                    tempEdgeData.second.index = stPtIndex;
                 }
             }
         }

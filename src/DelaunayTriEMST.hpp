@@ -69,6 +69,19 @@ namespace One_St_Pt_GPA
     // A std::map is not a property map, because it is not lightweight
     typedef boost::associative_property_map<MyVertexIndexMap>     MyVertexIdPropertyMap;
 
+    // One endpoint of an MST edge: which list the index refers to, and the index.
+    struct VertexRef
+    {
+        enum class Kind { INPUT, STEINER };
+        Kind   kind;
+        size_t index;  // into the input points, or (for Kind::STEINER) the candidate list
+    };
+
+    struct MstEdgeEndpoints 
+    { 
+        VertexRef first;
+        VertexRef second; 
+    };
 
     //Interesting read about typedef'ing structs in c++, though apparently unnecessary in most situations:
     //https://stackoverflow.com/questions/612328/difference-between-struct-and-typedef-struct-in-c/612476#612476
@@ -79,9 +92,8 @@ namespace One_St_Pt_GPA
         // testPointInsertion). Use mstEdgePointIndices for anything that is kept.       
         vector< MyEdge_descriptor > mstEdgeList;
 
-        vector< pair< pair< size_t, size_t>,
-                            pair< bool, bool>>>
-                        mstEdgePointIndices; //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+        //indices for the endpoints of an edge, and whether or not the end pt is a st pt
+        vector< MstEdgeEndpoints > mstEdgePointIndices; 
 
         My_Number_type length = 0.0;
 

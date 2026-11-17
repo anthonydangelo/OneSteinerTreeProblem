@@ -16,7 +16,7 @@ namespace One_St_Pt_GPA
     {
         using std::boolalpha;
         
-        string mstEdgeToJSONString(const pair< pair< size_t, size_t>, pair< bool, bool> > & edgeData, int tabLevel)
+        string mstEdgeToJSONString(const MstEdgeEndpoints & edgeData, int tabLevel)
         {
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -26,18 +26,20 @@ namespace One_St_Pt_GPA
             sStream << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
 
             sStream << insertTabs(tabLevel + 3);
-            sStream << "{\"index\":\"" << edgeData.first.first << "\"},\n";
+            sStream << "{\"index\":\"" << edgeData.first.index << "\"},\n";
             sStream << insertTabs(tabLevel + 3);
-            sStream << "{\"index\":\"" << edgeData.first.second << "\"}\n";
+            sStream << "{\"index\":\"" << edgeData.second.index << "\"}\n";
 
             sStream << insertTabs(tabLevel+3);
             sStream << "],\n"; 
 
             sStream << boolalpha;
             sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.first << "\",\n";
+            sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
+                    << (VertexRef::Kind::STEINER == edgeData.first.kind) << "\",\n";
             sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" << edgeData.second.second << "\"\n";
+            sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
+                    << (VertexRef::Kind::STEINER == edgeData.second.kind) << "\"\n";
 
             sStream << insertTabs(tabLevel);
             sStream << "}";
