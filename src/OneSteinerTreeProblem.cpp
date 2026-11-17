@@ -149,7 +149,6 @@ using namespace One_St_Pt_GPA;
 
 namespace
 {
-    using std::stoi;
     
     struct OneStPtResourceMutex {
         //FLOCK mutex
@@ -208,6 +207,27 @@ namespace
         return;
     }
     
+    
+    // Parses all of s as an int. Returns false (leaving result unchanged) if s
+    // has no digits ("abc"), trailing characters ("5abc"), or is out of int range.
+    // (std::stoi alone accepts "5abc" as 5.)
+    bool parseWholeInt(const char * s, int & result)
+    {
+        try
+        {
+            size_t pos = 0;
+            const int value = std::stoi(s, &pos);
+            if (s[pos] != '\0')
+            {
+                return false;
+            }
+            result = value;
+            return true;
+        }
+        catch (const std::invalid_argument &) { return false; }
+        catch (const std::out_of_range &)     { return false; }
+    }
+    
     enum class ArgsResult { OK, HELP, ERROR };
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
     ArgsResult ProcessArgs(int argc, char **argv, OneStPtConfig & config)
@@ -246,21 +266,14 @@ namespace
                 numPointsGiven = true;
                 if (optarg)
                 {
-                    try
+                    int temp = 0;
+                    if (parseWholeInt(optarg, temp) 
+                        && Utility_Functions::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
                     {
-                        int temp = stoi(optarg);
-                        if (Utility_Functions::intInRangeInclusive(temp, MIN_NUM_INPUT_POINTS, MAX_NUM_INPUT_POINTS))
-                        {
-                            config.numPoints = temp;
-                        } else 
-                        {
-                            cerr << "ERROR: Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
-                        }
-                    }
-                    catch (...)
+                        config.numPoints = temp;
+                    } else 
                     {
                         config.numPoints = DEFAULT_NUM_INPUT_POINTS;
-                        cerr << endl << "Exception caught" << endl;
                         cerr << "ERROR: Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
                     }
                 }
@@ -271,42 +284,26 @@ namespace
                 break;
 
             case 's':
-                if (optarg)
+                if (optarg && ! parseWholeInt(optarg, config.randSeed))
                 {
-                    try
-                    {
-                        //note: also stof exists
-                        config.randSeed = stoi(optarg);
-                    }
-                    catch (...)
-                    {
-                        config.randSeed = RAND_SEED_DEFAULT;
-                        cerr << endl << "Exception caught" << endl;
-                        cerr << "ERROR: Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
-                    }
+                    config.randSeed = RAND_SEED_DEFAULT;
+                    cerr << "ERROR: Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
                 }
                 break;
 
             case 'g':
                 if (optarg)
                 {
-                    try
+                    int temp = 0;
+                    if (parseWholeInt(optarg, temp) 
+                        && temp >= GRID_LENGTH_MIN)
                     {
-                        int temp = stoi(optarg);
-                        if (temp >= GRID_LENGTH_MIN)
-                        {
-                            config.gridLength = temp;
-                        } else
-                        {
-                            cerr << "ERROR: Grid length must be at least " << GRID_LENGTH_MIN
-                                 << ". Using default of " << GRID_LENGTH_DEFAULT << endl;
-                        }
-                    }
-                    catch (...)
+                        config.gridLength = temp;
+                    } else
                     {
                         config.gridLength = GRID_LENGTH_DEFAULT;
-                        cerr << endl << "Exception caught" << endl;
-                        cerr << "ERROR: Invalid value for grid length. Using default of " << GRID_LENGTH_DEFAULT << endl;
+                        cerr << "ERROR: Grid length must be an integer of at least " << GRID_LENGTH_MIN
+                             << ". Using default of " << GRID_LENGTH_DEFAULT << endl;
                     }
                 }
                 break;
@@ -474,34 +471,47 @@ namespace
 
 int main(int argc, char **argv)
 {
-    OneStPtConfig config;
+    try
+    {
+        OneStPtConfig config;
 
-    initializeOrDie(argc, argv, config);
+        initializeOrDie(argc, argv, config);
 
-    //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
-    // Record start time
-    auto start = std::chrono::high_resolution_clock::now();
-    ostringstream sStream;
+        //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
+        // Record start time
+        auto start = std::chrono::high_resolution_clock::now();
+        ostringstream sStream;
 
-    ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
-    string compResult = myCompResult.outputResultToJSONString();
-    sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
-    sStream << compResult << "\n";
+        ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
+        string compResult = myCompResult.outputResultToJSONString();
+        sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
+        sStream << compResult << "\n";
 
-    sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
-    // Record end time
-    auto finish = std::chrono::high_resolution_clock::now();  
+        sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
+        // Record end time
+        auto finish = std::chrono::high_resolution_clock::now();  
 
-    std::chrono::duration< double > elapsed = finish - start;
-    double timeInSecs = elapsed.count();
-    long timeNumb = static_cast< long >(floor(timeInSecs));
+        std::chrono::duration< double > elapsed = finish - start;
+        double timeInSecs = elapsed.count();
+        long timeNumb = static_cast< long >(floor(timeInSecs));
 
-    sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
-    timeNumb /= 60;
-    sStream << (timeNumb % 60) << "\", \"h\":\""; 
-    timeNumb /= 60;
-    sStream << timeNumb << "\" }\n }" << endl;
-    cout << sStream.str();
+        sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
+        timeNumb /= 60;
+        sStream << (timeNumb % 60) << "\", \"h\":\""; 
+        timeNumb /= 60;
+        sStream << timeNumb << "\" }\n }" << endl;
+        cout << sStream.str();
 
-    return 0;
+        return 0;
+    }
+    catch (const std::exception & e)
+    {
+        cerr << "ERROR: " << e.what() << endl;
+        return 1;
+    }
+    catch (...)
+    {
+        cerr << "ERROR: unknown exception" << endl;
+        return 1;
+    }
 }
