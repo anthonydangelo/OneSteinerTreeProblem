@@ -135,7 +135,7 @@ constexpr const char* CANDIDATE_STEINER_POINT_DATA_NAME_STRING  = "candidateStPt
 
 constexpr double DOUBLE_EPSILON = 0.000001;
 
-// project namespace: one steiner point Georgakopolous-Papadimitriou algorithm (GPA)
+// Project namespace: one Steiner point, via the Georgakopoulos-Papadimitriou algorithm (GPA)
 namespace One_St_Pt_GPA
 {
     using std::cout;

@@ -20,7 +20,8 @@
 **    ( J. Comb. Optim. 44(4): 2893-2918 (2022))
 **
 ** What is described in that paper is an improvement on what is done in 
-** Georgakopoulos–Papadimitriou The 1-Steiner tree algorithm (J. Algorithms 8(1): 122-130 (1987)). 
+** Georgakopoulos and Papadimitriou, "The 1-Steiner Tree Problem,"
+** J. Algorithms 8(1):122-130, 1987.
 ** While it would not improve the asymptotic runtime of their algorithm, it would improve
 ** the asymptotic runtime of this implementation.
 */
