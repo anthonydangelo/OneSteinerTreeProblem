@@ -27,7 +27,7 @@
 */
 //See OneSteinerTreeProblem.cpp for project notes
 
-#include "1ST-Constants-Utilities.h"
+#include "ConstantsAndUtilities.hpp"
 
 #include <map>  // std::map for the vertex index map
 

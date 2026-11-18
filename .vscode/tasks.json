@@ -10,7 +10,7 @@
             "args": [
                 "-g", "-frounding-math", "-std=c++11", "-pthread",
                 "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
-                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/printFormattingUtilFunctions.cpp", "src/utilityFunctions.cpp",
+                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
                 "-o", "OneSteinerTreeProblem_d",
                 "-static",
                 "-L${env:CGAL_DIR}/lib",
@@ -38,7 +38,7 @@
             "args": [
                 "-O2", "-frounding-math", "-std=c++11", "-pthread",
                 "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
-                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/printFormattingUtilFunctions.cpp", "src/utilityFunctions.cpp",
+                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
                 "-o", "OneSteinerTreeProblem",
                 "-static",
                 "-L${env:CGAL_DIR}/lib",

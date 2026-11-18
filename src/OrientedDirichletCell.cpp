@@ -80,7 +80,7 @@ namespace One_St_Pt_GPA
     ** hull polygon.
     ** 
     ** There are two methods implemented. The method used is toggled by a 
-    ** compiler flag in "1ST-Constants-Utilities.h"
+    ** compiler flag in "ConstantsAndUtilities.hpp"
     ** Setting BUILD_ODCELL_BY_DIFFERENCES = 1 seems more practically efficient.
     **
     ** A future work would be to replace this code with an algorithm for computing

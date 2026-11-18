@@ -21,7 +21,7 @@
 */
 //See OneSteinerTreeProblem.cpp for project notes
 
-#include "1ST-Constants-Utilities.h"
+#include "ConstantsAndUtilities.hpp"
 
 namespace One_St_Pt_GPA
 {

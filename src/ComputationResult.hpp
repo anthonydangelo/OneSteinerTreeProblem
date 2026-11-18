@@ -3,11 +3,11 @@
 
 //See OneSteinerTreeProblem.cpp for project notes
 
-#include "1ST-Constants-Utilities.h"
+#include "ConstantsAndUtilities.hpp"
 
 #include <CGAL/point_generators_2.h>
 #include <CGAL/Random.h>
-#include "CGAL/Combination_enumerator.h"
+#include <CGAL/Combination_enumerator.h>
 
 #include "OrientedDirichletCell.hpp"
 #include "DelaunayTriEMST.hpp"

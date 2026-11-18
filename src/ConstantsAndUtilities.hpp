@@ -1,5 +1,5 @@
-#ifndef ONE_ST_CONSTANTS_UTILITIES
-#define ONE_ST_CONSTANTS_UTILITIES
+#ifndef CONSTANTS_AND_UTILITIES_HPP
+#define CONSTANTS_AND_UTILITIES_HPP
 
 //See OneSteinerTreeProblem.cpp for project notes
 

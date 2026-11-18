@@ -1,6 +1,6 @@
 //See OneSteinerTreeProblem.cpp for project notes
 
-#include "1ST-Constants-Utilities.h"
+#include "ConstantsAndUtilities.hpp"
 #include "DelaunayTriEMST.hpp"
 #include "GeomMedianFinder.hpp"
 #include "ComputationResult.hpp"
