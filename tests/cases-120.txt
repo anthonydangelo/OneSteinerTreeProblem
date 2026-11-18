@@ -1,0 +1,30 @@
+# Test triangles for the 120-degree test (GeomMedianFinder::testForDegenerateGeomMedian3Pts).
+# Format: name|description|points|expected 3-site candidate
+#   points:   the -i argument; the triangle is the first three points.
+#   expected: "interior"   = Fermat point strictly inside the triangle, not an input point,
+#                            and a shorter tree than the plain MST;
+#             "vertex X Y" = the candidate coincides with the input point at (X, Y)
+#                            (all angles >= 120 there), and its tree is the plain MST.
+# Classifications (>= 120 or not) were checked with exact rational arithmetic. An angle of
+# exactly 120 degrees can't occur with double inputs (tan 120 = -sqrt(3) is irrational), so
+# C-H are the closest possible: within ~1e-16 of 120 on either side. For the "just under"
+# cases (D, F) the Fermat point is within the 1e-6 tolerance of the vertex, so it is
+# snapped to that vertex (see computeGeomMedian_3Pts).
+# Note: the program sorts input points by (x, y), so output indices follow that order,
+# not the order below; the checker matches points by coordinates.
+A|clear: acute, all angles < 90|[[0,0],[4,0],[2,3]]|interior
+B|clear: 157.4 deg at (5,1)|[[0,0],[10,0],[5,1]]|vertex 5 1
+C|borderline: just over 120 at (0,0)|[[0,0],[1,0],[-1,1.7320508075688772]]|vertex 0 0
+D|borderline: just under 120 at (0,0); snapped|[[0,0],[1,0],[-1,1.7320508075688774]]|vertex 0 0
+E|borderline: C scaled by 1000 (just over)|[[0,0],[1000,0],[-1000,1732.0508075688772]]|vertex 0 0
+F|borderline: rotated, just under 120 at (3,5); snapped|[[3.0,5.0],[12.563047559630354,7.923717047227368],[-4.313537016191704,11.819983600624987]]|vertex 3 5
+G|borderline: rotated, just over 120 at (3,5)|[[3.0,5.0],[12.563047559630354,7.923717047227368],[-4.313537016191709,11.819983600624987]]|vertex 3 5
+H|borderline: C plus two more points|[[0,0],[1,0],[-1,1.7320508075688772],[3,2],[-2,-1]]|vertex 0 0
+I|clear: 99.5 deg at (0,0)|[[0,0],[1,0],[-1,6]]|interior
+J|clear: 110.0 deg at (0,0)|[[0,0],[1,0],[-4,11]]|interior
+K|clear: 119.1 deg at (0,0)|[[1,0],[0,0],[-10,18]]|interior
+L|clear: 122.0 deg at (0,0)|[[1,0],[0,0],[-5,8]]|vertex 0 0
+M|clear: 125.0 deg at (0,0)|[[1,0],[-7,10],[0,0]]|vertex 0 0
+N|clear: 135 deg at (3,5)|[[4,5],[2,6],[3,5]]|vertex 3 5
+O|clear: 150.3 deg at (3,5)|[[3,5],[4,5],[-4,9]]|vertex 3 5
+P|clear: 169.7 deg at (0,0)|[[1,0],[0,0],[-11,2]]|vertex 0 0
