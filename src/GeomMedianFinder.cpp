@@ -29,6 +29,7 @@ namespace
     enum class DegeneratePointIndex {FIRST, SECOND, THIRD};
 
     MyPoint_2 findEqTriIntPoint(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & avoidMe);
+
     bool testForDegenerateGeomMedian3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
                                      DegeneratePointIndex & degenPt);
     void findCollinearMedian_3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
@@ -36,6 +37,8 @@ namespace
     // The unique point where a and b meet (see the definition below).
     template< class Obj1, class Obj2 >
     MyPoint_2 uniqueIntersectionPoint(const Obj1 & a, const Obj2 & b);
+
+    bool angleAtLeast120(const MyPoint_2 & u, const MyPoint_2 & v, const MyPoint_2 & w);
 
 } // anon namespace
 
@@ -74,12 +77,13 @@ namespace One_St_Pt_GPA
             DegeneratePointIndex degenPt;
             bool detectedDegen = false;
             // Test for an angle of 120 degrees or more (then the median is that vertex).
-            // The test uses 60-degree rotations that are only accurate to double
-            // precision (see computeConeRays), so a borderline case can be missed.
-            // The pointsAreTooClose check after this block catches those, and also
+            // The test is exact (see angleAtLeast120), but the Fermat-point construction
+            // below uses 60-degree rotations that are only accurate to double precision
+            // (see computeConeRays). So the pointsAreTooClose check after this block
             // treats a median within the (absolute) tolerance of a vertex as that vertex:
-            // that keeps findEdgePointIndices, which matches points by coordinates within
-            // the same tolerance, from mistaking the candidate for an input point.        
+            // that keeps DelaunayTriEMST::findEdgePointIndices, 
+            // which matches points by coordinates within the same tolerance, 
+            // from mistaking the candidate Steiner point for an input point.    
             if (testForDegenerateGeomMedian3Pts(myPts[0], myPts[1], myPts[2], degenPt))
             {
                 detectedDegen = true;
@@ -236,96 +240,25 @@ namespace
 
     } 
 
-#if (MY_VERBOSE)
-    using std::boolalpha;
-#endif
-
     bool testForDegenerateGeomMedian3Pts(const MyPoint_2 & pointA, const MyPoint_2 & pointB, const MyPoint_2 & pointC,
-                                                        DegeneratePointIndex & degenPt)
+                                         DegeneratePointIndex & degenPt)
     {
-        //Assume non-collinear points a,b,c
-        vector< MyDirection_2 > coneRays(6);
-        const MyLine_2 baseLine = MyLine_2(pointA, pointB);
-        const MyDirection_2 initialDirection = MyDirection_2(baseLine);
-        Utility_Functions::computeConeRays(initialDirection, coneRays);
-        MyDirection_2 bttmRightDir = coneRays[5];
-        MyDirection_2 bttmLeftDir = coneRays[4];
-        MyPoint_2 leftPoint = pointA;
-        MyPoint_2 rightPoint = pointB;
-        bool switchSides = false;
-#   if (MY_VERBOSE)
-        cout << "degen test: pt a " << pointA <<", pt b " << pointB << endl;
-        cout << "result of 'has on': " << boolalpha << baseLine.has_on(pointC) << endl;
-        cout << "result of 'has neg': " << boolalpha << baseLine.has_on_negative_side(pointC) << endl;
-        cout << "result of 'has pos': " << boolalpha << baseLine.has_on_positive_side(pointC) << endl;
-#   endif
-        if ( ! baseLine.has_on_negative_side(pointC))
+        // Assumes a, b, c are not collinear, so at most one angle can be >= 120 degrees.
+        if (angleAtLeast120(pointB, pointA, pointC))
         {
-            //Flip everything around
-            //Now we know c is on the 'negative' side, i.e. the right-hand side
-            bttmRightDir = coneRays[2];
-            bttmLeftDir = coneRays[1];
-            leftPoint = pointB;
-            rightPoint = pointA;
-            switchSides = true;
-        }    
-#   if (MY_VERBOSE)
-        cout << "degen test: left " << leftPoint <<", right " << rightPoint << endl;
-        cout << "testing against pt c " << pointC << endl;
-        cout << "bttm right dir: " << bttmRightDir << endl;
-#   endif    
-
-        //test angles abc and bac for 120 degrees
-        MyLine_2 firstTestLine;
-        firstTestLine = MyLine_2(rightPoint, bttmRightDir);
-#   if (MY_VERBOSE)
-        cout << "result of 'has on': " << boolalpha << firstTestLine.has_on(pointC) << endl;
-        cout << "result of 'has neg': " << boolalpha << firstTestLine.has_on_negative_side(pointC) << endl;
-        cout << "result of 'has pos': " << boolalpha << firstTestLine.has_on_positive_side(pointC) << endl;
-#   endif
-        if ( ! firstTestLine.has_on_negative_side(pointC))
-        {
-            //right point is the degenerate point
-            if(switchSides)
-            {
-                degenPt = DegeneratePointIndex::FIRST;
-            } else 
-            {
-                degenPt = DegeneratePointIndex::SECOND;
-            }
+            degenPt = DegeneratePointIndex::FIRST;
             return true;
         }
-        MyLine_2 secondTestLine;
-        secondTestLine = MyLine_2(leftPoint, bttmLeftDir);
-        if ( ! secondTestLine.has_on_positive_side(pointC))
+        if (angleAtLeast120(pointA, pointB, pointC))
         {
-            //left point is the degenerate point
-            if(switchSides)
-            {
-                degenPt = DegeneratePointIndex::SECOND;
-            } else 
-            {
-                degenPt = DegeneratePointIndex::FIRST;
-            }
+            degenPt = DegeneratePointIndex::SECOND;
             return true;
         }
-
-        const MyLine_2 secondBaseline = MyLine_2(leftPoint, pointC);
-        const MyDirection_2 secondInitDirection = MyDirection_2(secondBaseline);
-        vector< MyDirection_2 > secondConeRays(6);
-        Utility_Functions::computeConeRays(secondInitDirection, secondConeRays);    
-        MyLine_2 thirdTestLine;
-        thirdTestLine = MyLine_2(pointC, secondConeRays[1]);
-#   if (MY_VERBOSE)
-        cout << "degen test: second baseline " << leftPoint <<", " << pointC << endl;
-#   endif        
-        if ( ! thirdTestLine.has_on_positive_side(rightPoint))
+        if (angleAtLeast120(pointA, pointC, pointB))
         {
-            //point C is the degenerate point
-            degenPt = DegeneratePointIndex::THIRD;        
+            degenPt = DegeneratePointIndex::THIRD;
             return true;
         }
-
         return false;
     }
 
@@ -366,6 +299,20 @@ namespace
             throw std::logic_error("uniqueIntersectionPoint: the objects do not meet in a single point");
         }
         return *p;
+    }    
+
+    // True if the angle at vertex v of triangle (u, v, w) is at least 120 degrees
+    // (when its cosine is at most -1/2.).
+    // With a = u - v and b = w - v: cos(angle) = a.b / (|a| |b|) <= -1/2 iff
+    // a.b <= 0 and 4 (a.b)^2 >= |a|^2 |b|^2. Only +, -, * are used, so the test is
+    // exact in MyKernel aka CGAL::Simple_cartesian< Lazy_FT > (no square roots, no rotated directions).
+    bool angleAtLeast120(const MyPoint_2 & u, const MyPoint_2 & v, const MyPoint_2 & w)
+    {
+        const MyKernel::Vector_2 a = u - v;
+        const MyKernel::Vector_2 b = w - v;
+        const My_Number_type dot = a * b;    // CGAL: Vector_2 * Vector_2 is the dot product
+        return (CGAL::sign(dot) != CGAL::POSITIVE)
+                    && (My_Number_type(4) * dot * dot >= a.squared_length() * b.squared_length());
     }    
 
 }  // anon namespace
