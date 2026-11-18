@@ -67,7 +67,7 @@
 //
 // Then change the path in this file from "/tmp/myapp.lock" to
 // "/var/lib/myapp-locks/myapp.lock".   
-#define FLOCK_PATH ("/tmp/one-st-tree-mutex.lock")
+constexpr const char* FLOCK_PATH = "/tmp/one-st-tree-mutex.lock";
 
 // When set to 1 outputs debug messages
 #define MY_VERBOSE                  (0)
