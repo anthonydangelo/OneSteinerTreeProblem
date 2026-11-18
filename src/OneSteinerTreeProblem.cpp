@@ -135,7 +135,7 @@
 #include "ComputationResult.hpp"
 
 #include <ctime>
-#include <chrono>  // for high_resolution_clock
+#include <chrono>  // for steady_clock
 #include <cstring> // for strerror
 
 #include <fcntl.h>           /* For O_* constants */
@@ -478,8 +478,10 @@ int main(int argc, char **argv)
         initializeOrDie(argc, argv, config);
 
         //https://www.pluralsight.com/blog/software-development/how-to-measure-execution-time-intervals-in-c--
-        // Record start time
-        auto start = std::chrono::high_resolution_clock::now();
+        // Record start time. steady_clock is monotonic; in libstdc++,
+        // high_resolution_clock is an alias for system_clock (the wall clock),
+        // which can jump when the system time is adjusted.
+        auto start = std::chrono::steady_clock::now();
         ostringstream sStream;
 
         ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
@@ -489,7 +491,7 @@ int main(int argc, char **argv)
 
         sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
         // Record end time
-        auto finish = std::chrono::high_resolution_clock::now();  
+        auto finish = std::chrono::steady_clock::now();  
 
         std::chrono::duration< double > elapsed = finish - start;
         double timeInSecs = elapsed.count();
