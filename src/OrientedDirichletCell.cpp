@@ -49,6 +49,31 @@ namespace One_St_Pt_GPA
 #   endif
     }
 
+    // The region removed from this cell because of otherSite: otherSite's cone
+    // (same two directions as this cell, apex at otherSite) intersected with
+    // otherSite's side of the perpendicular bisector of the two sites.
+    MyNef_polyhedron OrientedDirichletCell::regionToRemove(const MyPoint_2 & otherSite,
+                                                           MyNef_polyhedron::Boundary inclusion) const
+    {
+        const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
+        MyNef_polyhedron region( Nef_Line(otherSitePoint, firstDir), 
+                                 inclusion);
+        region = region.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir), 
+                                                      inclusion));
+        //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
+        MyKernel ker;
+        const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
+        const Nef_Point nefMP(midPoint.x(), midPoint.y());
+        const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
+        Nef_Line perpBi = supportLine.perpendicular(nefMP);
+        //We assume the points are different, so neither point lies on the bisector...
+        if (!perpBi.has_on_positive_side(otherSitePoint))
+        {
+            perpBi = perpBi.opposite();
+        }
+        return region.intersection(MyNef_polyhedron(perpBi, inclusion));
+    }    
+
     /*
     ** Computes the oriented Dirichlet cell of site `originPtIndex` within the
     ** 60 degree cone defined by `firstDir` and `secondDir`, clipped to the convex
@@ -110,25 +135,7 @@ namespace One_St_Pt_GPA
             {
                 continue;
             }
-            const MyPoint_2 & otherSite = inputPointSet[i];
-            const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
-            MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
-                                            cellBoundaryInclusion);
-            polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
-                                                                            cellBoundaryInclusion));
-            //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
-            MyKernel ker;
-            const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
-            const Nef_Point nefMP(midPoint.x(), midPoint.y());
-            const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
-            Nef_Line perpBi = supportLine.perpendicular(nefMP);
-            //We assume the points are different, so neither point lies on the bisector...
-            if (!perpBi.has_on_positive_side(otherSitePoint))
-            {
-                perpBi = perpBi.opposite();
-            }
-            polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, cellBoundaryInclusion));
-            stencil = stencil.join(polygonToRemove);
+            stencil = stencil.join( regionToRemove(inputPointSet[i], cellBoundaryInclusion));
         }
 
         stencil = stencil.complement();
@@ -151,28 +158,9 @@ namespace One_St_Pt_GPA
             {
                 continue;
             }
-            const MyPoint_2 & otherSite = inputPointSet[i];
-            const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
-            MyNef_polyhedron polygonToRemove(Nef_Line(otherSitePoint, firstDir),
-                                            cellBoundaryInclusion);
-            polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir),
-                                                                            cellBoundaryInclusion));
-            //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
-            MyKernel ker;
-            const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
-            const Nef_Point nefMP(midPoint.x(), midPoint.y());
-            const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
-            Nef_Line perpBi = supportLine.perpendicular(nefMP);
-            //We assume the points are different, so neither point lies on the bisector...
-            if (!perpBi.has_on_positive_side(otherSitePoint))
-            {
-                perpBi = perpBi.opposite();
-            }
-            polygonToRemove = polygonToRemove.intersection(MyNef_polyhedron(perpBi, cellBoundaryInclusion));
-            // No need to clip this to the hull: the difference only removes the part
-            // that overlaps the stencil, which is already clipped.
-
-            stencil = stencil.difference(polygonToRemove);
+            // No need to clip the region to the hull: the difference only removes the
+            // part that overlaps the stencil, which is already clipped.
+            stencil = stencil.difference( regionToRemove(inputPointSet[i], cellBoundaryInclusion));            
         }
 
         result = stencil;

@@ -42,6 +42,7 @@ namespace One_St_Pt_GPA
             void computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon, 
                             const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex);  
             void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex);
+            MyNef_polyhedron regionToRemove(const MyPoint_2 & otherSite, MyNef_polyhedron::Boundary inclusion) const;
     };
 } // namespace One_St_Pt_GPA
 #endif
