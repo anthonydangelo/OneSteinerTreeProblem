@@ -3,13 +3,10 @@
 
 //See OneSteinerTreeProblem.cpp for project notes
 
-// C / POSIX
-#include <math.h>       // fabs
-
 // C++ standard library
 #include <algorithm>    // std::sort
 #include <cassert>      // assert
-#include <cmath>        // std::isfinite
+#include <cmath>        // std::fabs, std::floor, std::isfinite
 #include <cstddef>      // std::size_t
 #include <cstdlib>
 #include <functional>   // std::reference_wrapper
@@ -236,8 +233,8 @@ namespace One_St_Pt_GPA
         //Assume the numbers aren't too large or small for doubles
         inline bool pointsAreTooClose(const MyPoint_2 & first, const MyPoint_2 & second)
         {
-            return ( (fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
-                    && (fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
+            return ( (std::fabs(CGAL::to_double(first.x()) - CGAL::to_double(second.x())) < DOUBLE_EPSILON) 
+                    && (std::fabs(CGAL::to_double(first.y()) - CGAL::to_double(second.y())) < DOUBLE_EPSILON) );
         }
 
         bool findOriginIndex(const MyPoint_2 & cellOrigin, 

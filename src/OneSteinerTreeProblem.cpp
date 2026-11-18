@@ -495,7 +495,7 @@ int main(int argc, char **argv)
 
         std::chrono::duration< double > elapsed = finish - start;
         double timeInSecs = elapsed.count();
-        long timeNumb = static_cast< long >(floor(timeInSecs));
+        long timeNumb = static_cast< long >(std::floor(timeInSecs));
 
         sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
         timeNumb /= 60;
