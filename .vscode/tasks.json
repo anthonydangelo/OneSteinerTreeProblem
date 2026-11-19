@@ -55,6 +55,31 @@
                 "clear": true
             },
             "problemMatcher":"$gcc"            
-        }        
+        },
+        {
+            "label": "build-perf",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-O2", "-g", "-fno-omit-frame-pointer", "-frounding-math", "-std=c++11", "-Wall", "-Wextra", "-pthread",
+                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
+                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
+                "-o", "OneSteinerTreeProblem-perf",
+                "-static",
+                "-L${env:CGAL_DIR}/lib",
+                "-lCGAL_Core", 
+                "-lCGAL", 
+                "-lmpfr", 
+                 "-lgmp", 
+                 "-lboost_thread", 
+                 "-lboost_system",
+                 "-lpthread"
+            ],
+            "group": "build",
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher":"$gcc"            
+        } 
     ]
 }
