@@ -1,0 +1,38 @@
+# Regression suite: run before and after a change, then compare the two runs with
+#   tests/run-tests.sh compare regression <before label> <after label>
+# The comparison is order-insensitive (see compare-outputs.py), so it is suitable for
+# changes such as a different overlay order, which can list the same arrangement's
+# faces, or equal-length candidates, in a different order.
+# Format: name|description|program arguments
+# Arguments are split on whitespace: -i point lists must not contain spaces.
+# Run times grow quickly with the number of points (n = 6: about 1-2 minutes in the VM)
+# and with degeneracy: symmetric inputs are much slower than random ones of the same size
+# (measured with v1.5: square4 107 s and plus5 307 s, vs 16 s for n5-s1, on a machine
+# somewhat faster than the VM). The largest and most degenerate cases are in
+# cases-slow.txt; run that suite separately.
+
+# Random points (seeded), small to large
+n3-s1|random, 3 points, seed 1|-n 3 -s 1
+n3-s2|random, 3 points, seed 2|-n 3 -s 2
+n3-s3|random, 3 points, seed 3|-n 3 -s 3
+n4-s1|random, 4 points, seed 1|-n 4 -s 1
+n4-s2|random, 4 points, seed 2|-n 4 -s 2
+n4-s3|random, 4 points, seed 3|-n 4 -s 3
+n4-s7|random, 4 points, seed 7 (the usual before.json check)|-n 4 -s 7
+n5-s1|random, 5 points, seed 1|-n 5 -s 1
+n5-s2|random, 5 points, seed 2|-n 5 -s 2
+n5-s3|random, 5 points, seed 3|-n 5 -s 3
+n6-s1|random, 6 points, seed 1|-n 6 -s 1
+n6-s2|random, 6 points, seed 2|-n 6 -s 2
+
+# Grid length: very small and very large coordinate ranges
+n5-s1-g1|random, 5 points, seed 1, grid length 1|-n 5 -s 1 -g 1
+n5-s1-g1000|random, 5 points, seed 1, grid length 1000|-n 5 -s 1 -g 1000
+
+# Hand-made inputs with symmetry, ties and near-degeneracies
+square4|unit square: cocircular, symmetric (many ties)|-i [[0,0],[1,0],[1,1],[0,1]]
+plus5|centre plus 4 axis points: collinear triples through the centre|-i [[0,0],[1,0],[-1,0],[0,1],[0,-1]]
+eqtri-centre4|equilateral triangle plus (approximately) its centre|-i [[0,0],[2,0],[1,1.7320508075688772],[1,0.5773502691896257]]
+near-collinear4|4 points within 0.001 of a line: very thin hull|-i [[0,0],[1,0.001],[2,0],[3,0.001]]
+close-pair4|two points 1e-5 apart (just over the 1e-6 tolerance)|-i [[0,0],[4,0],[2,3],[2,3.00001]]
+collinear3|3 exactly collinear points: degenerate hull (may fail before and after)|-i [[0,0],[1,1],[2,2]]

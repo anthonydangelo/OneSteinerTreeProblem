@@ -1,0 +1,8 @@
+# Slow regression cases: same format and use as cases-regression.txt, run separately:
+#   tests/run-tests.sh run slow <binary> <label>   (from a tty, GUI logged out; log vmstat)
+#   tests/run-tests.sh compare slow <label1> <label2>
+# Baseline with v1.5 in the VM (tty, GUI logged out): n7-s1 453 s, peak 1838 MB;
+# circle6 68 s, 175 MB (faster than random 6-point inputs). grid6 took over 6 hours and
+# has moved to cases-extreme.txt.
+n7-s1|random, 7 points, seed 1|-n 7 -s 1
+circle6|6 cocircular points (radius 5)|-i [[5,0],[3,4],[0,5],[-3,4],[-5,0],[0,-5]]

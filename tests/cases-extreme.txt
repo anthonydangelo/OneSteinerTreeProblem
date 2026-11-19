@@ -1,0 +1,17 @@
+# Extreme cases: very long runs, not part of routine testing. Run one at a time:
+#   tests/run-tests.sh run extreme <binary> <label>       (tty, GUI logged out; log vmstat)
+# Same format as cases-regression.txt.
+# grid6 with v1.5 in the VM: 22,779 s (6 h 20 min), peak 3586 MB = the VM's RAM limit,
+# so it swapped and its real memory use was higher.
+# Two rotated copies test why grid6 is slow (their times are unknown):
+#   grid6-rot37: rotated by atan(3/4) = 36.87 degrees (and scaled by 5) using the exact
+#     rotation (x, y) -> (4x - 3y, 3x + 4y), so the rows stay EXACTLY collinear and the
+#     quadruples exactly cocircular, but no row is parallel to a cone direction (the cones
+#     start from the horizontal, (1, 0), in steps of 60 degrees).
+#   grid6-rot10: rotated by 10 degrees in doubles, so the coordinates are rounded and the
+#     rows are only approximately collinear: the exact degeneracies are gone.
+# If rot37 is fast, alignment with the cone directions is the cause; if rot37 is slow
+# but rot10 is fast, exact degeneracy is the cause, whatever its direction.
+grid6|2 x 3 grid: collinear rows, cocircular quadruples|-i [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]]
+grid6-rot10|grid6 rotated by 10 deg in doubles: rows only approximately collinear|-i [[0.0,0.0],[0.984807753012208,0.17364817766693033],[1.969615506024416,0.34729635533386066],[-0.17364817766693033,0.984807753012208],[0.8111595753452777,1.1584559306791384],[1.7959673283574857,1.3321041083460687]]
+grid6-rot37|grid6 rotated exactly by 36.87 deg: still exactly collinear, not cone-aligned|-i [[0,0],[4,3],[8,6],[-3,4],[1,7],[5,10]]

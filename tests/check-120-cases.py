@@ -2,6 +2,7 @@
 """Checks one run of the 120-degree test cases against the expected results.
 
 Usage: check-120-cases.py <cases file> <run directory>
+(normally called by run-tests.sh check 120 <label>)
 
 For each case, finds the candidate whose sites are the triangle's three points and
 checks it against the expectation in the cases file (see the comments there).
@@ -23,8 +24,10 @@ def read_cases(path):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-            name, desc, points, expected = line.split('|')
-            cases.append((name, desc, json.loads(points), expected.split()))
+            name, desc, args, expected = line.split('|')
+            argv = args.split()
+            points = json.loads(argv[argv.index('-i') + 1])
+            cases.append((name, desc, points, expected.split()))
     return cases
 
 
