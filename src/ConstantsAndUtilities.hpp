@@ -6,9 +6,11 @@
 // C++ standard library
 #include <algorithm>    // std::sort
 #include <cassert>      // assert
+#include <chrono>       // std::chrono::steady_clock (memory checkpoints)
 #include <cmath>        // std::fabs, std::floor, std::isfinite
 #include <cstddef>      // std::size_t
 #include <cstdlib>
+#include <fstream>      // std::ifstream (memory checkpoints)
 #include <functional>   // std::reference_wrapper
 #include <iomanip>      // std::setprecision
 #include <iostream>
@@ -82,6 +84,14 @@ constexpr const char* FLOCK_PATH = "/tmp/one-st-tree-mutex.lock";
 //    (much faster in practice).
 // 0: build the union of everything that is not the cell, then complement it.
 #define BUILD_ODCELL_BY_DIFFERENCES (1)
+
+// When set to 1, prints memory checkpoints (current and peak memory use) to stderr
+// at phase boundaries; see Utility_Functions::memoryCheckpoint. Linux only. Build
+// with "make checkpoints" rather than changing this line: the extra stderr output
+// would make test runs differ.
+#ifndef MEMORY_CHECKPOINTS
+#   define MEMORY_CHECKPOINTS          (0)
+#endif
 
 //magic numbers
 constexpr int MIN_NUM_INPUT_POINTS      = 3;
@@ -275,8 +285,76 @@ namespace One_St_Pt_GPA
         //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec);
 
+#if (MEMORY_CHECKPOINTS)
+        // Prints one line to stderr:
+        //   MEMORY {"t_s": <seconds since the first checkpoint>, "current_kB": <n>,
+        //           "peak_kB": <n>, "label": "<label>"}
+        // "current" is the resident memory (VmRSS) and "peak" its maximum so far (VmHWM),
+        // as Linux reports them in /proc/self/status. Memory the program frees usually
+        // stays with the allocator for reuse, so "current" rarely goes down: what to look
+        // for is where it grows.
+        inline void memoryCheckpoint(const string & label)
+        {
+            static const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+            long currentKB = -1;
+            long peakKB = -1;
+            std::ifstream status("/proc/self/status");
+            string line;
+            while (std::getline(status, line))
+            {
+                std::istringstream fields(line);
+                string key;
+                long value = 0;
+                if (fields >> key >> value)
+                {
+                    if (key == "VmRSS:")
+                    {
+                        currentKB = value;
+                    }
+                    else if (key == "VmHWM:")
+                    {
+                        peakKB = value;
+                    }
+                }
+            }
+
+            const double seconds = std::chrono::duration< double >(std::chrono::steady_clock::now() - start).count();
+            string escapedLabel;
+            for (char c : label)
+            {
+                if (c == '"' || c == '\\')
+                {
+                    escapedLabel += '\\';      // JSON escapes " and \ with a backslash
+                }
+                escapedLabel += c;
+            }
+            ostringstream out;
+            out << "MEMORY {\"t_s\": " << std::fixed << std::setprecision(1) << seconds
+                << ", \"current_kB\": " << currentKB << ", \"peak_kB\": " << peakKB
+                << ", \"label\": \"" << escapedLabel << "\"}";
+            cerr << out.str() << endl;
+            
+            return;
+        }
+
+        // "V=<vertices> E=<edges> F=<faces>" for a checkpoint label.
+        inline string arrangementSize(const MyArrangement_2 & arr)
+        {
+            return "V=" + std::to_string(arr.number_of_vertices()) +
+                   " E=" + std::to_string(arr.number_of_edges()) +
+                   " F=" + std::to_string(arr.number_of_faces());
+        }
+#endif        
+
     } // namespace Utility_Functions
 
+    // MEMORY_CHECKPOINT(label) records a checkpoint when MEMORY_CHECKPOINTS is 1; when it
+    // is 0 it does nothing and the label is not even evaluated.
+#if (MEMORY_CHECKPOINTS)
+#   define MEMORY_CHECKPOINT(label) One_St_Pt_GPA::Utility_Functions::memoryCheckpoint(label)
+#else
+#   define MEMORY_CHECKPOINT(label) ((void)0)
+#endif
 
     // Pretty_Print: JSON and text formatting of points, MSTs, candidates, and the arrangement.
     namespace Pretty_Print

@@ -4,7 +4,9 @@
 #   make release    optimized build:              ./OneSteinerTreeProblem
 #   make perf       release flags + profiling:    ./OneSteinerTreeProblem-perf
 #   make debug      debug build:                  ./OneSteinerTreeProblem_d
-#   make clean      delete the three binaries
+#   make checkpoints release flags + memory checkpoints on stderr:
+#                                                 ./OneSteinerTreeProblem-mem
+#   make clean      delete the binaries
 #
 # CGAL_DIR must point to the CGAL 4.11.2 build directory (the one containing lib/),
 # e.g. "export CGAL_DIR=$HOME/CGAL-4.11.2" in ~/.profile; or pass it on the command
@@ -25,18 +27,20 @@ WARN_FLAGS   := -Wall -Wextra
 RELEASE_FLAGS := -O2 $(WARN_FLAGS)
 PERF_FLAGS    := -O2 -g -fno-omit-frame-pointer $(WARN_FLAGS)
 DEBUG_FLAGS   := -g
+MEM_FLAGS     := $(RELEASE_FLAGS) -DMEMORY_CHECKPOINTS=1
 
 LDFLAGS      := -static -L$(CGAL_DIR)/lib
 LIBS         := -lCGAL_Core -lCGAL -lmpfr -lgmp -lboost_thread -lboost_system -lpthread
 DEBUG_LIBS   := -lCGAL_Core_d -lCGAL_d -lmpfr -lgmp -lboost_thread -lboost_system -lpthread
 
-.PHONY: all release perf debug clean check-cgal
+.PHONY: all release perf debug checkpoints clean check-cgal
 
 all: release
 
 release: OneSteinerTreeProblem
 perf: OneSteinerTreeProblem-perf
 debug: OneSteinerTreeProblem_d
+checkpoints: OneSteinerTreeProblem-mem
 
 # Stop with a clear message if CGAL_DIR is not set (instead of a confusing link error).
 check-cgal:
@@ -56,5 +60,8 @@ OneSteinerTreeProblem-perf: $(SRCS) $(HDRS) | check-cgal
 OneSteinerTreeProblem_d: $(SRCS) $(HDRS) | check-cgal
 	$(CXX) $(DEBUG_FLAGS) $(COMMON_FLAGS) $(EXTRA_FLAGS) $(SRCS) -o $@ $(LDFLAGS) $(DEBUG_LIBS)
 
+OneSteinerTreeProblem-mem: $(SRCS) $(HDRS) | check-cgal
+	$(CXX) $(MEM_FLAGS) $(COMMON_FLAGS) $(EXTRA_FLAGS) $(SRCS) -o $@ $(LDFLAGS) $(LIBS)
+
 clean:
-	rm -f OneSteinerTreeProblem OneSteinerTreeProblem-perf OneSteinerTreeProblem_d
+	rm -f OneSteinerTreeProblem OneSteinerTreeProblem-perf OneSteinerTreeProblem_d OneSteinerTreeProblem-mem

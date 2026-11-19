@@ -17,8 +17,10 @@ namespace One_St_Pt_GPA
                                                                                 randPointGen(Point_generator(gridLength, rand)),
                                                                                 coneRays(6)
     {
-
+        MEMORY_CHECKPOINT("start");
         preparePointSet(userPointList);
+        MEMORY_CHECKPOINT("points ready: " + std::to_string(inputPtVector.size()) + " input points");
+
 
         if(onlyPoints)
         {
@@ -28,8 +30,11 @@ namespace One_St_Pt_GPA
         Utility_Functions::computeConvexHull(inputPtVector, convexHullList);
 
         computeOODC();
+        MEMORY_CHECKPOINT("OODC done: " + Utility_Functions::arrangementSize(resultODCArrangement));
+
 
         computeMSTAndStPts();
+        MEMORY_CHECKPOINT("candidates done: " + std::to_string(steinerPoints.size()) + " candidates");
         
         return;
     } //constructor
@@ -153,6 +158,8 @@ namespace One_St_Pt_GPA
                 OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, inputPtVector, clippingPolygon);
                 overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
                 ++arrIndex;
+                MEMORY_CHECKPOINT("overlay site " + std::to_string(i) + " cone " + std::to_string(j) + ": " +
+                                  Utility_Functions::arrangementSize(myTempArrangements.at(arrIndex % 2)));
             }
         }
         resultODCArrangement = myTempArrangements.at(arrIndex % 2);
@@ -183,8 +190,10 @@ namespace One_St_Pt_GPA
     {
         DelaunayTriEMST myEMST(inputPtVector);
         origMST = myEMST.getEMSTData();
+        MEMORY_CHECKPOINT("EMST done");
 
         vector< GeomMedianData > rawStPtList = computeStPtsForOODC();
+        MEMORY_CHECKPOINT("geometric medians done: " + std::to_string(rawStPtList.size()) + " candidates");
         for (size_t ptIndex = 0; ptIndex < rawStPtList.size(); ++ptIndex)
         {
             const GeomMedianData & s = rawStPtList[ptIndex];
@@ -197,6 +206,10 @@ namespace One_St_Pt_GPA
             {
                 steinerPoints.emplace_back(s, myEMST.testPointInsertion(s.medPoint));
             }
+            if ((ptIndex + 1) % 25 == 0)
+            {
+                MEMORY_CHECKPOINT("insertion tests: " + std::to_string(ptIndex + 1) + " done");
+            }            
         }
         // stable_sort keeps candidates with equal MST length in a deterministic order.
         std::stable_sort(steinerPoints.begin(), steinerPoints.end());
