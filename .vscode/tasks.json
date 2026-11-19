@@ -6,22 +6,8 @@
         {
             "label": "build-debug",
             "type": "shell",
-            "command": "g++",
-            "args": [
-                "-g", "-frounding-math", "-std=c++11", "-pthread",
-                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
-                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
-                "-o", "OneSteinerTreeProblem_d",
-                "-static",
-                "-L${env:CGAL_DIR}/lib",
-                "-lCGAL_Core_d", 
-                "-lCGAL_d", 
-                "-lmpfr", 
-                 "-lgmp", 
-                 "-lboost_thread", 
-                 "-lboost_system",
-                 "-lpthread" 
-            ],
+            "command": "make",
+            "args": [ "debug" ],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -34,22 +20,8 @@
         {
             "label": "build-release",
             "type": "shell",
-            "command": "g++",
-            "args": [
-                "-O2", "-frounding-math", "-std=c++11", "-Wall", "-Wextra", "-pthread",
-                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
-                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
-                "-o", "OneSteinerTreeProblem",
-                "-static",
-                "-L${env:CGAL_DIR}/lib",
-                "-lCGAL_Core", 
-                "-lCGAL", 
-                "-lmpfr", 
-                 "-lgmp", 
-                 "-lboost_thread", 
-                 "-lboost_system",
-                 "-lpthread" 
-            ],
+            "command": "make",
+            "args": [ "release" ],
             "group": "build",
             "presentation": {
                 "clear": true
@@ -59,22 +31,8 @@
         {
             "label": "build-perf",
             "type": "shell",
-            "command": "g++",
-            "args": [
-                "-O2", "-g", "-fno-omit-frame-pointer", "-frounding-math", "-std=c++11", "-Wall", "-Wextra", "-pthread",
-                "src/OneSteinerTreeProblem.cpp", "src/ComputationResult.cpp", "src/OrientedDirichletCell.cpp", 
-                "src/DelaunayTriEMST.cpp", "src/GeomMedianFinder.cpp", "src/PrettyPrint.cpp", "src/UtilityFunctions.cpp",
-                "-o", "OneSteinerTreeProblem-perf",
-                "-static",
-                "-L${env:CGAL_DIR}/lib",
-                "-lCGAL_Core", 
-                "-lCGAL", 
-                "-lmpfr", 
-                 "-lgmp", 
-                 "-lboost_thread", 
-                 "-lboost_system",
-                 "-lpthread"
-            ],
+            "command": "make",
+            "args": [ "perf" ],
             "group": "build",
             "presentation": {
                 "clear": true
