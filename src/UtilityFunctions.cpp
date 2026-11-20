@@ -117,15 +117,12 @@ namespace One_St_Pt_GPA
             {
                 if (! it->is_isolated() && ! it->is_at_open_boundary())
                 {
-                    const MyPoint_2 & tempPt = it->point();
-                    arrPoints.emplace(tempPt.x(), tempPt.y());
+                    // The arrangement uses the OODC kernel; output uses doubles.
+                    arrPoints.insert(approxMyPoint(it->point()));
                 }
             }    
-            for (const MyPoint_2 & p : arrPoints)
-            {
-                //we could probably turn this into a vec of refs
-                arrPointsVec.emplace_back(p.x(), p.y());
-            }
+            arrPointsVec.insert(arrPointsVec.end(), arrPoints.begin(), arrPoints.end());
+            
             return;
         }    
 

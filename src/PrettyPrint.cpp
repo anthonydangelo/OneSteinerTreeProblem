@@ -230,7 +230,7 @@ namespace One_St_Pt_GPA
             do {
                 MyArrangement_2::Halfedge_const_handle he = curr;
                 size_t index = 0;
-                bool found = Utility_Functions::findPointIndex(he->target()->point(), myPtSet, index);
+                bool found = Utility_Functions::findPointIndex(Utility_Functions::approxMyPoint(he->target()->point()), myPtSet, index);                
                 assert(found);
                 sStream << insertTabs(tabLevel + 3);
                 sStream << "{\"index\":\"" << index << "\"}";

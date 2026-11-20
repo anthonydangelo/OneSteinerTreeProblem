@@ -25,10 +25,11 @@
 
 // CGAL
 #include <CGAL/CORE_Expr.h>                  // CORE::Expr (used in the Lazy_FT typedef)
+#include <CGAL/Gmpq.h>                       // CGAL::Gmpq (used in the OODC_FT typedef)
 #include <CGAL/Lazy_exact_nt.h>
-#include <CGAL/Simple_cartesian.h>           // MyKernel
+#include <CGAL/Simple_cartesian.h>           // MyKernel, OODC_Kernel
 
-#include <CGAL/Arr_segment_traits_2.h>       // MyTraits_2
+#include <CGAL/Arr_segment_traits_2.h>       // OODC_Traits_2
 #include <CGAL/Arr_extended_dcel.h>          // Arr_face_extended_dcel
 #include <CGAL/Arrangement_2.h>              // MyArrangement_2
 #include <CGAL/Arr_overlay_2.h>              // CGAL::overlay
@@ -50,10 +51,11 @@
 // NOTE: 
 // We use a file lock as a resource mutex (a blocking lock call).
 // The lock file lives in /tmp, which is sticky + world-writable.
-// On modern kernels (>= 4.19, e.g. Ubuntu 20.10+), fs.protected_regular
-// blocks cross-user O_CREAT opens in such directories. If this program
-// is ever run by a different user than the one who created the lock file,
-// open() will fail with EACCES.
+// Linux 4.19 added fs.protected_regular; distributions enable it by default
+// (Ubuntu since 20.04). When enabled, it blocks cross-user O_CREAT opens in
+// such directories. 
+// If this program is ever run by a different user than the one who 
+// created the lock file, open() will fail with EACCES.
 //
 // Fix: move the lock file to a directory that is neither sticky nor
 // world-writable (e.g. a group-owned directory with mode 0770), or ensure
@@ -158,26 +160,42 @@ namespace One_St_Pt_GPA
     using std::set;
 
 
-//  Exact kernel: Lazy_exact_nt evaluates with interval arithmetic first and
-//  falls back to exact CORE::Expr computation only when the intervals can't
-//  decide a comparison. CORE::Expr is needed because MST lengths are sums of
-//  square roots (CGAL::sqrt in DelaunayTriEMST::findMST), which are compared
-//  exactly when sorting candidates; all other constructions (bisectors,
-//  intersections, cone boundaries) only need exact rational arithmetic.
+//  Two exact kernels. Lazy_exact_nt evaluates with interval arithmetic first
+//  and falls back to the exact number type only when the intervals can't
+//  decide a comparison.
+//
+//  MyKernel (exact number type CORE::Expr) is for the geometric medians and
+//  the MSTs: MST lengths are sums of square roots (CGAL::sqrt in
+//  DelaunayTriEMST::findMST), and CORE::Expr represents square roots exactly.
 //  In practice this was faster than EPECK_with_root_of; both are exact.
     typedef CGAL::Lazy_exact_nt<CORE::Expr>         Lazy_FT;
     typedef CGAL::Simple_cartesian< Lazy_FT >       MyKernel;
 
-    //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
     typedef MyKernel::FT                            My_Number_type;
-    typedef CGAL::Arr_segment_traits_2<MyKernel>    MyTraits_2;
+    typedef MyKernel::Point_2                       MyPoint_2;
+    typedef MyKernel::Segment_2                     MySegment_2;
+    typedef MyKernel::Line_2                        MyLine_2;
+    typedef MyKernel::Intersect_2                   MyIntersect_2;
+    typedef MyKernel::Direction_2                   MyDirection_2;
 
-    typedef MyTraits_2::Point_2                     MyPoint_2;
-    typedef MyTraits_2::Segment_2                   MySegment_2;
-    typedef MyTraits_2::Line_2                      MyLine_2;
-    typedef MyTraits_2::Intersect_2                 MyIntersect_2;
+//  OODC_Kernel (exact number type Gmpq, a GMP rational) is for the OODC: the
+//  cells (Nef_2, see OrientedDirichletCell.hpp), their arrangements, and the
+//  overlays. Every OODC coordinate is rational: the input points are doubles,
+//  the cone directions are doubles (see computeConeRays), and every
+//  construction is a line, a midpoint or a line intersection. Rationals are
+//  cheaper to compute with than CORE::Expr, and Lazy_exact_nt discards a
+//  value's construction history once its exact value is known, while a
+//  CORE::Expr keeps its whole expression tree. (Profiling with CORE::Expr here
+//  showed tiny arrangements but overlays taking seconds, nearly all of it
+//  spent evaluating CORE expressions.)
+    typedef CGAL::Lazy_exact_nt<CGAL::Gmpq>         OODC_FT;
+    typedef CGAL::Simple_cartesian< OODC_FT >       OODC_Kernel;
 
-    typedef MyTraits_2::Direction_2                 MyDirection_2;
+    //https://doc.cgal.org/latest/Arrangement_on_surface_2/index.html
+    typedef CGAL::Arr_segment_traits_2<OODC_Kernel> OODC_Traits_2;
+    typedef OODC_Kernel::Point_2                    OODC_Point_2;
+    typedef OODC_Kernel::Segment_2                  OODC_Segment_2;
+    typedef OODC_Kernel::Direction_2                OODC_Direction_2;
     
 
     // Label of an arrangement face: the indices of the sites whose oriented
@@ -198,9 +216,8 @@ namespace One_St_Pt_GPA
     // candidate Steiner, other), and edge data.
     // https://doc.cgal.org/latest/Arrangement_on_surface_2/classCGAL_1_1Arr__face__overlay__traits.html
     // https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#_a4
-    typedef CGAL::Arr_face_extended_dcel<MyTraits_2, MyFaceData>       MyDcel;
-    typedef CGAL::Arrangement_2<MyTraits_2, MyDcel>                    MyArrangement_2;
-
+    typedef CGAL::Arr_face_extended_dcel<OODC_Traits_2, MyFaceData>    MyDcel;
+    typedef CGAL::Arrangement_2<OODC_Traits_2, MyDcel>                 MyArrangement_2;
 
     // Overlay functor: creates the label of each overlay face. Each face of an
     // overlay lies inside one face of each input arrangement, so its label is
@@ -262,21 +279,25 @@ namespace One_St_Pt_GPA
             return;
         }    
 
-        // Note: for MyKernel, CGAL's Compute_cone_boundaries_2 uses its generic
-        // version, which rotates the initial direction using std::sin/std::cos
-        // (double precision); the exact version exists only for
+        // Note: for MyKernel and OODC_Kernel, CGAL's Compute_cone_boundaries_2 uses
+        // its generic version, which rotates the initial direction using
+        // std::sin/std::cos (double precision); the exact version exists only for
         // Exact_predicates_exact_constructions_kernel_with_root_of. So the six
         // boundaries are 60 degrees apart only up to double rounding (they are
         // stored exactly as rationals). Also used for the 60-degree rotations in
         // GeomMedianFinder, so 3-point geometric medians are likewise accurate
         // to double precision rather than exact.
-        inline void computeConeRays(const MyDirection_2 & initialDirection, vector< MyDirection_2 > & coneRays)
+        // A template so that it works for both kernels: the kernel is deduced
+        // from the direction type.
+        template < class Direction_2 >
+        inline void computeConeRays(const Direction_2 & initialDirection, vector< Direction_2 > & coneRays)
         {
+            typedef typename CGAL::Kernel_traits< Direction_2 >::Kernel Kernel;            
             //https://doc.cgal.org/latest/Cone_spanners_2/index.html  
             // Construct the functor. The functor writes the 6 rays through an output iterator, so coneRays
             // must already hold 6 (writable, so non-const) elements.            
             assert(coneRays.size() == 6);
-            CGAL::Compute_cone_boundaries_2< MyKernel > cones;    
+            CGAL::Compute_cone_boundaries_2< Kernel > cones;    
             cones(6, initialDirection, coneRays.begin());
 
             return;
@@ -291,7 +312,27 @@ namespace One_St_Pt_GPA
             return (interval.first + interval.second) / 2;
         }        
 
-        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
+        // Converts a MyKernel point to the OODC kernel. Only for points with double
+        // coordinates (input points, convex hull vertices), so the conversion is
+        // exact; the assert checks that each coordinate is exactly a double.
+        inline OODC_Point_2 toOODCPoint(const MyPoint_2 & p)
+        {
+            assert(CGAL::to_interval(p.x()).first == CGAL::to_interval(p.x()).second);
+            assert(CGAL::to_interval(p.y()).first == CGAL::to_interval(p.y()).second);
+            return OODC_Point_2(CGAL::to_double(p.x()), CGAL::to_double(p.y()));
+        }
+
+        // Converts an OODC point (e.g. an arrangement vertex) to a MyKernel point
+        // with double approximations of its coordinates. Approximate: only for output and
+        // for index lookups, which compare doubles anyway (pointsAreTooClose).
+        inline MyPoint_2 approxMyPoint(const OODC_Point_2 & p)
+        {
+            return MyPoint_2(CGAL::to_double(p.x()), CGAL::to_double(p.y()));
+        }        
+
+        // Collects the arrangement's vertices as double approximations, sorted and
+        // without duplicates. Distinct vertices whose doubles coincide would be
+        // merged (not observed); the JSON indices would then be ambiguous.        
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec);
 
 #if (MEMORY_CHECKPOINTS)

@@ -46,7 +46,6 @@ namespace One_St_Pt_GPA
     }
 
 
-    //!!!IMPORTANT!!! addPointSet first, otherwise you'll get a null ptr exception...
     // myPoint must not coincide with an input point: insert() would then return
     // the existing input vertex, and the remove() below would delete it.
     // (Coincident candidates are filtered out in ComputationResult::computeMSTAndStPts.)    

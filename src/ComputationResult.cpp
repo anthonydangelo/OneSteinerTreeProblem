@@ -121,14 +121,24 @@ namespace One_St_Pt_GPA
     */
     void ComputationResult::computeOODC()
     {
-        Utility_Functions::computeConeRays(MyDirection_2(1, 0), coneRays);
+        Utility_Functions::computeConeRays(OODC_Direction_2(1, 0), coneRays);
         size_t coneRaysSize = coneRays.size();
         assert(coneRaysSize == 6);
         
-        // The convex hull is the clipping polygon for every cell.
-        const vector< MyPoint_2 > & clippingPolygonList = convexHullList;
+        // The OODC uses its own (rational) kernel; convert the sites and the hull once.
+        vector< OODC_Point_2 > oodcSites;
+        for (const MyPoint_2 & p : inputPtVector)
+        {
+            oodcSites.push_back(Utility_Functions::toOODCPoint(p));
+        }
+        vector< OODC_Point_2 > clippingPolygonList;
+        for (const MyPoint_2 & p : convexHullList)
+        {
+            clippingPolygonList.push_back(Utility_Functions::toOODCPoint(p));
+        }
 
-        MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
+        // The convex hull is the clipping polygon for every cell.
+        MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);        
 
         MyOverlay_Traits overlayTraits;
 
@@ -148,7 +158,7 @@ namespace One_St_Pt_GPA
 
         for (size_t i = 0; i < inputPtVector.size(); ++i)
         {
-            const MyPoint_2 & cellOrigin = inputPtVector[i];
+            const OODC_Point_2 & cellOrigin = oodcSites[i];
             const size_t current = i % 2;
             const size_t next = (i + 1) % 2;
 
@@ -159,7 +169,7 @@ namespace One_St_Pt_GPA
                 {
                     nextJ = 0;
                 }
-                OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, inputPtVector, clippingPolygon);
+                OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, oodcSites, clippingPolygon);                
                 overlay(directionArrangements[j][current], temp.getCellArrangement(), directionArrangements[j][next], overlayTraits);
                 MEMORY_CHECKPOINT("overlay site " + std::to_string(i) + " cone " + std::to_string(j) + ": " +
                                   Utility_Functions::arrangementSize(directionArrangements[j][next]));

@@ -38,8 +38,8 @@
 **      geometric median of every 3- and 4-site subset of its label.
 **   3. Evaluate each candidate by inserting it into the Delaunay
 **      triangulation, computing the MST with Kruskal's algorithm, and
-**      removing it again. A candidate with a shortest MST is a
-**      1-Steiner point.
+**      removing it again. A candidate with a shortest MST (compared in double
+**      precision; see computeMSTAndStPts) is a 1-Steiner point.
 **
 ** Differences from the paper:
 **   - GPA evaluates every proper subset (up to 5 sites) of each face's

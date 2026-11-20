@@ -47,9 +47,9 @@ namespace One_St_Pt_GPA
             Point_generator     randPointGen;
             vector< MyPoint_2 > convexHullList;
 
-            vector< MyDirection_2 > coneRays;
-            vector< MyPoint_2 >     inputPtVector;
-            MyArrangement_2         resultODCArrangement;
+            vector< OODC_Direction_2 >  coneRays;
+            vector< MyPoint_2 >         inputPtVector;
+            MyArrangement_2             resultODCArrangement;
 
             MyEMSTData origMST;
 

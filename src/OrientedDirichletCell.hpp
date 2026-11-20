@@ -5,15 +5,16 @@
 
 #include "ConstantsAndUtilities.hpp"
 
-#include <CGAL/CORE_Expr.h>
 #include <CGAL/Extended_cartesian.h>
 #include <CGAL/Nef_polyhedron_2.h>
 
 namespace One_St_Pt_GPA
 {
-    typedef CORE::Expr                                  Nef_FT;
-    typedef CGAL::Lazy_exact_nt<Nef_FT>                 Lazy_Nef_FT; 
-    typedef CGAL::Extended_cartesian<Lazy_Nef_FT>       Nef_Extended_kernel;
+    // Same number type as OODC_Kernel, so a standard Nef point (Nef_Point) is
+    // an OODC_Point_2 (Extended_cartesian<FT>'s standard kernel is
+    // Simple_cartesian<FT>): no conversion between the cells and their
+    // arrangements.
+    typedef CGAL::Extended_cartesian<OODC_FT>           Nef_Extended_kernel;    
     typedef CGAL::Nef_polyhedron_2<Nef_Extended_kernel> MyNef_polyhedron;
 
     typedef MyNef_polyhedron::Point         Nef_Point;
@@ -31,18 +32,18 @@ namespace One_St_Pt_GPA
             MyArrangement_2   odcArr;
 
         public:
-            OrientedDirichletCell(const MyDirection_2 & dirA, const MyDirection_2 & dirB,
-                                const MyPoint_2 & cellOrigin, 
+            OrientedDirichletCell(const OODC_Direction_2 & dirA, const OODC_Direction_2 & dirB,
+                                const OODC_Point_2 & cellOrigin, 
                                 size_t originPtIndex,
-                                const vector< MyPoint_2 > & inputPointSet, //vector instead of a set so we can use 'reliable' indices
+                                const vector< OODC_Point_2 > & inputPointSet, //vector instead of a set so we can use 'reliable' indices
                                 const MyNef_polyhedron & clippingPolygon);
             const MyArrangement_2 & getCellArrangement() const;
 
         private:
             void computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon, 
-                            const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex);  
+                            const vector< OODC_Point_2 > & inputPointSet, size_t originPtIndex);  
             void extractArrangement( MyArrangement_2 & result, const Nef_Explorer & myExplorer, size_t originIndex);
-            MyNef_polyhedron regionToRemove(const MyPoint_2 & otherSite, MyNef_polyhedron::Boundary inclusion) const;
+            MyNef_polyhedron regionToRemove(const OODC_Point_2 & otherSite, MyNef_polyhedron::Boundary inclusion) const;
     };
 } // namespace One_St_Pt_GPA
 #endif

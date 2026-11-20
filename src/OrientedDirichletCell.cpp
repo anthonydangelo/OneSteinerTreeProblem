@@ -10,11 +10,11 @@ namespace One_St_Pt_GPA
     // side of dirA, and the left side of the line with direction -dirB is the
     // clockwise side of dirB. Intersecting the two gives the 60-degree wedge
     // from dirA counter-clockwise to dirB (the next cone boundary).    
-    OrientedDirichletCell::OrientedDirichletCell(const MyDirection_2 & dirA,
-                                                const MyDirection_2 & dirB,
-                                                const MyPoint_2 & cellOrigin,
+    OrientedDirichletCell::OrientedDirichletCell(const OODC_Direction_2 & dirA,
+                                                const OODC_Direction_2 & dirB,
+                                                const OODC_Point_2 & cellOrigin,
                                                 size_t originPtIndex,
-                                                const vector< MyPoint_2 > & inputPointSet,
+                                                const vector< OODC_Point_2 > & inputPointSet,
                                                 const MyNef_polyhedron & clippingPolygon) : firstDir(Nef_Direction(dirA.dx(), dirA.dy())),
                                                                                                 secondDir(Nef_Direction(-dirB.dx(), -dirB.dy())),
                                                                                                 cellOriginPoint(Nef_Point(cellOrigin.x(), cellOrigin.y()))
@@ -52,7 +52,7 @@ namespace One_St_Pt_GPA
     // The region removed from this cell because of otherSite: otherSite's cone
     // (same two directions as this cell, apex at otherSite) intersected with
     // otherSite's side of the perpendicular bisector of the two sites.
-    MyNef_polyhedron OrientedDirichletCell::regionToRemove(const MyPoint_2 & otherSite,
+    MyNef_polyhedron OrientedDirichletCell::regionToRemove(const OODC_Point_2 & otherSite,
                                                            MyNef_polyhedron::Boundary inclusion) const
     {
         const Nef_Point otherSitePoint(otherSite.x(), otherSite.y());
@@ -61,8 +61,8 @@ namespace One_St_Pt_GPA
         region = region.intersection(MyNef_polyhedron(Nef_Line(otherSitePoint, secondDir), 
                                                       inclusion));
         //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2dual_lines_8cpp-example.html
-        MyKernel ker;
-        const MyPoint_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
+        OODC_Kernel ker;
+        const OODC_Point_2 midPoint = ker.construct_midpoint_2_object()(cellOriginPoint, otherSite);
         const Nef_Point nefMP(midPoint.x(), midPoint.y());
         const Nef_Line supportLine(cellOriginPoint, otherSitePoint);
         Nef_Line perpBi = supportLine.perpendicular(nefMP);
@@ -117,7 +117,7 @@ namespace One_St_Pt_GPA
     **      the origin's region.
     */
     void OrientedDirichletCell::computeCell(MyNef_polyhedron & result, const MyNef_polyhedron & clippingPolygon,
-                                            const vector< MyPoint_2 > & inputPointSet, size_t originPtIndex)
+                                            const vector< OODC_Point_2 > & inputPointSet, size_t originPtIndex)
     {
 #   if ( ! BUILD_ODCELL_BY_DIFFERENCES)   
         //build odcell by complementing
@@ -227,7 +227,7 @@ namespace One_St_Pt_GPA
             if (hafc != nullptr)
             {
                 ++nextHC;
-                vector< MyPoint_2> boundaryList;
+                vector< OODC_Point_2 > boundaryList;
                 bool firstTime = true;
                 do
                 {
@@ -257,7 +257,7 @@ namespace One_St_Pt_GPA
                 } while (hafc != done);
                 vector< MyArrangement_2::Vertex_handle > vertexHandles;
                 MyArrangement_2::Face_handle unboundedFace = result.unbounded_face();
-                for (const MyPoint_2 & pt : boundaryList)
+                for (const OODC_Point_2 & pt : boundaryList)
                 {
                     vertexHandles.push_back(result.insert_in_face_interior(pt, unboundedFace));
                 }
@@ -265,8 +265,8 @@ namespace One_St_Pt_GPA
                 size_t handleIndex = 0, nextHandleIndex = 1;
                 for (auto it = boundaryList.begin(); it != endBLIt; ++it)
                 {
-                    const MyPoint_2 first = *it;
-                    MyPoint_2 second;
+                    const OODC_Point_2 first = *it;
+                    OODC_Point_2 second;
                     if (next(it) == endBLIt)
                     {
                         second = *(boundaryList.begin());
@@ -276,7 +276,7 @@ namespace One_St_Pt_GPA
                     {
                         second = *(it + 1);
                     }
-                    result.insert_at_vertices(MySegment_2(first, second), vertexHandles.at(handleIndex), vertexHandles.at(nextHandleIndex));
+                    result.insert_at_vertices(OODC_Segment_2(first, second), vertexHandles.at(handleIndex), vertexHandles.at(nextHandleIndex));
                     ++handleIndex;
                     ++nextHandleIndex;
                 }

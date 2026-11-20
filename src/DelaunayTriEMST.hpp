@@ -109,8 +109,8 @@ namespace One_St_Pt_GPA
             MyEMSTData                  emstData;
 
         public:
+            // The constructor adds the point set and computes the emst
             explicit DelaunayTriEMST(const vector< MyPoint_2 > & pointSet);
-            //adds point set and computes emst
             const MyEMSTData & getEMSTData() const;
             MyEMSTData testPointInsertion(const MyPoint_2 & myPoint);
 
