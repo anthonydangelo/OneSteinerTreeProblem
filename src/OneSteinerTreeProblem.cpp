@@ -53,8 +53,10 @@
 **     costs O(n^2) per candidate (dominated by mapping MST endpoints back
 **     to input indices with a linear scan), for O(n^4) overall.
 **   - GPA builds the OODC partition in O(n^2) time. This implementation
-**     builds each cell with CGAL Nef_2 Boolean operations and overlays
-**     the cells one at a time, for O(n^3 log n) total time.
+**     builds each cell with CGAL Nef_2 Boolean operations (O(n^3 log n)
+**     for all 6n cells), overlays each cell onto a running arrangement for
+**     its cone direction, and combines the six direction arrangements with
+**     5 overlays (O(n^2 log n) for all overlays).
 **   - CGAL computes the 60-degree cone boundaries (and the 60-degree
 **     rotations used for 3-point geometric medians) with double-precision
 **     sin/cos for the selected kernel, so they are exact only up to double
@@ -62,16 +64,6 @@
 **     could only matter for degenerate inputs.
 **
 ** Future work (see README.md for details and tradeoffs):
-**   - OODC overlays (highest practical priority): even with the current
-**     cell construction, overlaying each cell into a running arrangement
-**     for its own cone direction (each stays O(n), since same-direction
-**     cells only share boundaries) and then combining the six partitions
-**     with 5 overlays reduces the overlay phase from O(n^3 log n) to
-**     O(n^2 log n). Profiling (n = 6) showed the overlays take roughly 80%
-**     of the running time, so this should give a large speed-up. The
-**     Nef_2 cell construction (O(n^3 log n)) would then be the next
-**     bottleneck; building each direction's partition directly with
-**     Chang, Huang, and Tang's algorithm (below) would replace it.
 **   - Candidate evaluation, from most to least improvement:
 **     * Constant-time MST updates per candidate, using either GPA's O(n^2)
 **       preprocessing or the O(n log n) preprocessing described in:
@@ -109,13 +101,14 @@
 **     map keyed by vertex handle, or index data stored in the arrangement's
 **     vertices) instead of a linear scan; this reduces writing the
 **     arrangement from O(n^4) to O(n^2) without changing the output.
-**   - OODC construction: build the six oriented Voronoi diagrams directly
-**     (O(n log n) each), e.g. using:
+**   - OODC construction: the Nef_2 cell constructions (O(n^3 log n) in
+**     total) are now the dominant cost of this phase. Building the six
+**     oriented Voronoi diagrams directly (O(n log n) each), e.g. using:
 **       Chang, Huang, and Tang, "An optimal algorithm for constructing
 **       oriented Voronoi diagrams and geographic neighborhood graphs,"
 **       Inf. Process. Lett. 35(5):255-260, 1990,
-**     and combine them with 5 overlays instead of overlaying the 6n cells
-**     one at a time. With CGAL's sweep-line overlay this would cost
+**     would replace both the 6n cell constructions and the per-direction
+**     overlays. Combining the six with CGAL's sweep-line overlay would cost
 **     O(n^2 log n). An O(n^2) method would make this phase O(n^2): GPA's
 **     overlay (Theorem 1); Finke and Hinrichs, "Overlaying simply
 **     connected planar subdivisions in linear time," Proc. 11th ACM SoCG,

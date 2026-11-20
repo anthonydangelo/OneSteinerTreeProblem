@@ -104,9 +104,10 @@ namespace One_St_Pt_GPA
     ** Computes the Overlaid Oriented Dirichlet Cell (OODC) / 
     ** overlaid oriented Voronoi diagram arrangement by overlaying
     ** the individual cell arrangements. 
-    ** For each input point and each of the
-    ** 6 cone directions, a single ODC cell is computed (via Nef_2), converted
-    ** to an arrangement, and overlaid onto the running result.
+    ** For each input point and each of the 6 cone directions, a single ODC
+    ** cell is computed (via Nef_2) and converted to an arrangement. Each cell
+    ** is overlaid onto a running arrangement for its cone direction, and the
+    ** six direction arrangements are combined with 5 overlays at the end.    
     ** The arrangement is clipped to the convex hull of the input sites
     ** which is OK since an optimal Steiner point must lie in the convex hull
     ** (see project notes).
@@ -128,43 +129,59 @@ namespace One_St_Pt_GPA
         const vector< MyPoint_2 > & clippingPolygonList = convexHullList;
 
         MyNef_polyhedron clippingPolygon(clippingPolygonList.begin(), clippingPolygonList.end(), MyNef_polyhedron::INCLUDED);
-        MyOverlay_Traits overlayTraits;
-        //The arrangements and their overlays are the same type...
-        CGAL::array< MyArrangement_2, 2 > myTempArrangements;
-        size_t arrIndex = 0;
 
-        // Swapping these loops alone (still one running arrangement) helps only
-        // a little: once a second cone direction is added, every overlay
-        // re-sweeps a growing arrangement of up to O(n^2) size, and re-processes
-        // crossings already found. Keeping six running arrangements, one per
-        // cone direction (each stays O(n), since same-direction cells only share
-        // boundaries), and combining them with 5 overlays at the end finds each
-        // crossing once and reduces the overlay phase from O(n^3 log n) to
-        // O(n^2 log n); see the file header's Future work.       
-        for(size_t i = 0; i < inputPtVector.size(); ++i)
+        MyOverlay_Traits overlayTraits;
+
+        // One running arrangement per cone direction. The cells of all sites for one
+        // direction have disjoint interiors (together they form that direction's
+        // oriented Voronoi diagram, clipped to the hull), so each running arrangement
+        // stays O(n) in size, and adding a cell to it takes O(n log n) time. The six
+        // are combined with 5 overlays at the end. Overlaying every cell into a single
+        // running arrangement instead (which was the previous approach) re-swept an arrangement
+        // of up to O(n^2) size 6n times: O(n^3 log n) in total, versus O(n^2 log n) here.
+        //
+        // Self-overlay is not supported, so each direction alternates between two
+        // arrangements. Every direction gets exactly one cell per site, so after
+        // site i each direction's current arrangement is at index i % 2.
+        //https://doc.cgal.org/latest/Arrangement_on_surface_2/group__PkgArrangement2Funcs.html#ga339cdba93f54001be303595689002396
+        CGAL::array< CGAL::array< MyArrangement_2, 2 >, 6 > directionArrangements;
+
+        for (size_t i = 0; i < inputPtVector.size(); ++i)
         {
             const MyPoint_2 & cellOrigin = inputPtVector[i];
+            const size_t current = i % 2;
+            const size_t next = (i + 1) % 2;
 
             for (size_t j = 0; j < coneRaysSize; ++j)
             {
                 size_t nextJ = j + 1;
-                if(nextJ == coneRaysSize)
+                if (nextJ == coneRaysSize)
                 {
                     nextJ = 0;
                 }
-                //https://doc.cgal.org/latest/Arrangement_on_surface_2/group__PkgArrangement2Funcs.html#ga339cdba93f54001be303595689002396
-                //Self-overlay is not supported, so we need two temp arrangements to alternate between, and a reference to the solution...
-                //https://doc.cgal.org/latest/Arrangement_on_surface_2/Arrangement_on_surface_2_2overlay_unbounded_8cpp-example.html#a6
                 OrientedDirichletCell temp(coneRays.at(j), coneRays.at(nextJ), cellOrigin, i, inputPtVector, clippingPolygon);
-                overlay( myTempArrangements.at(arrIndex % 2), temp.getCellArrangement(), myTempArrangements.at((arrIndex + 1) % 2), overlayTraits);
-                ++arrIndex;
+                overlay(directionArrangements[j][current], temp.getCellArrangement(), directionArrangements[j][next], overlayTraits);
                 MEMORY_CHECKPOINT("overlay site " + std::to_string(i) + " cone " + std::to_string(j) + ": " +
-                                  Utility_Functions::arrangementSize(myTempArrangements.at(arrIndex % 2)));
+                                  Utility_Functions::arrangementSize(directionArrangements[j][next]));
             }
         }
-        resultODCArrangement = myTempArrangements.at(arrIndex % 2);
+
+        // Combine the six direction arrangements, alternating between two
+        // arrangements for the running result.
+        const size_t last = inputPtVector.size() % 2;
+        CGAL::array< MyArrangement_2, 2 > combined;
+        const MyArrangement_2 * runningResult = &directionArrangements[0][last];
+        for (size_t j = 1; j < coneRaysSize; ++j)
+        {
+            MyArrangement_2 & output = combined[j % 2];
+            overlay(*runningResult, directionArrangements[j][last], output, overlayTraits);
+            runningResult = &output;
+            MEMORY_CHECKPOINT("combine cone " + std::to_string(j) + ": " + Utility_Functions::arrangementSize(output));
+        }
+        resultODCArrangement = *runningResult;
+
 #   if (MY_VERBOSE)
-        cout << myTempArrangements.at(arrIndex % 2) << endl;
+        cout << resultODCArrangement << endl;
         size_t faceIndex = 0;
         for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != resultODCArrangement.faces_end(); ++fit, ++faceIndex)
         {
