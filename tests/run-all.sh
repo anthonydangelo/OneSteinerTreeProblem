@@ -12,7 +12,8 @@
 # limits every case's run time.
 #
 # Suites that have expected results (a checker, check-<suite>-cases.py) are checked
-# right after they run. Everything printed is also saved in
+# right after they run, and every suite's arrangement output is checked with
+# check-face-indices.py. Everything printed is also saved in
 # tests/out/run-all-<label>-<date-time>.log. The vmstat log goes to tests/out/vmstat-<label>-<date-time>.txt
 # (a new file each time, so earlier logs are kept); vmstat is
 # stopped when this script ends, even if a suite fails or the script is interrupted.
@@ -21,7 +22,7 @@
 set -u
 
 if [ $# -lt 2 ]; then
-    sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,/^[^#]/{/^#/p}' "$0" | sed 's/^# \{0,1\}//'
     exit 2
 fi
 
@@ -66,6 +67,8 @@ for spec in "${suites[@]}"; do
         echo "=== checking suite $suite against its expected results"
         "$SCRIPT_DIR/run-tests.sh" check "$suite" "$label" || status=1
     fi
+    echo "=== checking suite $suite's arrangement face indices"
+    python3 "$SCRIPT_DIR/check-face-indices.py" "$suite" "$label" || status=1
 done
 echo "=== all done: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "vmstat log: $vmstat_log"

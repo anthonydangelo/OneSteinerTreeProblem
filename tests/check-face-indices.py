@@ -6,13 +6,18 @@
 #  - a face needs at least 3 corners.
 # A vertex repeated non-consecutively is possible (a face whose boundary touches
 # itself at a vertex), so it is reported as a note, not an error.
-# Usage (from the repo root):
+# Prints only cases with problems or notes, then a summary.
+# Exit code: 0 if no face has an error, 1 otherwise.
+# Usage:
 #   python3 tests/check-face-indices.py <suite> <label>
 import glob, json, os, sys
 
+OUT_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
+
 suite, label = sys.argv[1:3]
+checked = 0
 bad = 0
-for path in sorted(glob.glob(os.path.join('tests', 'out', suite, label, '*.json'))):
+for path in sorted(glob.glob(os.path.join(OUT_ROOT, suite, label, '*.json'))):
     name = os.path.splitext(os.path.basename(path))[0]
     try:
         arr = json.loads(open(path).read())['compResult'].get('odcArrangement')
@@ -21,6 +26,7 @@ for path in sorted(glob.glob(os.path.join('tests', 'out', suite, label, '*.json'
         continue
     if arr is None:
         continue
+    checked += 1
     numPoints = len(arr['arrangementPoints'])
     errors = []
     notes = []
@@ -38,8 +44,7 @@ for path in sorted(glob.glob(os.path.join('tests', 'out', suite, label, '*.json'
     if errors:
         bad += 1
         print('{:16} {} bad face(s), e.g. {}'.format(name, len(errors), errors[0]))
-    else:
-        print('{:16} OK ({} points, {} faces)'.format(name, numPoints, len(arr['arrangementFaces'])))
     for n in notes:
-        print('{:16}   note: {}'.format('', n))
-print('{} case(s) with bad faces.'.format(bad))
+        print('{:16} note: {}'.format(name, n))
+print('{} case(s) checked, {} with bad faces.'.format(checked, bad))
+sys.exit(1 if bad else 0)
