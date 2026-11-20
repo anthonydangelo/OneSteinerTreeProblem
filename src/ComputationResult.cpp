@@ -211,8 +211,21 @@ namespace One_St_Pt_GPA
                 MEMORY_CHECKPOINT("insertion tests: " + std::to_string(ptIndex + 1) + " done");
             }            
         }
-        // stable_sort keeps candidates with equal MST length in a deterministic order.
-        std::stable_sort(steinerPoints.begin(), steinerPoints.end());
+
+        // Sort by tree length using the lengths' double approximations, not exact
+        // comparisons. Tree lengths are sums of square roots, and symmetric inputs give
+        // exactly equal lengths; proving such a difference is exactly zero forces CORE
+        // to extremely high precision (the "sum of square roots" problem), which made
+        // this sort take most of the run time on symmetric inputs. Candidates whose
+        // lengths agree to double precision keep their order (stable_sort), so the
+        // first candidate is optimal up to double-precision rounding.
+        std::stable_sort(steinerPoints.begin(), steinerPoints.end(),
+            [](const CandidateSteinerPointData & a, const CandidateSteinerPointData & b)
+            {
+                return Utility_Functions::approxValue(a.mstData.length) <
+                       Utility_Functions::approxValue(b.mstData.length);
+            });        
+            
         //Now we have to properly assign the st pt indices so they print out correctly
         for (size_t stPtIndex = 0; stPtIndex < steinerPoints.size(); ++stPtIndex)
         {

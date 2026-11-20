@@ -25,11 +25,6 @@ namespace One_St_Pt_GPA
         GeomMedianData steinerPt;
         MyEMSTData mstData;
 
-        bool operator<(const CandidateSteinerPointData & other) const
-        {
-            return mstData < other.mstData; //compares lengths
-        }
-
         // Constructs both members directly from the given values. Needed because:
         //  - GeomMedianData has no default constructor (it must be given its input
         //    indices), so steinerPt can't be created empty and assigned later; and

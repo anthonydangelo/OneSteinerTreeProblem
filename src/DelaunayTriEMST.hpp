@@ -95,12 +95,6 @@ namespace One_St_Pt_GPA
 
         My_Number_type length = 0.0;
 
-        // Orders trees by total length; used to sort the candidates.
-        bool operator<(const MyEMSTData & other) const
-        {
-            return length < other.length;
-        }
-
     };
 
     class DelaunayTriEMST

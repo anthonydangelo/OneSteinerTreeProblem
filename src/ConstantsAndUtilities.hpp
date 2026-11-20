@@ -282,6 +282,15 @@ namespace One_St_Pt_GPA
             return;
         }
 
+        // Midpoint of the interval approximation that a lazy number carries. Cheap, and
+        // never triggers an exact computation (CGAL::to_double may: Lazy_exact_nt.h
+        // falls back to exact() when the interval is wider than 1e-5 relative).
+        inline double approxValue(const My_Number_type & x)
+        {
+            const std::pair< double, double > interval = CGAL::to_interval(x);
+            return (interval.first + interval.second) / 2;
+        }        
+
         //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
         void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec);
 
