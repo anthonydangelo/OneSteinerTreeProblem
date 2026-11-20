@@ -1,0 +1,11 @@
+# Scaling suite: larger random inputs, feasible since the rational OODC
+# (v1.5 took about an hour for n8-s1). Same format as cases-regression.txt.
+n8-s1|random, 8 points, seed 1|-n 8 -s 1
+n8-s2|random, 8 points, seed 2|-n 8 -s 2
+n8-s3|random, 8 points, seed 3|-n 8 -s 3
+n9-s1|random, 9 points, seed 1|-n 9 -s 1
+n9-s2|random, 9 points, seed 2|-n 9 -s 2
+n9-s3|random, 9 points, seed 3|-n 9 -s 3
+n10-s1|random, 10 points, seed 1|-n 10 -s 1
+n10-s2|random, 10 points, seed 2|-n 10 -s 2
+n10-s3|random, 10 points, seed 3|-n 10 -s 3
