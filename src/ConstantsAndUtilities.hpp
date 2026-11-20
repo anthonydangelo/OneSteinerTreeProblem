@@ -21,6 +21,7 @@
 #include <sstream>      // std::ostringstream
 #include <stdexcept>    // std::invalid_argument
 #include <string>
+#include <unordered_map> // VertexIndexMap
 #include <vector>
 
 // CGAL
@@ -219,6 +220,10 @@ namespace One_St_Pt_GPA
     typedef CGAL::Arr_face_extended_dcel<OODC_Traits_2, MyFaceData>    MyDcel;
     typedef CGAL::Arrangement_2<OODC_Traits_2, MyDcel>                 MyArrangement_2;
 
+    // The JSON index of each arrangement vertex, keyed by the vertex's address
+    // (which stays valid as long as the arrangement isn't modified).
+    typedef std::unordered_map< const MyArrangement_2::Vertex *, size_t > VertexIndexMap;    
+
     // Overlay functor: creates the label of each overlay face. Each face of an
     // overlay lies inside one face of each input arrangement, so its label is
     // the union of those two labels. The unbounded face of a single cell's
@@ -323,17 +328,18 @@ namespace One_St_Pt_GPA
         }
 
         // Converts an OODC point (e.g. an arrangement vertex) to a MyKernel point
-        // with double approximations of its coordinates. Approximate: only for output and
-        // for index lookups, which compare doubles anyway (pointsAreTooClose).
+        // with double approximations of its coordinates. Approximate: only for output.
         inline MyPoint_2 approxMyPoint(const OODC_Point_2 & p)
         {
             return MyPoint_2(CGAL::to_double(p.x()), CGAL::to_double(p.y()));
         }        
 
-        // Collects the arrangement's vertices as double approximations, sorted and
-        // without duplicates. Distinct vertices whose doubles coincide would be
-        // merged (not observed); the JSON indices would then be ambiguous.        
-        void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec);
+        // Numbers the arrangement's vertices for the JSON output (isolated vertices
+        // excluded): sorted by exact coordinates, each vertex's index is its position
+        // in that order. Fills vertexIndices (vertex -> index) and arrPoints (each
+        // vertex's double approximation, in index order); clears both first.
+        void indexArrangementVertices(const MyArrangement_2 & arr, VertexIndexMap & vertexIndices,
+                                                                    vector< MyPoint_2 > & arrPoints);
 
 #if (MEMORY_CHECKPOINTS)
         // Prints one line to stderr:
@@ -470,7 +476,7 @@ namespace One_St_Pt_GPA
                                                               const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
 
         string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                                    const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);
+                                                                    const VertexIndexMap & vertexIndices, int tabLevel = 0);        
 
         string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
 

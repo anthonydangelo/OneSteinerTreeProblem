@@ -109,23 +109,40 @@ namespace One_St_Pt_GPA
             return false;
         }
 
-        //Assumption: no duplicate points. The "std::set" insertion can't reliably tell if there are doubles 
-        void insertArrangementPointsIntoPointSet(const MyArrangement_2 & resultODCArrangement, vector< MyPoint_2 > & arrPointsVec)
+        // Sorting by exact coordinates makes the order independent of how the
+        // arrangement was built. Faces then look up each corner's index by vertex,
+        // exactly and in O(1). (Looking corners up by coordinates, within a
+        // tolerance, gave distinct vertices closer than the tolerance the same index:
+        // the double-precision cone directions create sliver faces whose corners are
+        // about 1e-16 apart.)
+        void indexArrangementVertices(const MyArrangement_2 & arr, VertexIndexMap & vertexIndices,
+                                                                    vector< MyPoint_2 > & arrPoints)
         {
-            set< MyPoint_2 > arrPoints;
-            for(auto it = resultODCArrangement.vertices_begin(); it != resultODCArrangement.vertices_end(); ++it)
+            vector< MyArrangement_2::Vertex_const_handle > vertices;
+            for (MyArrangement_2::Vertex_const_iterator vit = arr.vertices_begin(); vit != arr.vertices_end(); ++vit)
             {
-                if (! it->is_isolated() && ! it->is_at_open_boundary())
+                if (!vit->is_isolated() && !vit->is_at_open_boundary())
                 {
-                    // The arrangement uses the OODC kernel; output uses doubles.
-                    arrPoints.insert(approxMyPoint(it->point()));
+                    vertices.push_back(vit);
                 }
-            }    
-            arrPointsVec.insert(arrPointsVec.end(), arrPoints.begin(), arrPoints.end());
-            
-            return;
-        }    
+            }
+            std::sort(vertices.begin(), vertices.end(),
+                [](MyArrangement_2::Vertex_const_handle a, MyArrangement_2::Vertex_const_handle b)
+                {
+                    return a->point() < b->point();   // exact; lexicographic (x, then y)
+                });
 
+            vertexIndices.clear();
+            arrPoints.clear();
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                const MyArrangement_2::Vertex & vertex = *vertices[i];
+                vertexIndices[ & vertex] = i;
+                arrPoints.push_back( approxMyPoint( vertex.point()));
+            }
+
+            return;
+        }
 
     } // namespace Utility_Functions
 } // namespace One_St_Pt_GPA

@@ -212,7 +212,7 @@ namespace One_St_Pt_GPA
         }    
 
         string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                                    const vector< MyPoint_2 > & myPtSet, int tabLevel)
+                                                                    const VertexIndexMap & vertexIndices, int tabLevel)        
         {
 
             ostringstream sStream;
@@ -229,9 +229,10 @@ namespace One_St_Pt_GPA
             MyArrangement_2::Halfedge_const_handle heEnd = circ; //don't know if this does an implicit conversion; best it do it here, not in the expr
             do {
                 MyArrangement_2::Halfedge_const_handle he = curr;
-                size_t index = 0;
-                bool found = Utility_Functions::findPointIndex(Utility_Functions::approxMyPoint(he->target()->point()), myPtSet, index);                
-                assert(found);
+                const MyArrangement_2::Vertex & corner = *(he->target());
+                const VertexIndexMap::const_iterator found = vertexIndices.find( & corner);                
+                assert(found != vertexIndices.end());
+                const size_t index = found->second;                
                 sStream << insertTabs(tabLevel + 3);
                 sStream << "{\"index\":\"" << index << "\"}";
                 if(he->next() != heEnd){
@@ -269,8 +270,10 @@ namespace One_St_Pt_GPA
 
         string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel)
         {
-            vector< MyPoint_2 > arrPoints;
-            Utility_Functions::insertArrangementPointsIntoPointSet(resultODCArrangement, arrPoints);
+            // Exact vertex indices, so each face corner can be looked up by vertex.
+            VertexIndexMap vertexIndices;
+            vector< MyPoint_2 > arrPoints;   // double approximations, for printing
+            Utility_Functions::indexArrangementVertices(resultODCArrangement, vertexIndices, arrPoints);
 
             ostringstream sStream;
             sStream << insertTabs(tabLevel);
@@ -296,7 +299,7 @@ namespace One_St_Pt_GPA
                     sStream << insertTabs(tabLevel + 4);
                     sStream << "{ \n";
 
-                    sStream << arrangementFaceToJSONString(faceSStream.str(), fit, arrPoints, tabLevel + 5) << "\n";
+                    sStream << arrangementFaceToJSONString(faceSStream.str(), fit, vertexIndices, tabLevel + 5) << "\n";                    
 
                     sStream << insertTabs(tabLevel + 4);
                     sStream << "}";

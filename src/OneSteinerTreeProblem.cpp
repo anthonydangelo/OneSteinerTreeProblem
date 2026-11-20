@@ -97,10 +97,6 @@
 **       next to one of the candidate's median sites usually makes it
 **       short, and CGAL::Triangulation_hierarchy_2 would give expected
 **       O(log n).
-**   - JSON output: look up each arrangement vertex's index in O(1) (a hash
-**     map keyed by vertex handle, or index data stored in the arrangement's
-**     vertices) instead of a linear scan; this reduces writing the
-**     arrangement from O(n^4) to O(n^2) without changing the output.
 **   - OODC construction: the Nef_2 cell constructions (O(n^3 log n) in
 **     total) are now the dominant cost of this phase. Building the six
 **     oriented Voronoi diagrams directly (O(n log n) each), e.g. using:
