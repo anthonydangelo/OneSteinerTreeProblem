@@ -84,9 +84,14 @@ constexpr const char* FLOCK_PATH = "/tmp/one-st-tree-mutex.lock";
 #define EXCLUDE_CELL_BOUNDARY       (1)  
 
 // 1: build each ODC by subtracting the other sites' regions from the cone
-//    (much faster in practice).
+//    (clipped to the hull first).
 // 0: build the union of everything that is not the cell, then complement it.
-#define BUILD_ODCELL_BY_DIFFERENCES (1)
+// Both give identical output on the test suites; 1 was about 10% faster there
+// (measured with rational OODC arithmetic).
+// Can be overridden at build time, e.g. make release EXTRA_FLAGS=-DBUILD_ODCELL_BY_DIFFERENCES=0
+#ifndef BUILD_ODCELL_BY_DIFFERENCES
+#   define BUILD_ODCELL_BY_DIFFERENCES (1)
+#endif
 
 // When set to 1, prints memory checkpoints (current and peak memory use) to stderr
 // at phase boundaries; see Utility_Functions::memoryCheckpoint. Linux only. Build

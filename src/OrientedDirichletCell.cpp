@@ -81,7 +81,8 @@ namespace One_St_Pt_GPA
     ** 
     ** There are two methods implemented. The method used is toggled by a 
     ** compiler flag in "ConstantsAndUtilities.hpp"
-    ** Setting BUILD_ODCELL_BY_DIFFERENCES = 1 seems more practically efficient.
+    ** Both give identical output on the test suites; BUILD_ODCELL_BY_DIFFERENCES = 1
+    ** was about 10% faster there.    
     **
     ** A future work would be to replace this code with an algorithm for computing
     ** the oriented Voronoi / Dirichlet diagram. See project notes.
