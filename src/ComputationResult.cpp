@@ -274,7 +274,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    string ComputationResult::outputResultToJSONString() const
+    string ComputationResult::outputResultToJSONString(bool bestOnly) const
     {
         ostringstream sStream;
         sStream << "{\n";  
@@ -286,12 +286,24 @@ namespace One_St_Pt_GPA
         if(!onlyPoints){
             sStream << ",\n";
             sStream << Pretty_Print::vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
-            sStream << ",\n";
-            sStream << Pretty_Print::arrangementToJSONString(resultODCArrangement);
+            if (!bestOnly)
+            {
+                sStream << ",\n";
+                sStream << Pretty_Print::arrangementToJSONString(resultODCArrangement);
+            }
             sStream << ",\n";
             sStream << Pretty_Print::mstDataToJSONString(origMST);
             sStream << ",\n";
-            sStream << Pretty_Print::steinerPointsToJSONString(steinerPoints);
+            if (bestOnly && !steinerPoints.empty())
+            {
+                // steinerPoints is sorted by tree length, so the first is the best.
+                const vector< CandidateSteinerPointData > best(steinerPoints.begin(), steinerPoints.begin() + 1);
+                sStream << Pretty_Print::steinerPointsToJSONString(best);
+            }
+            else
+            {
+                sStream << Pretty_Print::steinerPointsToJSONString(steinerPoints);
+            }            
         }
         sStream << "\n}";
 

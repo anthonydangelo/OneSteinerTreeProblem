@@ -166,6 +166,7 @@ namespace
         bool useMutex   = true;
         bool trueRandom = TRUE_RANDOM_DEFAULT;
         bool onlyPoints = ONLY_POINTS_DEFAULT;
+        bool bestOnly   = BEST_ONLY_DEFAULT;
     };
 
     void PrintHelp(std::ostream & outStream = cout)
@@ -174,6 +175,8 @@ namespace
         msg <<  "\nOneSteinerTreeProblem / OneSteinerTreeProblem_d : Help\n"
                 "====================================================================================================================\n"
                 "--onlyPoints (-p):          Only create new random points and return\n"
+                "--bestOnly   (-b):          Output only the best candidate tree: no arrangement, no other candidates\n"
+                "                            (much smaller output for large inputs; the computation is the same)\n"                
                 "--numPoints  (-n) <int>:    Number of random points to generate (between "
                             << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
                             << DEFAULT_NUM_INPUT_POINTS << ")\n"
@@ -221,9 +224,10 @@ namespace
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
     ArgsResult ProcessArgs(int argc, char **argv, OneStPtConfig & config)
     {
-        const char *const short_opts = "pn:rs:g:i:h";
+        const char *const short_opts = "pbn:rs:g:i:h";
         const option long_opts[] = {
             {"onlyPoints", no_argument, nullptr, 'p'},
+            {"bestOnly", no_argument, nullptr, 'b'},            
             {"numPoints", required_argument, nullptr, 'n'},
             {"trueRandom", no_argument, nullptr, 'r'},
             {"randSeed", required_argument, nullptr, 's'},
@@ -249,6 +253,10 @@ namespace
             {
             case 'p':
                 config.onlyPoints = true;
+                break;
+
+            case 'b':
+                config.bestOnly = true;
                 break;
 
             case 'n':
@@ -474,7 +482,7 @@ int main(int argc, char **argv)
         ostringstream sStream;
 
         ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
-        string compResult = myCompResult.outputResultToJSONString();
+        string compResult = myCompResult.outputResultToJSONString( config.bestOnly );
         sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
         sStream << compResult << "\n";
 

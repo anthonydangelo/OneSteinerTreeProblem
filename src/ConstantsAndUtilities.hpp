@@ -113,6 +113,7 @@ constexpr int  RAND_SEED_DEFAULT    = 10;
 constexpr bool TRUE_RANDOM_DEFAULT  = false;
 
 constexpr bool ONLY_POINTS_DEFAULT  = false;
+constexpr bool BEST_ONLY_DEFAULT    = false;
 
 
 constexpr const char* ELAPSED_TIME_NAME_STRING          = "elapsedTime";
