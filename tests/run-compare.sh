@@ -3,11 +3,11 @@
 # label, saving the comparison next to run-all's own log.
 #
 # Usage (from the repo root):
-#   ./run-compare.sh <label> [suite[:case,case]...]      (default suites: slow extreme)
+#   tests/run-compare.sh <label> [suite[:case,case]...]      (default suites: slow extreme)
 # Examples:
-#   ./run-compare.sh after-sort-fix
-#   ./run-compare.sh after-overlay 120 regression
-#   BASELINE=after-sort-fix ./run-compare.sh after-overlay extreme:grid6
+#   tests/run-compare.sh after-sort-fix
+#   tests/run-compare.sh after-overlay 120 regression
+#   BASELINE=after-sort-fix tests/run-compare.sh after-overlay extreme:grid6
 # Environment (all optional):
 #   BASELINE      label to compare against           (default: before)
 #   BINARY        program to test                    (default: ./OneSteinerTreeProblem)
@@ -41,6 +41,9 @@ seen=" "
 {
     for spec in "$@"; do
         suite=${spec%%:*}
+        if [ "$suite" = "modes" ]; then
+            continue
+        fi        
         case "$seen" in
             *" $suite "*) continue ;;
         esac

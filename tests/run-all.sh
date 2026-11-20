@@ -4,7 +4,7 @@
 #
 # Usage (from the repo root):
 #   tests/run-all.sh <binary> <label> [suite[:case,case...] ...]
-#   default suites: 120 regression slow
+#   default suites: 120 regression slow modes
 # Examples:
 #   tests/run-all.sh ./OneSteinerTreeProblem before
 #   CASE_TIMEOUT=3h tests/run-all.sh ./OneSteinerTreeProblem before extreme:grid6-rot10,grid6-rot37
@@ -13,7 +13,11 @@
 #
 # Suites that have expected results (a checker, check-<suite>-cases.py) are checked
 # right after they run, and every suite's arrangement output is checked with
-# check-face-indices.py. Everything printed is also saved in
+# check-face-indices.py. 
+# The suite "modes" is different: it stores no outputs, but checks that the output
+# modes (-b, -f, -o) agree with the full output for the inputs in cases-modes.txt
+# (check-output-modes.py).
+# Everything printed is also saved in
 # tests/out/run-all-<label>-<date-time>.log. The vmstat log goes to tests/out/vmstat-<label>-<date-time>.txt
 # (a new file each time, so earlier logs are kept); vmstat is
 # stopped when this script ends, even if a suite fails or the script is interrupted.
@@ -33,7 +37,7 @@ shift 2
 if [ $# -gt 0 ]; then
     suites=("$@")
 else
-    suites=(120 regression slow)
+    suites=(120 regression slow modes)
 fi
 
 mkdir -p "$SCRIPT_DIR/out"
@@ -51,6 +55,11 @@ fi
 status=0
 for spec in "${suites[@]}"; do
     suite="${spec%%:*}"
+    if [ "$suite" = "modes" ]; then
+        echo "=== suite modes: checking the output modes (-b, -f, -o) against the full output"
+        python3 "$SCRIPT_DIR/check-output-modes.py" --cases "$SCRIPT_DIR/cases-modes.txt" "$bin" || status=1
+        continue
+    fi    
     cases=()
     if [ "$spec" != "$suite" ]; then
         IFS=',' read -r -a cases <<< "${spec#*:}"

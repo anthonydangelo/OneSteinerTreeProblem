@@ -1,0 +1,10 @@
+# Output-mode suite: run by tests/run-all.sh as "modes" (not like the other suites).
+# For each input, tests/check-output-modes.py runs the program in all four output modes
+# (full, -b, -f, -o) and checks that -b, -f and -o agree with the full output.
+# Same format as the other cases files: name|description|arguments.
+n6-s1|random, 6 points, seed 1|-n 6 -s 1
+n10-s2|random, 10 points, seed 2|-n 10 -s 2
+A|acute triangle: interior Steiner point|-i [[0,0],[2,3],[4,0]]
+square4|unit square: cocircular, symmetric (many ties)|-i [[0,0],[1,0],[1,1],[0,1]]
+grid6|2 x 3 grid: collinear rows, cocircular quadruples|-i [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]]
+collinear3|3 exactly collinear points: no candidates|-i [[0,0],[1,1],[2,2]]
