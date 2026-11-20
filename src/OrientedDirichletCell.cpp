@@ -173,13 +173,15 @@ namespace One_St_Pt_GPA
     {
         // Nef_2 with an extended kernel (Extended_cartesian) adds a frame: a box with
         // "infinitely far" corners that stands in for infinity. So the explorer has 3
-        // faces for a bounded cell, not 2:
+        // faces for a bounded cell, not 2 (observed order, n = 3):
         //  - the face outside the frame: the map's unbounded face (CGAL's example calls
-        //    it "the infinite one"); never part of the set; always first;
+        //    it "the infinite one"); the frame is its one hole; never part of the set;
+        //  - the cell itself (marked), with no holes (asserted below);
         //  - the face just inside the frame, outside the cell: it represents the rest
-        //    of the (unbounded) plane; not part of the set (unmarked);
-        //  - the cell itself (marked).
-        // An empty cell leaves only the first two. The "first face" ordering is shown in
+        //    of the (unbounded) plane; the cell's boundary is its hole; unmarked.
+        // An empty cell leaves only the first and last. The code below doesn't rely on
+        // this order: it takes the one marked face.        
+        // The "first face" ordering is shown in
         // CGAL's Nef_2 polylines example (linked below); I couldn't find it stated in the
         // reference manual, so this code relies on it as observed.
         auto fit = myExplorer.faces_begin();
@@ -195,7 +197,14 @@ namespace One_St_Pt_GPA
         size_t markedFaces = 0;
         for (auto f = myExplorer.faces_begin(); f != myExplorer.faces_end(); ++f)
         {
-            if (myExplorer.mark(f)) { ++markedFaces; }
+            if (myExplorer.mark(f)) 
+            { 
+                ++markedFaces; 
+                // The cell's boundary is copied from its outer cycle only (below), so a
+                // hole or an isolated vertex inside it would be lost.
+                assert(myExplorer.holes_begin(f) == myExplorer.holes_end(f));
+                assert(myExplorer.isolated_vertices_begin(f) == myExplorer.isolated_vertices_end(f));
+            }
         }
         assert(markedFaces <= 1);
 #   endif
