@@ -51,8 +51,7 @@ def indices(lst):
 def rotate_to_min(cycle):
     if not cycle:
         return cycle
-    k = cycle.index(min(cycle))
-    return cycle[k:] + cycle[:k]
+    return min(cycle[k:] + cycle[:k] for k in range(len(cycle)))
 
 
 def canon_edges(edge_list):
