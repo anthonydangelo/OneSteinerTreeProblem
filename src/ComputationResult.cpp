@@ -274,40 +274,42 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    string ComputationResult::outputResultToJSONString(bool bestOnly) const
+    void ComputationResult::writeResultJSON(std::ostream & out, bool bestOnly) const
     {
-        ostringstream sStream;
-        sStream << "{\n";  
-        sStream << Pretty_Print::wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
-        sStream << ",\n";
-        sStream << Pretty_Print::wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
-        sStream << ",\n";    
-        sStream << Pretty_Print::pointVectorToJSONString(INPUT_POINTS_NAME_STRING, inputPtVector);
+        // The writers below set out's precision and boolalpha; restore them when done.
+        const Pretty_Print::StreamStateSaver saver(out);
+                
+        out << "{\n";  
+        out << Pretty_Print::wrapStringInQuotes(RAND_SEED_NAME_STRING) << ": \"" << randSeed << "\"";  
+        out << ",\n";
+        out << Pretty_Print::wrapStringInQuotes(GRID_LENGTH_NAME_STRING) << ": \"" << gridLength << "\"";  
+        out << ",\n";    
+        Pretty_Print::writePointVectorJSON(out, INPUT_POINTS_NAME_STRING, inputPtVector);        
         if(!onlyPoints){
-            sStream << ",\n";
-            sStream << Pretty_Print::vertexIndicesToJSONString(CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
+            out << ",\n";
+            Pretty_Print::writeVertexIndicesJSON(out, CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
             if (!bestOnly)
             {
-                sStream << ",\n";
-                sStream << Pretty_Print::arrangementToJSONString(resultODCArrangement);
+                out << ",\n";
+                Pretty_Print::writeArrangementJSON(out, resultODCArrangement);
             }
-            sStream << ",\n";
-            sStream << Pretty_Print::mstDataToJSONString(origMST);
-            sStream << ",\n";
+            out << ",\n";
+            Pretty_Print::writeMstDataJSON(out, origMST);
+            out << ",\n";
             if (bestOnly && !steinerPoints.empty())
             {
                 // steinerPoints is sorted by tree length, so the first is the best.
                 const vector< CandidateSteinerPointData > best(steinerPoints.begin(), steinerPoints.begin() + 1);
-                sStream << Pretty_Print::steinerPointsToJSONString(best);
+                Pretty_Print::writeSteinerPointsJSON(out, best);
             }
             else
             {
-                sStream << Pretty_Print::steinerPointsToJSONString(steinerPoints);
+                Pretty_Print::writeSteinerPointsJSON(out, steinerPoints);
             }            
         }
-        sStream << "\n}";
+        out << "\n}";
 
-        return sStream.str();
+        return;
     }
 
     /*

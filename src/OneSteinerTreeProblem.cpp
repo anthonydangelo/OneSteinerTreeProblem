@@ -468,6 +468,9 @@ namespace
 
 int main(int argc, char **argv)
 {
+    // Faster output: cout no longer synchronizes with C stdio (this program
+    // doesn't use printf and friends). Must come before any output.
+    std::ios::sync_with_stdio(false);    
     try
     {
         OneStPtConfig config;
@@ -479,27 +482,37 @@ int main(int argc, char **argv)
         // high_resolution_clock is an alias for system_clock (the wall clock),
         // which can jump when the system time is adjusted.
         auto start = std::chrono::steady_clock::now();
-        ostringstream sStream;
 
         ComputationResult myCompResult(config.numPoints, config.randSeed, config.gridLength, config.onlyPoints, config.pointsVec);
-        string compResult = myCompResult.outputResultToJSONString( config.bestOnly );
-        sStream << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
-        sStream << compResult << "\n";
 
-        sStream << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
-        // Record end time
+        // Record end time: the elapsed time is the computation only, not writing the output.
         auto finish = std::chrono::steady_clock::now();  
+
+        // Write the result straight to cout: the full output can be hundreds of MB, and
+        // building it as a string first took several copies of it in memory.
+        cout << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
+        myCompResult.writeResultJSON(cout, config.bestOnly);
+        cout << "\n";
+
+        cout << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";
 
         std::chrono::duration< double > elapsed = finish - start;
         double timeInSecs = elapsed.count();
         long timeNumb = static_cast< long >(std::floor(timeInSecs));
 
-        sStream << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
+        cout << "\"s\":\"" << (timeNumb % 60) << "\", \"m\":\"";
         timeNumb /= 60;
-        sStream << (timeNumb % 60) << "\", \"h\":\""; 
+        cout << (timeNumb % 60) << "\", \"h\":\""; 
         timeNumb /= 60;
-        sStream << timeNumb << "\" }\n }" << endl;
-        cout << sStream.str();
+        cout << timeNumb << "\" }\n }" << endl;
+
+        // A failed write (e.g. a full disk, or memory running out) only sets the
+        // stream's error state; report it instead of exiting with 0.
+        if (!cout)
+        {
+            cerr << "ERROR: writing the output failed" << endl;
+            return 1;
+        }
 
         return 0;
     }

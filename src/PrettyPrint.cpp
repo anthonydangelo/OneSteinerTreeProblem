@@ -12,183 +12,181 @@ namespace One_St_Pt_GPA
     {
         using std::boolalpha;
         
-        string mstEdgeToJSONString(const MstEdgeEndpoints & edgeData, int tabLevel)
+        void writeMstEdgeJSON(std::ostream & out, const MstEdgeEndpoints & edgeData, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(MST_EDGE_NAME_STRING) << ": { \n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(MST_EDGE_NAME_STRING) << ": { \n";
 
-            sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
+            out << insertTabs(tabLevel + 1);
+            out << wrapStringInQuotes(MST_EDGE_ENDPOINT_INDICES_NAME_STRING) <<  ": [ \n";
 
-            sStream << insertTabs(tabLevel + 3);
-            sStream << "{\"index\":\"" << edgeData.first.index << "\"},\n";
-            sStream << insertTabs(tabLevel + 3);
-            sStream << "{\"index\":\"" << edgeData.second.index << "\"}\n";
+            out << insertTabs(tabLevel + 3);
+            out << "{\"index\":\"" << edgeData.first.index << "\"},\n";
+            out << insertTabs(tabLevel + 3);
+            out << "{\"index\":\"" << edgeData.second.index << "\"}\n";
 
-            sStream << insertTabs(tabLevel+3);
-            sStream << "],\n"; 
+            out << insertTabs(tabLevel+3);
+            out << "],\n"; 
 
-            sStream << boolalpha;
-            sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
-                    << (VertexRef::Kind::STEINER == edgeData.first.kind) << "\",\n";
-            sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
-                    << (VertexRef::Kind::STEINER == edgeData.second.kind) << "\"\n";
+            out << boolalpha;
+            out << insertTabs(tabLevel + 1);
+            out << wrapStringInQuotes(MST_EDGE_FIRST_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
+                << (VertexRef::Kind::STEINER == edgeData.first.kind) << "\",\n";
+            out << insertTabs(tabLevel + 1);
+            out << wrapStringInQuotes(MST_EDGE_SECOND_ENDPOINT_IS_STEINER_PT_NAME_STRING) << ": \"" 
+                << (VertexRef::Kind::STEINER == edgeData.second.kind) << "\"\n";
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}";
-            return sStream.str();
+            out << insertTabs(tabLevel);
+            out << "}";
+            return;
         }
 
-        string mstDataToJSONString(const MyEMSTData & mst, int tabLevel)
+        void writeMstDataJSON(std::ostream & out, const MyEMSTData & mst, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << std::setprecision(std::numeric_limits<double>::max_digits10);
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(MST_NAME_STRING) << ": { ";
+            out << std::setprecision(std::numeric_limits<double>::max_digits10);
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(MST_NAME_STRING) << ": { ";
 
-            sStream << wrapStringInQuotes(MST_LENGTH_NAME_STRING) << " : \"" << mst.length << "\",\n";
+            out << wrapStringInQuotes(MST_LENGTH_NAME_STRING) << " : \"" << mst.length << "\",\n";
 
-            sStream << insertTabs(tabLevel+2);
-            sStream << wrapStringInQuotes(MST_EDGE_LIST_NAME_STRING) << ": [ \n";
+            out << insertTabs(tabLevel+2);
+            out << wrapStringInQuotes(MST_EDGE_LIST_NAME_STRING) << ": [ \n";
 
             auto endIt = mst.mstEdgePointIndices.end();
             for (auto myIt = mst.mstEdgePointIndices.begin(); myIt != endIt; ++myIt)
             {
-                sStream << insertTabs(tabLevel + 4);
-                sStream << "{ \n";
+                out << insertTabs(tabLevel + 4);
+                out << "{ \n";
 
-                sStream << mstEdgeToJSONString(*myIt, tabLevel + 5) << "\n";
+                writeMstEdgeJSON(out, *myIt, tabLevel + 5);
 
-                sStream << insertTabs(tabLevel + 4);
-                sStream << "}";
+                out << "\n";
+
+                out << insertTabs(tabLevel + 4);
+                out << "}";
                 if (next(myIt) != endIt)
                 {
-                    sStream << ",";
+                    out << ",";
                 }
-                sStream << "\n";
+                out << "\n";
             }
 
-            sStream << insertTabs(tabLevel+4);
-            sStream << "]\n";
+            out << insertTabs(tabLevel+4);
+            out << "]\n";
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}";
-            return sStream.str();
+            out << insertTabs(tabLevel);
+            out << "}";
+            return;
         }
 
-        string geomMedDataToJSONString(const GeomMedianData & stPtData, int tabLevel)
+        void writeGeomMedDataJSON(std::ostream & out, const GeomMedianData & stPtData, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(STEINER_PT_NAME_STRING) << ": { \n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(STEINER_PT_NAME_STRING) << ": { \n";
 
-            sStream << insertTabs(tabLevel+1);
-            sStream << wrapStringInQuotes(GEOM_MED_POINT_NAME_STRING) << " : " << point2ToJSON(stPtData.medPoint) << ",\n";
+            out << insertTabs(tabLevel+1);
+            out << wrapStringInQuotes(GEOM_MED_POINT_NAME_STRING) << " : " << point2ToJSON(stPtData.medPoint) << ",\n";
 
-            sStream << insertTabs(tabLevel+1);
-            sStream << wrapStringInQuotes(GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING) << ": [ \n";
+            out << insertTabs(tabLevel+1);
+            out << wrapStringInQuotes(GEOM_MED_NEIGHBOUR_INDICES_NAME_STRING) << ": [ \n";
 
             auto endIt = stPtData.inputPtIndices.end();
             for (auto myIt = stPtData.inputPtIndices.begin(); myIt != endIt; ++myIt)
             {
-                sStream << insertTabs(tabLevel + 3);
-                sStream << "{\"index\":\"" << *myIt << "\"}";
+                out << insertTabs(tabLevel + 3);
+                out << "{\"index\":\"" << *myIt << "\"}";
                 if (next(myIt) != endIt)
                 {
-                    sStream << ",";
+                    out << ",";
                 }
-                sStream << "\n";        
+                out << "\n";        
             }
 
-            sStream << insertTabs(tabLevel+3);
-            sStream << "],\n"; 
+            out << insertTabs(tabLevel+3);
+            out << "],\n"; 
 
-            sStream << boolalpha;
-            sStream << insertTabs(tabLevel+1);
-            sStream << wrapStringInQuotes(GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING) << ": \"" << stPtData.coincidesWithInputPt << "\",\n";    
-            sStream << insertTabs(tabLevel+1);
-            sStream << wrapStringInQuotes(GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING) << ": {\"index\":\"" << stPtData.coincidentInputPtIndex << "\"}\n";
+            out << boolalpha;
+            out << insertTabs(tabLevel+1);
+            out << wrapStringInQuotes(GEOM_MED_COINCIDES_W_INPUT_PT_NAME_STRING) << ": \"" << stPtData.coincidesWithInputPt << "\",\n";    
+            out << insertTabs(tabLevel+1);
+            out << wrapStringInQuotes(GEOM_MED_COINCIDENT_INPUT_INDEX_NAME_STRING) << ": {\"index\":\"" << stPtData.coincidentInputPtIndex << "\"}\n";
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}"; 
-            return sStream.str();    
+            out << insertTabs(tabLevel);
+            out << "}"; 
+            return;    
         }
 
-        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData & stPtData, int tabLevel)
+        void writeCandidateSteinerPtDataJSON(std::ostream & out, const CandidateSteinerPointData & stPtData, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(CANDIDATE_STEINER_POINT_DATA_NAME_STRING) << ": { \n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(CANDIDATE_STEINER_POINT_DATA_NAME_STRING) << ": { \n";
 
-            sStream << geomMedDataToJSONString(stPtData.steinerPt, tabLevel+1) << ",\n";
-            sStream << mstDataToJSONString(stPtData.mstData, tabLevel+1) << "\n";
+            writeGeomMedDataJSON(out, stPtData.steinerPt, tabLevel+1);
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}"; 
-            return sStream.str();  
+            out << ",\n";
+            writeMstDataJSON(out, stPtData.mstData, tabLevel+1);
+            out << "\n";
+
+            out << insertTabs(tabLevel);
+            out << "}"; 
+            return;  
         }
 
-        string steinerPointsToJSONString(const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel)
+        void writeSteinerPointsJSON(std::ostream & out, const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(CANDIDATE_ST_PT_DATA_LIST_NAME_STRING) << ": [ \n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(CANDIDATE_ST_PT_DATA_LIST_NAME_STRING) << ": [ \n";
 
             auto endIt = end(steinerPoints);
             for (auto it = begin(steinerPoints); it != endIt; ++it)
             {
-                sStream << insertTabs(tabLevel + 2);
-                sStream << "{ \n";
-                sStream << candidateSteinerPtDataToJSONString(*it, tabLevel + 3);
-                sStream << "\n";
-                sStream << insertTabs(tabLevel + 2);
-                sStream << "}";
+                out << insertTabs(tabLevel + 2);
+                out << "{ \n";
+                writeCandidateSteinerPtDataJSON(out, *it, tabLevel + 3);
+                out << "\n";
+                out << insertTabs(tabLevel + 2);
+                out << "}";
                 if (next(it) != endIt)
                 {
-                    sStream << ",";
+                    out << ",";
                 }
-                sStream << "\n";
+                out << "\n";
             }
 
-            sStream << insertTabs(tabLevel+2);
-            sStream << "]"; 
-            return sStream.str();     
+            out << insertTabs(tabLevel+2);
+            out << "]"; 
+            return;     
         }
 
-        string pointVectorToJSONString(const string & name, const vector< MyPoint_2 > & myColl, int tabLevel)
+        void writePointVectorJSON(std::ostream & out, const string & name, const vector< MyPoint_2 > & myColl, int tabLevel)
         {
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(name) << ": [\n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(name) << ": [\n";
         
             if(!myColl.empty()){
                 auto endIt = end(myColl);
                 for (auto it = begin(myColl); it != endIt; ++it) {
-                    sStream << insertTabs(tabLevel + 2);
-                    sStream << point2ToJSON(*it); 
+                    out << insertTabs(tabLevel + 2);
+                    out << point2ToJSON(*it); 
                     if(next(it) != endIt){
-                        sStream << ",";
+                        out << ",";
                     } 
-                    sStream << "\n";
+                    out << "\n";
                 }    
             }
 
-            sStream << insertTabs(tabLevel+2);
-            sStream << "]"; 
+            out << insertTabs(tabLevel+2);
+            out << "]"; 
         
-            return sStream.str();
+            return;
         }
 
-        string vertexIndicesToJSONString(const string & name, const vector< MyPoint_2 > & myColl,
+        void writeVertexIndicesJSON(std::ostream & out, const string & name, const vector< MyPoint_2 > & myColl,
                                                               const vector< MyPoint_2 > & myPtSet, int tabLevel)
         {
 
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(name) << ": [\n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(name) << ": [\n";
         
             if(!myColl.empty()){
                 auto endIt = end(myColl);
@@ -196,33 +194,32 @@ namespace One_St_Pt_GPA
                     size_t index = 0;
                     bool found = Utility_Functions::findPointIndex(*it, myPtSet, index);
                     assert(found);
-                    sStream << insertTabs(tabLevel + 2);
-                    sStream << "{\"index\":\"" << index << "\"}"; 
+                    out << insertTabs(tabLevel + 2);
+                    out << "{\"index\":\"" << index << "\"}"; 
                     if(next(it) != endIt){
-                        sStream << ",";
+                        out << ",";
                     }
-                    sStream << "\n";
+                    out << "\n";
                 }    
             }
 
-            sStream << insertTabs(tabLevel+2);
-            sStream << "]";
+            out << insertTabs(tabLevel+2);
+            out << "]";
         
-            return sStream.str();
+            return;
         }    
 
-        string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
                                                                     const VertexIndexMap & vertexIndices, int tabLevel)        
         {
 
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(ARR_IND_FACE_NAME_STRING) << ": {";
         
-            sStream << "\"name\": " << wrapStringInQuotes(faceName) << " ,\n";
+            out << "\"name\": " << wrapStringInQuotes(faceName) << " ,\n";
             ////////////////////
-            sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [ \n";
+            out << insertTabs(tabLevel + 1);
+            out << wrapStringInQuotes(ARR_FACE_CCW_V_INDICES_NAME_STRING) <<  ": [ \n";
 
             MyArrangement_2::Ccb_halfedge_const_circulator circ = fit->outer_ccb();
             MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
@@ -233,56 +230,57 @@ namespace One_St_Pt_GPA
                 const VertexIndexMap::const_iterator found = vertexIndices.find( & corner);                
                 assert(found != vertexIndices.end());
                 const size_t index = found->second;                
-                sStream << insertTabs(tabLevel + 3);
-                sStream << "{\"index\":\"" << index << "\"}";
+                out << insertTabs(tabLevel + 3);
+                out << "{\"index\":\"" << index << "\"}";
                 if(he->next() != heEnd){
-                    sStream << ",";
+                    out << ",";
                 }        
-                sStream << "\n";
+                out << "\n";
             } while (++curr != circ);
 
-            sStream << insertTabs(tabLevel+3);
-            sStream << "],\n";
+            out << insertTabs(tabLevel+3);
+            out << "],\n";
             //////////////////////
 
-            sStream << insertTabs(tabLevel + 1);
-            sStream << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [ \n";
+            out << insertTabs(tabLevel + 1);
+            out << wrapStringInQuotes(ARR_OODC_INPUT_SITE_INDICES_NAME_STRING) <<  ": [ \n";
 
             const MyFaceData & myFaceStruct = fit->data();
             auto endIt = end(myFaceStruct.myInputPointIndices);
             for (auto it = begin(myFaceStruct.myInputPointIndices); it != endIt; ++it) {
-                sStream << insertTabs(tabLevel + 3);
-                sStream << "{\"index\":\"" << *it << "\"}"; 
+                out << insertTabs(tabLevel + 3);
+                out << "{\"index\":\"" << *it << "\"}"; 
                 if(next(it) != endIt){
-                    sStream << ",";
+                    out << ",";
                 }
-                sStream << "\n";
+                out << "\n";
             }             
-            sStream << insertTabs(tabLevel + 3);
-            sStream << "]\n";
+            out << insertTabs(tabLevel + 3);
+            out << "]\n";
             //////////////////////
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}"; 
+            out << insertTabs(tabLevel);
+            out << "}"; 
         
-            return sStream.str();
+            return;
         }    
 
-        string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel)
+        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, int tabLevel)
         {
             // Exact vertex indices, so each face corner can be looked up by vertex.
             VertexIndexMap vertexIndices;
             vector< MyPoint_2 > arrPoints;   // double approximations, for printing
             Utility_Functions::indexArrangementVertices(resultODCArrangement, vertexIndices, arrPoints);
 
-            ostringstream sStream;
-            sStream << insertTabs(tabLevel);
-            sStream << wrapStringInQuotes(ARR_NAME_STRING) << ": {\n";
+            out << insertTabs(tabLevel);
+            out << wrapStringInQuotes(ARR_NAME_STRING) << ": {\n";
 
-            sStream << pointVectorToJSONString(ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 2) << ",\n";
+            writePointVectorJSON(out, ARR_POINTS_NAME_STRING, arrPoints, tabLevel + 2);
 
-            sStream << insertTabs(tabLevel+2);
-            sStream << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
+            out << ",\n";
+
+            out << insertTabs(tabLevel+2);
+            out << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
 
             size_t faceIndex = 0;
             auto endFit = resultODCArrangement.faces_end();
@@ -292,28 +290,30 @@ namespace One_St_Pt_GPA
                 {
                     if (faceIndex > 0)
                     {
-                        sStream << ",\n";   // separator before every face except the first
+                        out << ",\n";   // separator before every face except the first
                     }
                     ostringstream faceSStream;
                     faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-                    sStream << insertTabs(tabLevel + 4);
-                    sStream << "{ \n";
+                    out << insertTabs(tabLevel + 4);
+                    out << "{ \n";
 
-                    sStream << arrangementFaceToJSONString(faceSStream.str(), fit, vertexIndices, tabLevel + 5) << "\n";                    
+                    writeArrangementFaceJSON(out, faceSStream.str(), fit, vertexIndices, tabLevel + 5);
 
-                    sStream << insertTabs(tabLevel + 4);
-                    sStream << "}";
+                    out << "\n";
+
+                    out << insertTabs(tabLevel + 4);
+                    out << "}";
                 }
             }
-            sStream << "\n";
+            out << "\n";
 
-            sStream << insertTabs(tabLevel+4);
-            sStream << "]\n";
+            out << insertTabs(tabLevel+4);
+            out << "]\n";
 
-            sStream << insertTabs(tabLevel);
-            sStream << "}";
+            out << insertTabs(tabLevel);
+            out << "}";
         
-            return sStream.str();
+            return;
         }
 
     } // namespace Pretty_Print

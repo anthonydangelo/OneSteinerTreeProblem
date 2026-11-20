@@ -466,25 +466,54 @@ namespace One_St_Pt_GPA
         }
 #   endif
 
-        string mstEdgeToJSONString(const MstEdgeEndpoints & edgeData, int tabLevel = 0);
+        // RAII: saves a stream's formatting state (flags such as boolalpha, and the
+        // precision) and restores it when the saver goes out of scope, on every
+        // way out of the enclosing function, including exceptions.
+        class StreamStateSaver
+        {
+            public:
+                explicit StreamStateSaver(std::ostream & s)
+                    : stream(s), flags(s.flags()), precision(s.precision()) {}
+                ~StreamStateSaver()
+                {
+                    stream.flags(flags);
+                    stream.precision(precision);
+                }
+                // A copy would restore the state a second time, at the wrong moment.
+                StreamStateSaver(const StreamStateSaver &)             = delete;
+                StreamStateSaver & operator=(const StreamStateSaver &) = delete;
+                StreamStateSaver(StreamStateSaver &&)             = delete;
+                StreamStateSaver & operator=(StreamStateSaver &&) = delete;                
 
-        string mstDataToJSONString(const MyEMSTData & mst, int tabLevel = 0);
+            private:
+                std::ostream &           stream;
+                const std::ios::fmtflags flags;
+                const std::streamsize    precision;
+        };
 
-        string geomMedDataToJSONString(const GeomMedianData & stPtData, int tabLevel = 0);
+        // The write*JSON functions write straight to the given stream (e.g. cout)
+        // instead of building strings: the full output can be hundreds of MB, and
+        // assembling it in memory took several copies of it. They set the stream's
+        // precision (max_digits10) and boolalpha where they print doubles and bools.
+        void writeMstEdgeJSON(std::ostream & out, const MstEdgeEndpoints & edgeData, int tabLevel = 0);
 
-        string candidateSteinerPtDataToJSONString(const CandidateSteinerPointData & stPtData, int tabLevel = 0);
+        void writeMstDataJSON(std::ostream & out, const MyEMSTData & mst, int tabLevel = 0);
 
-        string steinerPointsToJSONString(const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel = 0);
+        void writeGeomMedDataJSON(std::ostream & out, const GeomMedianData & stPtData, int tabLevel = 0);
 
-        string pointVectorToJSONString(const string & name, const vector< MyPoint_2 > & myColl, int tabLevel = 0);
+        void writeCandidateSteinerPtDataJSON(std::ostream & out, const CandidateSteinerPointData & stPtData, int tabLevel = 0);
 
-        string vertexIndicesToJSONString(const string & name, const vector< MyPoint_2 > & myColl,
-                                                              const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
+        void writeSteinerPointsJSON(std::ostream & out, const vector< CandidateSteinerPointData > & steinerPoints, int tabLevel = 0);
 
-        string arrangementFaceToJSONString(const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
-                                                                    const VertexIndexMap & vertexIndices, int tabLevel = 0);        
+        void writePointVectorJSON(std::ostream & out, const string & name, const vector< MyPoint_2 > & myColl, int tabLevel = 0);
 
-        string arrangementToJSONString(const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
+        void writeVertexIndicesJSON(std::ostream & out, const string & name, const vector< MyPoint_2 > & myColl,
+                                                                             const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
+
+        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+                                                                                   const VertexIndexMap & vertexIndices, int tabLevel = 0);        
+
+        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
 
     } // namespace Pretty_Print
 } // namespace One_St_Pt_GPA
