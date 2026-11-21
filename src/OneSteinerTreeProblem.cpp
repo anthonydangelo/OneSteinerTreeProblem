@@ -41,30 +41,58 @@
 **      removing it again. A candidate with a shortest MST (compared in double
 **      precision; see computeMSTAndStPts) is a 1-Steiner point.
 **
+**   All constructions and predicates are exact. The OODC uses exact
+**   rationals (Lazy_exact_nt<Gmpq>): it needs no square roots. The medians
+**   and MSTs use CORE::Expr, which represents square roots exactly. See
+**   ConstantsAndUtilities.hpp and README.md.
+**
 ** Differences from the paper:
-**   - GPA evaluates every proper subset (up to 5 sites) of each face's
+**   -- GPA evaluates every proper subset (up to 5 sites) of each face's
 **     label; this implementation uses only 3- and 4-site subsets, since
 **     an optimal Steiner point has degree 3 or 4. Degree > 2 follows from
 **     the triangle inequality, and degree 5 is ruled out by:
 **       Rubinstein, Thomas, and Weng, "Degree-five Steiner points cannot
 **       reduce network costs for planar sets," Networks 22(6):531-537, 1992.
-**   - GPA uses O(n^2) preprocessing to evaluate each candidate in O(1)
+**   -- GPA uses O(n^2) preprocessing to evaluate each candidate in O(1)
 **     time. This implementation recomputes the MST per candidate, which
 **     costs O(n^2) per candidate (dominated by mapping MST endpoints back
 **     to input indices with a linear scan), for O(n^4) overall.
-**   - GPA builds the OODC partition in O(n^2) time. This implementation
+**   -- GPA builds the OODC partition in O(n^2) time. This implementation
 **     builds each cell with CGAL Nef_2 Boolean operations (O(n^3 log n)
 **     for all 6n cells), overlays each cell onto a running arrangement for
 **     its cone direction, and combines the six direction arrangements with
 **     5 overlays (O(n^2 log n) for all overlays).
-**   - CGAL computes the 60-degree cone boundaries (and the 60-degree
+**   -- CGAL computes the 60-degree cone boundaries (and the 60-degree
 **     rotations used for 3-point geometric medians) with double-precision
 **     sin/cos for the selected kernel, so they are exact only up to double
 **     rounding; all later constructions and predicates are exact. This
 **     could only matter for degenerate inputs.
 **
+** Measured (see README.md): the bounds above are worst-case; run time grows
+**   about like n^2 up to n = 120 random points. At n = 96, building the ODC
+**   cells takes 94% of the time, and keeping every candidate's MST (with its
+**   exact length) takes 97% of the memory.
+**
 ** Future work (see README.md for details and tradeoffs):
-**   - Candidate evaluation, from most to least improvement:
+**   -- OODC construction (most of the run time in practice): each cell is
+**     built with n - 1 Nef_2 subtractions, O(n^3 log n) for all 6n cells in
+**     the worst case. Cheaper options: skip the sites whose region cannot
+**     reach the cell (e.g. a bounding-box test before each subtraction); or
+**     build the six oriented Voronoi diagrams directly (O(n log n) each),
+**     e.g. using:
+**       Chang, Huang, and Tang, "An optimal algorithm for constructing
+**       oriented Voronoi diagrams and geographic neighborhood graphs,"
+**       Inf. Process. Lett. 35(5):255-260, 1990,
+**     which would replace both the 6n cell constructions and the
+**     per-direction overlays. Combining the six with CGAL's sweep-line
+**     overlay would cost O(n^2 log n). An O(n^2) method would make this phase
+**     O(n^2): GPA's overlay (Theorem 1); Finke and Hinrichs, "Overlaying
+**     simply connected planar subdivisions in linear time," Proc. 11th ACM
+**     SoCG, 119-126, 1995; or computing all intersections at once with
+**     Chazelle and Edelsbrunner, "An optimal algorithm for intersecting
+**     line segments in the plane," J. ACM 39(1):1-54, 1992.
+**   -- Candidate evaluation (O(n^4) in the worst case, the largest bound, but
+**     6% of the run time at n = 96), from most to least improvement:
 **     * Constant-time MST updates per candidate, using either GPA's O(n^2)
 **       preprocessing or the O(n log n) preprocessing described in:
 **         Bose, D'Angelo, and Durocher, "On the Restricted k-Steiner Tree
@@ -97,25 +125,25 @@
 **       next to one of the candidate's median sites usually makes it
 **       short, and CGAL::Triangulation_hierarchy_2 would give expected
 **       O(log n).
-**   - OODC construction: the Nef_2 cell constructions (O(n^3 log n) in
-**     total) are now the dominant cost of this phase. Building the six
-**     oriented Voronoi diagrams directly (O(n log n) each), e.g. using:
-**       Chang, Huang, and Tang, "An optimal algorithm for constructing
-**       oriented Voronoi diagrams and geographic neighborhood graphs,"
-**       Inf. Process. Lett. 35(5):255-260, 1990,
-**     would replace both the 6n cell constructions and the per-direction
-**     overlays. Combining the six with CGAL's sweep-line overlay would cost
-**     O(n^2 log n). An O(n^2) method would make this phase O(n^2): GPA's
-**     overlay (Theorem 1); Finke and Hinrichs, "Overlaying simply
-**     connected planar subdivisions in linear time," Proc. 11th ACM SoCG,
-**     119-126, 1995; or computing all intersections at once with
-**     Chazelle and Edelsbrunner, "An optimal algorithm for intersecting
-**     line segments in the plane," J. ACM 39(1):1-54, 1992.
-**   - The JSON output lists every candidate's MST, so its size is
-**     Theta(n^3) in the worst case. An O(n^2) implementation would need a
-**     smaller output format (e.g., only the best tree), which would require
-**     changes to the companion web page; a runtime flag could switch
-**     between the full and compact output.
+**   -- Memory: every candidate keeps its MST and exact length (a CORE::Expr
+**     with one square root per edge), about 36 KB per candidate at n = 96.
+**     The sort and the output only use the lengths' double approximations,
+**     so storing doubles (or computing each edge's length in double from the
+**     exact squared distance) would remove most of it, at the cost of no
+**     longer having exact tree lengths.
+**   -- Output size: the default JSON lists every candidate's whole MST,
+**     Theta(n^3) in the worst case (about 380 MB for 96 points); -b, -f and
+**     -o avoid this by writing only the best tree. A compact full output
+**     could give each candidate's MST as a change to the sites' MST: it
+**     consists of edges of the sites' MST plus at most 6 edges at the
+**     candidate (by the result cited above), so at most 6 edges removed and
+**     6 added. The whole output would then be O(n^2). The companion web page
+**     would need updating to read it.
+**   -- MST ties: Kruskal's algorithm breaks ties between equal-length edges in
+**     the triangulation's edge order, which depends on memory addresses. For
+**     degenerate inputs with several MSTs of the same length, which one is
+**     printed could vary between runs; sorting the edges by length, then by
+**     endpoint indices, would make it deterministic.
 **===========================================================================*/
 
 #include <getopt.h>

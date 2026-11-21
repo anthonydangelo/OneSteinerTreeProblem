@@ -103,7 +103,7 @@ namespace One_St_Pt_GPA
     // Converts each MST edge's triangulation handles into indices of input points
     // (or marks the endpoint as the Steiner point). Each endpoint is found by
     // comparing coordinates with every input point: a linear scan, so O(n^2) per
-    // MST, the dominant per-candidate cost. The Future work section in the header
+    // MST, the asymptotically dominant per-candidate cost. The Future work section in the header
     // of OneSteinerTreeProblem.cpp gives two ways to avoid it: store each vertex's
     // index in the vertex (Triangulation_vertex_base_with_info_2), or build each
     // candidate's MST from the original MST's edges, where indices are known.

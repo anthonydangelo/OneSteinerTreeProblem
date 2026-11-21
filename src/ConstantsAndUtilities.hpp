@@ -187,7 +187,8 @@ namespace One_St_Pt_GPA
 //  MyKernel (exact number type CORE::Expr) is for the geometric medians and
 //  the MSTs: MST lengths are sums of square roots (CGAL::sqrt in
 //  DelaunayTriEMST::findMST), and CORE::Expr represents square roots exactly.
-//  In practice this was faster than EPECK_with_root_of; both are exact.
+//  In the author's original tests this was faster than EPECK_with_root_of
+//  (not re-measured); both are exact.
     typedef CGAL::Lazy_exact_nt<CORE::Expr>         Lazy_FT;
     typedef CGAL::Simple_cartesian< Lazy_FT >       MyKernel;
 
