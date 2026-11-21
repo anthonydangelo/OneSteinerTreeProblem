@@ -23,6 +23,8 @@ both sorted by (x, y), so their indices don't depend on the computation order.
 All values are compared as printed (exact text). If two outputs differ only by
 numbers within a relative 1e-9 of each other, the case is reported as CLOSE.
 Exit code: 0 if every case is SAME, 1 otherwise.
+Set IGNORE_STDERR=1 to skip comparing stderr (e.g. against a sanitizer build, whose
+stderr has the sanitizer's reports); exit codes and outputs are still compared.
 Written for Python 3.5 (Ubuntu 16.04): no f-strings.
 """
 import json
@@ -169,7 +171,8 @@ def compare_case(name, dir_a, dir_b):
         return 'MISSING', 'no output in {}'.format(dir_a if exit_a is None else dir_b), None, None
     if exit_a.strip() != exit_b.strip():
         return 'DIFFERENT', 'exit code {} vs {}'.format(exit_a.strip(), exit_b.strip()), None, None
-    if read_text(os.path.join(dir_a, name + '.err')) != read_text(os.path.join(dir_b, name + '.err')):
+    if os.environ.get('IGNORE_STDERR') != '1' and \
+            read_text(os.path.join(dir_a, name + '.err')) != read_text(os.path.join(dir_b, name + '.err')):
         return 'DIFFERENT', 'stderr differs', None, None
     if exit_a.strip() != '0':
         return 'SAME', 'both exited with {} (same stderr)'.format(exit_a.strip()), None, None

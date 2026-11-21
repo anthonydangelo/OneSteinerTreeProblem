@@ -38,6 +38,28 @@
                 "clear": true
             },
             "problemMatcher":"$gcc"            
-        } 
+        },
+        {
+            "label": "build-checkpoints",
+            "type": "shell",
+            "command": "make",
+            "args": [ "checkpoints" ],
+            "group": "build",
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher":"$gcc"            
+        },
+        {
+            "label": "build-asan",
+            "type": "shell",
+            "command": "make",
+            "args": [ "asan" ],
+            "group": "build",
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher":"$gcc"            
+        }  
     ]
 }
