@@ -113,7 +113,17 @@ constexpr int  RAND_SEED_DEFAULT    = 10;
 constexpr bool TRUE_RANDOM_DEFAULT  = false;
 
 constexpr bool ONLY_POINTS_DEFAULT  = false;
-constexpr bool BEST_ONLY_DEFAULT    = false;
+
+// What the JSON output contains. The computation is the same in every mode: all
+// candidates are evaluated, to find the best.
+enum class OutputMode
+{
+    FULL,           // the arrangement and every candidate (default)
+    BEST,           // the best candidate only; no arrangement
+    BEST_FACES,     // the best candidate and the arrangement faces that produced it
+    BEST_OODC       // the best candidate and the whole arrangement
+};
+constexpr OutputMode OUTPUT_MODE_DEFAULT = OutputMode::FULL;
 
 
 constexpr const char* ELAPSED_TIME_NAME_STRING          = "elapsedTime";
@@ -346,6 +356,9 @@ namespace One_St_Pt_GPA
         // vertex's double approximation, in index order); clears both first.
         void indexArrangementVertices(const MyArrangement_2 & arr, VertexIndexMap & vertexIndices,
                                                                     vector< MyPoint_2 > & arrPoints);
+        // The same, but only for the corners of the given faces.
+        void indexArrangementVertices(const vector< MyArrangement_2::Face_const_handle > & faces,
+                                      VertexIndexMap & vertexIndices, vector< MyPoint_2 > & arrPoints);
 
 #if (MEMORY_CHECKPOINTS)
         // Prints one line to stderr:
@@ -510,10 +523,12 @@ namespace One_St_Pt_GPA
         void writeVertexIndicesJSON(std::ostream & out, const string & name, const vector< MyPoint_2 > & myColl,
                                                                              const vector< MyPoint_2 > & myPtSet, int tabLevel = 0);    
 
-        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_handle fit, 
                                                                                    const VertexIndexMap & vertexIndices, int tabLevel = 0);        
-
-        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, int tabLevel = 0);
+        // requiredSites: if given, write only the faces whose site set contains all of
+        // these sites (and only their corners); otherwise the whole arrangement.
+        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, 
+                                                        int tabLevel = 0, const set< size_t > * requiredSites = nullptr);        
 
     } // namespace Pretty_Print
 } // namespace One_St_Pt_GPA

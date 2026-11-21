@@ -274,7 +274,7 @@ namespace One_St_Pt_GPA
         return;
     }
 
-    void ComputationResult::writeResultJSON(std::ostream & out, bool bestOnly) const
+    void ComputationResult::writeResultJSON(std::ostream & out, OutputMode mode) const
     {
         // The writers below set out's precision and boolalpha; restore them when done.
         const Pretty_Print::StreamStateSaver saver(out);
@@ -288,15 +288,26 @@ namespace One_St_Pt_GPA
         if(!onlyPoints){
             out << ",\n";
             Pretty_Print::writeVertexIndicesJSON(out, CONVEX_HULL_POINTS_NAME_STRING, convexHullList, inputPtVector);
-            if (!bestOnly)
+
+            if (OutputMode::FULL == mode || OutputMode::BEST_OODC == mode)
             {
                 out << ",\n";
                 Pretty_Print::writeArrangementJSON(out, resultODCArrangement);
             }
+            else if (OutputMode::BEST_FACES == mode && !steinerPoints.empty())
+            {
+                // The faces that produced the best candidate: those whose site set
+                // contains its sites (its 3 or 4 sites came from such a face).
+                const vector< size_t > & bestSites = steinerPoints.front().steinerPt.inputPtIndices;
+                const set< size_t > requiredSites(bestSites.begin(), bestSites.end());
+                out << ",\n";
+                // that magic "0" is the default tab level
+                Pretty_Print::writeArrangementJSON(out, resultODCArrangement, 0, & requiredSites);
+            }            
             out << ",\n";
             Pretty_Print::writeMstDataJSON(out, origMST);
             out << ",\n";
-            if (bestOnly && !steinerPoints.empty())
+            if (OutputMode::FULL != mode && !steinerPoints.empty())            
             {
                 // steinerPoints is sorted by tree length, so the first is the best.
                 const vector< CandidateSteinerPointData > best(steinerPoints.begin(), steinerPoints.begin() + 1);

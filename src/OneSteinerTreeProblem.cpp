@@ -159,36 +159,40 @@ namespace
     struct OneStPtConfig
     {
         vector< MyPoint_2 > pointsVec;
-        int numPoints   = DEFAULT_NUM_INPUT_POINTS;
-        int randSeed    = RAND_SEED_DEFAULT;
-        int gridLength  = GRID_LENGTH_DEFAULT;
-        OneStPtResourceMutex flockMutex;
-        bool useMutex   = true;
-        bool trueRandom = TRUE_RANDOM_DEFAULT;
-        bool onlyPoints = ONLY_POINTS_DEFAULT;
-        bool bestOnly   = BEST_ONLY_DEFAULT;
+        int numPoints           = DEFAULT_NUM_INPUT_POINTS;
+        int randSeed            = RAND_SEED_DEFAULT;
+        int gridLength          = GRID_LENGTH_DEFAULT;
+        OneStPtResourceMutex    flockMutex;
+        OutputMode outputMode   = OUTPUT_MODE_DEFAULT;        
+        bool useMutex           = true;
+        bool trueRandom         = TRUE_RANDOM_DEFAULT;
+        bool onlyPoints         = ONLY_POINTS_DEFAULT;        
     };
 
     void PrintHelp(std::ostream & outStream = cout)
     {
         ostringstream msg;
         msg <<  "\nOneSteinerTreeProblem / OneSteinerTreeProblem_d : Help\n"
-                "====================================================================================================================\n"
-                "--onlyPoints (-p):          Only create new random points and return\n"
-                "--bestOnly   (-b):          Output only the best candidate tree: no arrangement, no other candidates\n"
-                "                            (much smaller output for large inputs; the computation is the same)\n"                
-                "--numPoints  (-n) <int>:    Number of random points to generate (between "
+                "=======================================================================================================================\n"
+                "--onlyPoints    (-p):          Only create new random points and return\n"
+                "--bestOnly      (-b):          Output only the best candidate tree: no arrangement, no other candidates\n"
+                "                               (much smaller output for large inputs; the computation is the same)\n" 
+                "--bestWithFaces (-f):          Like -b, plus the arrangement faces that produced the best candidate\n"
+                "                               (faces whose site set contains its sites)\n"
+                "--bestWithOODC  (-o):          Like -b, plus the whole OODC arrangement\n"
+                "                               (if more than one of -b, -f, -o is given, the last one counts)\n"                               
+                "--numPoints     (-n) <int>:    Number of random points to generate (between "
                             << MIN_NUM_INPUT_POINTS << " and " << MAX_NUM_INPUT_POINTS << ", default is "
                             << DEFAULT_NUM_INPUT_POINTS << ")\n"
-                "--trueRandom (-r):          Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
+                "--trueRandom    (-r):          Seed the rand. num. gen. with the current time rather than a fixed seed (default is "
                             << TRUE_RANDOM_DEFAULT << ")\n"
-                "--randSeed   (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
+                "--randSeed      (-s) <int>:    Use the following fixed seed for the rand. num. gen. (default is "
                             << RAND_SEED_DEFAULT << ")\n"
-                "--gridLength (-g) <int g >: Generated points are drawn uniformly from the square [-g, g) x [-g, g)\n"
-                "                            (g >= " << GRID_LENGTH_MIN << ", default g = "
+                "--gridLength    (-g) <int g >: Generated points are drawn uniformly from the square [-g, g) x [-g, g)\n"
+                "                               (g >= " << GRID_LENGTH_MIN << ", default g = "
                             << GRID_LENGTH_DEFAULT << ")\n"                            
-                "--no-mutex:                 Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
-                "                            This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
+                "--no-mutex:                    Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
+                "                               This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
                 "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (up to --numPoints of them; if -n is not \n"
                 "                                                      given, all of them, up to 10). Needs quotes around list.\n"
                 "--help       (-h):          Show help\n"
@@ -224,10 +228,12 @@ namespace
     //https://codeyarns.com/2015/01/30/how-to-parse-program-options-in-c-using-getopt_long/
     ArgsResult ProcessArgs(int argc, char **argv, OneStPtConfig & config)
     {
-        const char *const short_opts = "pbn:rs:g:i:h";
+        const char *const short_opts = "pbfon:rs:g:i:h";
         const option long_opts[] = {
             {"onlyPoints", no_argument, nullptr, 'p'},
             {"bestOnly", no_argument, nullptr, 'b'},            
+            {"bestWithFaces", no_argument, nullptr, 'f'},
+            {"bestWithOODC", no_argument, nullptr, 'o'},            
             {"numPoints", required_argument, nullptr, 'n'},
             {"trueRandom", no_argument, nullptr, 'r'},
             {"randSeed", required_argument, nullptr, 's'},
@@ -256,8 +262,16 @@ namespace
                 break;
 
             case 'b':
-                config.bestOnly = true;
+                config.outputMode = OutputMode::BEST;
                 break;
+
+            case 'f':
+                config.outputMode = OutputMode::BEST_FACES;
+                break;
+
+            case 'o':
+                config.outputMode = OutputMode::BEST_OODC;
+                break;                
 
             case 'n':
                 numPointsGiven = true;
@@ -491,7 +505,7 @@ int main(int argc, char **argv)
         // Write the result straight to cout: the full output can be hundreds of MB, and
         // building it as a string first took several copies of it in memory.
         cout << "{\n\"" << COMP_RESULT_NAME_STRING << "\": ";
-        myCompResult.writeResultJSON(cout, config.bestOnly);
+        myCompResult.writeResultJSON(cout, config.outputMode);
         cout << "\n";
 
         cout << ", \"" << ELAPSED_TIME_NAME_STRING << "\" :{";

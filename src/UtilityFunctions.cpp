@@ -144,5 +144,42 @@ namespace One_St_Pt_GPA
             return;
         }
 
+
+        void indexArrangementVertices(const vector< MyArrangement_2::Face_const_handle > & faces,
+                                      VertexIndexMap & vertexIndices, vector< MyPoint_2 > & arrPoints)
+        {
+            // Each face's corners, each vertex once (neighbouring faces share corners).
+            vector< MyArrangement_2::Vertex_const_handle > vertices;
+            std::set< const MyArrangement_2::Vertex * > seen;
+            for (const MyArrangement_2::Face_const_handle & face : faces)
+            {
+                MyArrangement_2::Ccb_halfedge_const_circulator circ = face->outer_ccb();
+                MyArrangement_2::Ccb_halfedge_const_circulator curr = circ;
+                do {
+                    const MyArrangement_2::Vertex_const_handle corner = curr->target();
+                    if (seen.insert( & (*corner)).second)
+                    {
+                        vertices.push_back(corner);
+                    }
+                } while (++curr != circ);
+            }
+            std::sort(vertices.begin(), vertices.end(),
+                [](MyArrangement_2::Vertex_const_handle a, MyArrangement_2::Vertex_const_handle b)
+                {
+                    return a->point() < b->point();   // exact; lexicographic (x, then y)
+                });
+
+            vertexIndices.clear();
+            arrPoints.clear();
+            for (size_t i = 0; i < vertices.size(); ++i)
+            {
+                const MyArrangement_2::Vertex & vertex = *vertices[i];
+                vertexIndices[ & vertex] = i;
+                arrPoints.push_back( approxMyPoint( vertex.point()));
+            }
+
+            return;
+        }        
+
     } // namespace Utility_Functions
 } // namespace One_St_Pt_GPA

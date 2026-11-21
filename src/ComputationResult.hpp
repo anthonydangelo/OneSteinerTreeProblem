@@ -62,10 +62,9 @@ namespace One_St_Pt_GPA
                                         bool onlyProducePoints = ONLY_POINTS_DEFAULT,
                                         const vector< MyPoint_2 > & userPointList = vector< MyPoint_2 >());
             
-            // Writes the result as JSON to out. bestOnly: omit the arrangement and all
-            // candidates but the best (the first after sorting), to keep the output
-            // small for large inputs.
-            void writeResultJSON(std::ostream & out, bool bestOnly = false) const;            
+            // Writes the result as JSON to out; mode selects what it contains (see
+            // OutputMode). The BEST modes keep the output small for large inputs.
+            void writeResultJSON(std::ostream & out, OutputMode mode = OutputMode::FULL) const;                      
 
             // Not copyable or movable: randPointGen refers to this object's own rand, so a
             // copy's generator would keep using the original's random number generator.

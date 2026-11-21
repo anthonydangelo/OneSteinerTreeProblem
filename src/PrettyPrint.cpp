@@ -209,7 +209,7 @@ namespace One_St_Pt_GPA
             return;
         }    
 
-        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_iterator fit, 
+        void writeArrangementFaceJSON(std::ostream & out, const string & faceName, const MyArrangement_2::Face_const_handle fit, 
                                                                     const VertexIndexMap & vertexIndices, int tabLevel)        
         {
 
@@ -265,13 +265,38 @@ namespace One_St_Pt_GPA
             return;
         }    
 
-        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, int tabLevel)
+        void writeArrangementJSON(std::ostream & out, const MyArrangement_2 & resultODCArrangement, int tabLevel,
+                                  const set< size_t > * requiredSites)
         {
+            // The bounded faces to write: all of them, or only those whose site set
+            // contains every required site.
+            vector< MyArrangement_2::Face_const_handle > faces;
+            for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin();
+                 fit != resultODCArrangement.faces_end(); ++fit)
+            {
+                if (!fit->is_unbounded())
+                {
+                    const set< size_t > & sites = fit->data().myInputPointIndices;
+                    if (nullptr == requiredSites
+                        || std::includes(sites.begin(), sites.end(), requiredSites->begin(), requiredSites->end()))
+                    {
+                        faces.push_back(fit);
+                    }
+                }
+            }
+
             // Exact vertex indices, so each face corner can be looked up by vertex.
             VertexIndexMap vertexIndices;
             vector< MyPoint_2 > arrPoints;   // double approximations, for printing
-            Utility_Functions::indexArrangementVertices(resultODCArrangement, vertexIndices, arrPoints);
-
+            if (nullptr == requiredSites)
+            {
+                Utility_Functions::indexArrangementVertices(resultODCArrangement, vertexIndices, arrPoints);
+            }
+            else
+            {
+                Utility_Functions::indexArrangementVertices(faces, vertexIndices, arrPoints);
+            }
+            
             out << insertTabs(tabLevel);
             out << wrapStringInQuotes(ARR_NAME_STRING) << ": {\n";
 
@@ -282,29 +307,24 @@ namespace One_St_Pt_GPA
             out << insertTabs(tabLevel+2);
             out << wrapStringInQuotes(ARR_FACES_NAME_STRING) << ": [ \n";
 
-            size_t faceIndex = 0;
-            auto endFit = resultODCArrangement.faces_end();
-            for (MyArrangement_2::Face_const_iterator fit = resultODCArrangement.faces_begin(); fit != endFit; ++fit)
+            for (size_t faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
             {
-                if (!fit->is_unbounded())
+                if (faceIndex > 0)
                 {
-                    if (faceIndex > 0)
-                    {
-                        out << ",\n";   // separator before every face except the first
-                    }
-                    ostringstream faceSStream;
-                    faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex++;
-                    out << insertTabs(tabLevel + 4);
-                    out << "{ \n";
-
-                    writeArrangementFaceJSON(out, faceSStream.str(), fit, vertexIndices, tabLevel + 5);
-
-                    out << "\n";
-
-                    out << insertTabs(tabLevel + 4);
-                    out << "}";
+                    out << ",\n";   // separator before every face except the first
                 }
-            }
+                ostringstream faceSStream;
+                faceSStream << ARR_FACE_NAME_PREFIX_NAME_STRING << faceIndex;
+                out << insertTabs(tabLevel + 4);
+                out << "{ \n";
+
+                writeArrangementFaceJSON(out, faceSStream.str(), faces[faceIndex], vertexIndices, tabLevel + 5);
+
+                out << "\n";
+
+                out << insertTabs(tabLevel + 4);
+                out << "}";
+            }            
             out << "\n";
 
             out << insertTabs(tabLevel+4);
