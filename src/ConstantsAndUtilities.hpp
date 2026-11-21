@@ -103,7 +103,10 @@ constexpr const char* FLOCK_PATH = "/tmp/one-st-tree-mutex.lock";
 
 //magic numbers
 constexpr int MIN_NUM_INPUT_POINTS      = 3;
-constexpr int MAX_NUM_INPUT_POINTS      = 10;
+// Chosen so a run takes minutes, not hours: n = 100 takes about 6 minutes and 0.6 GB
+// on the 4-CPU test VM (run time grows about like n^2; see the README). Raise it and
+// rebuild for larger inputs.
+constexpr int MAX_NUM_INPUT_POINTS      = 100;
 constexpr int DEFAULT_NUM_INPUT_POINTS  = MIN_NUM_INPUT_POINTS;
 
 constexpr int GRID_LENGTH_DEFAULT   = 10;

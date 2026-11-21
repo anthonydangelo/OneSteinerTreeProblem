@@ -194,7 +194,7 @@ namespace
                 "--no-mutex:                    Do not use a resource mutex (currently a file lock with a blocking lock call).\n"
                 "                               This option is useful, e.g., if you want to manage the mutex in an invoking bash script.\n"
                 "--inputList  (-i) <string s = \"[[x,y],[u,v],...]\">:   Use these points (up to --numPoints of them; if -n is not \n"
-                "                                                      given, all of them, up to 10). Needs quotes around list.\n"
+                "                                                      given, all of them, up to " << MAX_NUM_INPUT_POINTS << "). Needs quotes around list.\n"                
                 "--help       (-h):          Show help\n"
                 "\ne.g., -i \"[[1,0], [2,0], [3,0]]\"\n"
                 "All arguments are optional.\n";
