@@ -140,6 +140,18 @@ namespace One_St_Pt_GPA
                 foundTarget = true;
             }        
             assert(foundSrc && foundTarget);
+            // Put the endpoints in a fixed order: input points by index, the Steiner point
+            // last. Which endpoint the triangulation reports as the source depends on which
+            // of the edge's two faces represents it, and CGAL decides that by comparing the
+            // faces' handles, i.e. their memory addresses (Triangulation_ds_edge_iterator_2::
+            // associated_edge). With address-space randomisation those vary between runs,
+            // so without this the same input could print an edge either way round.
+            const bool targetFirst = (VertexRef::Kind::STEINER == sourceV.kind)
+                                        || (VertexRef::Kind::INPUT == targetV.kind && targetV.index < sourceV.index);
+            if (targetFirst)
+            {
+                std::swap(sourceV, targetV);
+            }
             fillMe.mstEdgePointIndices.push_back(MstEdgeEndpoints{ sourceV, targetV });
         }  
 
