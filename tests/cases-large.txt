@@ -1,0 +1,12 @@
+# Large scaling suite: random inputs from 30 to 100 points, with -b (best tree only,
+# so the outputs stay small). Takes about 40 minutes; run it from a quiet machine
+# (e.g. a text console) if the times matter. Same format as cases-regression.txt.
+n30-s1|random, 30 points, seed 1, best tree only|-b -n 30 -s 1
+n30-s2|random, 30 points, seed 2, best tree only|-b -n 30 -s 2
+n30-s3|random, 30 points, seed 3, best tree only|-b -n 30 -s 3
+n60-s1|random, 60 points, seed 1, best tree only|-b -n 60 -s 1
+n60-s2|random, 60 points, seed 2, best tree only|-b -n 60 -s 2
+n60-s3|random, 60 points, seed 3, best tree only|-b -n 60 -s 3
+n90-s1|random, 90 points, seed 1, best tree only|-b -n 90 -s 1
+n90-s2|random, 90 points, seed 2, best tree only|-b -n 90 -s 2
+n100-s1|random, 100 points, seed 1, best tree only|-b -n 100 -s 1
