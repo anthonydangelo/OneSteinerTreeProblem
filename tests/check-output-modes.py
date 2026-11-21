@@ -11,13 +11,30 @@
 #   python3 tests/check-output-modes.py ./OneSteinerTreeProblem -n 6 -s 1      (one input)
 #   python3 tests/check-output-modes.py --cases tests/cases-modes.txt ./OneSteinerTreeProblem
 # A cases file has the format of the other suites (name|description|arguments).
+# When an input fails, its four outputs are saved for inspection, as
+# tests/out/modes-fail/<case>-full.json, -b.json, -f.json and -o.json.
 # Exit code: 0 if every check passes, 1 otherwise.
-import json, subprocess, sys
+import json, os, re, subprocess, sys
+
+FAIL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'modes-fail')
+MODES = (('full', []), ('-b', ['-b']), ('-f', ['-f']), ('-o', ['-o']))
 
 
-def run(binary, extra, args):
-    out = subprocess.check_output([binary] + extra + args)
-    return json.loads(out.decode('utf-8'))['compResult']
+def run_all_modes(binary, args):
+    """Runs the program once per output mode; returns {mode: raw output text}."""
+    return dict((name, subprocess.check_output([binary] + extra + args).decode('utf-8'))
+                for name, extra in MODES)
+
+
+def save_outputs(case, raw):
+    """Saves a failing input's outputs; returns the folder they went to."""
+    if not os.path.isdir(FAIL_DIR):
+        os.makedirs(FAIL_DIR)
+    safe = re.sub(r'[^A-Za-z0-9._-]+', '_', case).strip('_-') or 'input'
+    for name, text in raw.items():
+        with open(os.path.join(FAIL_DIR, '{}-{}.json'.format(safe, name.lstrip('-'))), 'w') as f:
+            f.write(text)
+    return FAIL_DIR
 
 
 def indices(items):
@@ -32,8 +49,8 @@ def face_key(face, points):
     return (tuple(sorted(indices(f['arrangementOODCSiteIndices']))), tuple(rot))
 
 
-def check_input(binary, args):
-    """Returns (list of failure messages, info string) for one input."""
+def check_input(raw):
+    """Returns (list of failure messages, info string) for one input's outputs."""
     failures = []
     info = ''
 
@@ -41,10 +58,7 @@ def check_input(binary, args):
         if not condition:
             failures.append(message)
 
-    full = run(binary, [], args)
-    best = run(binary, ['-b'], args)
-    faces = run(binary, ['-f'], args)
-    oodc = run(binary, ['-o'], args)
+    full, best, faces, oodc = (json.loads(raw[name])['compResult'] for name in ('full', '-b', '-f', '-o'))
     cands = full['candidateStPtDataList']
 
     for name, r in (('-b', best), ('-f', faces), ('-o', oodc)):
@@ -100,8 +114,10 @@ else:
 
 bad = 0
 for name, args in cases:
+    raw = {}
     try:
-        failures, info = check_input(binary, args)
+        raw = run_all_modes(binary, args)
+        failures, info = check_input(raw)
     except (OSError, subprocess.CalledProcessError, ValueError, KeyError) as e:
         failures, info = ['could not run or read the output: {}'.format(e)], ''
     if failures:
@@ -109,6 +125,8 @@ for name, args in cases:
         print('{:16} FAIL  {}'.format(name, failures[0]))
         for f in failures[1:]:
             print('{:16}       {}'.format('', f))
+        if raw:
+            print('{:16}       outputs saved in {}'.format('', save_outputs(name, raw)))
     else:
         print('{:16} OK    {}'.format(name, info))
 print('{} input(s) checked, {} failed.'.format(len(cases), bad))
