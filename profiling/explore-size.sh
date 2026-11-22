@@ -22,7 +22,7 @@
 # this first.
 #
 # Output goes to tests/out/explore-size-<date-time>.log (everything printed),
-# a tab-separated results file next to it, and a vmstat log. Attach all three.
+# a tab-separated results file next to it, and a vmstat log. 
 # The program's JSON output is counted (bytes) and discarded, not saved.
 
 set -u

@@ -25,7 +25,8 @@ for path in sorted(glob.glob(os.path.join(OUT_ROOT, suite, label, '*.json'))):
     try:
         arr = json.loads(open(path).read())['compResult'].get('odcArrangement')
     except (ValueError, KeyError):
-        print('{:16} SKIPPED (unreadable JSON)'.format(name))
+        print('{:16} ERROR (unreadable JSON)'.format(name))
+        bad += 1
         continue
     if arr is None:
         continue
