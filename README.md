@@ -32,7 +32,7 @@ Made with [GeoGebra®](https://www.geogebra.org) (© GeoGebra GmbH).*
 [docs/PERFORMANCE.md](docs/PERFORMANCE.md)):
 
 - A degenerate 6-point input went from 6.3 hours to under a second, and 8 random
-  points from about an hour and 8.5 GB of memory to 2 seconds and 5 MB.
+  points from about an hour and 8.5 GB of memory to 2 seconds and 4 MB.
 - Inputs of up to 100 points now run in about 6 minutes on a 4-CPU virtual machine
   (the limit is a constant in the code; rebuild to raise it).
 - The geometry is still computed exactly (see [Exactness](#exactness)); the output is
@@ -351,10 +351,10 @@ single-threaded), with peak memory where it was recorded.
 | Input | v1.5 | `perf/sort-fix` | `perf/overlay` | `perf/rational-oodc` | v2.0 |
 |---|---|---|---|---|---|
 | 6 random sites | 102 s, 484 MB | 101 s | 74 s, 518 MB | 1.1 s, 3 MB | 1.1 s, 3 MB |
-| 7 random sites | 453 s, 1.8 GB | 311 s, 1.5 GB | 274 s, 2.1 GB | 1.6 s, 4 MB | 1.5 s, 4 MB |
+| 7 random sites | 453 s, 1.8 GB | 311 s, 1.5 GB | 274 s, 2.1 GB | 1.6 s, 4 MB | 1.5 s, 3 MB |
 | unit square (4 sites) | 204 s, 352 MB | 1.6 s | 1.4 s | 0.4 s | 0.4 s |
 | 6-site grid | 6.3 h, about 20 GB with swap | 5.6 s | 4.6 s | 0.96 s | 0.94 s |
-| 8 random sites | 1 h 3 min, about 8.5 GB with swap | | | | 2.0 s, 5 MB |
+| 8 random sites | 1 h 3 min, about 8.5 GB with swap | | | | 2.0 s, 4 MB |
 
 - **`perf/sort-fix`:** sampling the call stack showed degenerate inputs spending
   nearly all their time sorting the candidates. Tree lengths are sums of square

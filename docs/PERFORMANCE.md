@@ -35,12 +35,12 @@ Wall-clock time and, where recorded, peak resident memory, for test cases from
 | Case | v1.5 | `perf/sort-fix` | `perf/overlay` | `perf/rational-oodc` | v2.0 | Speed-up, v1.5 → v2.0 |
 |---|---|---|---|---|---|---|
 | `n6-s1`: 6 random sites | 102 s, 484 MB | 101 s | 74 s, 518 MB | 1.1 s, 3 MB | 1.13 s, 3 MB | 90× |
-| `n7-s1`: 7 random sites | 453 s, 1838 MB | 311 s, 1526 MB | 274 s, 2051 MB | 1.6 s, 4 MB | 1.54 s, 4 MB | 290× |
+| `n7-s1`: 7 random sites | 453 s, 1838 MB | 311 s, 1526 MB | 274 s, 2051 MB | 1.6 s, 4 MB | 1.54 s, 3 MB | 290× |
 | `square4`: unit square | 204 s, 352 MB | 1.6 s | 1.4 s | 0.4 s | 0.40 s | 510× |
 | `plus5`: centre and 4 axis points | 581 s, 1025 MB | 9.4 s | 9.3 s | 0.6 s | 0.61 s | 950× |
 | `grid6`: 6-site grid | 22,779 s (6 h 20 min), see below | 5.6 s, 26 MB | 4.6 s | 0.96 s | 0.94 s | 24,000× |
 | `grid6-rot37`: the grid rotated by 37° | over 30 min (stopped) | 61 s | 44 s | 1.0 s | 1.02 s | over 1,700× |
-| `n8-s1`: 8 random sites | 3,764 s (1 h 2 min 44 s), see below | | | | 2.02 s, 5 MB | 1,900× |
+| `n8-s1`: 8 random sites | 3,764 s (1 h 2 min 44 s), see below | | | | 2.02 s, 4 MB | 1,900× |
 
 Empty cells were not measured. Two of the v1.5 runs needed more memory than the
 virtual machine has, so their peak resident memory (3.6 GB, the limit) understates
