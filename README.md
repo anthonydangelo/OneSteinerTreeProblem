@@ -237,9 +237,11 @@ this one does, takes Ω(n²) time in the worst case.
 
 The worst-case bottleneck (candidate evaluation) and the measured one (building
 the cells) differ. The 6n cells need n − 1 subtractions each, about 6n²
-subtractions in total. On random inputs the cells stay small, so each
-subtraction takes roughly constant time (about 6 ms at n = 96) and building the
-cells takes time proportional to n²; the O(n³ log n) bound allows for cells with
+subtractions in total. On random inputs 
+the cells stay small, so each subtraction takes roughly constant time (at most
+about 6 ms at n = 96, counting the per-direction overlays in that time) and
+building the cells takes time proportional to n²;
+the O(n³ log n) bound allows for cells with
 O(n) edges. Candidate evaluation is cheap at these sizes (about 1.4 ms per
 candidate at n = 96), but its O(n⁴) total would eventually dominate for larger
 inputs. How each phase could reach GPA's bounds is in
@@ -320,7 +322,7 @@ The OODC used `CORE::Expr` too, until profiling showed that its arrangements
 were tiny (58 vertices for 6 sites) while single overlays took seconds: nearly
 all the time went into evaluating CORE expressions. Since the OODC needs no
 square roots, rationals give the same results. Switching made it 70 to 170 times
-faster and cut the memory from about 2 GB to 4 MB for 7 sites (see
+faster on random inputs and cut the memory from about 2 GB to 4 MB for 7 sites (see
 [docs/PERFORMANCE.md](docs/PERFORMANCE.md)).
 
 What the switch costs:
@@ -368,7 +370,7 @@ single-threaded), with peak memory where it was recorded.
   OODC needs no square roots, so it now uses exact rationals (see
   [Number types](#number-types)).
 
-Time grows about like n^2.05 and memory like n^2.3: 30 sites take 32 s, and 100
+Time grows about like n^2.05 and memory like n^2.2: 30 sites take 32 s, and 100
 sites about 6 minutes (with `-b`; see [Usage](#usage)).
 For 96 sites, building the cells takes 94% of the time,
 and the candidates' data takes 97% of the memory (probably mostly due to their
@@ -656,7 +658,7 @@ out.
     by coordinates, and start each insertion's point location near the
     candidate (or use `CGAL::Triangulation_hierarchy_2`) instead of walking
     from a fixed face (the default insertion behaviour for the CGAL triangulation).
-- **Memory** (97% of it at n = 96 goes to the candidates, about 36 KB each).
+- **Memory** (97% of it at n = 96 goes to the candidates, about 34 KB each).
   Each candidate keeps its tree and its exact length, a `CORE::Expr` with one
   square root per edge. The sort and the output use only the lengths' double
   approximations, so storing doubles (or computing each edge's length in double
@@ -665,7 +667,7 @@ out.
 - **Output size.** The default output lists every candidate's whole tree,
   Θ(n³) in the worst case (about 380 MB for 96 sites); `-b`, `-f` and `-o`
   avoid this by writing only the best tree. A compact full output could give
-  each candidate's tree as a change to the sites' MST: by the result above, it
+  each candidate's tree as a change to the sites' MST: by the Brazil et al. result above, it
   consists of edges of the sites' MST plus at most 6 edges at the candidate, so
   at most 6 edges removed and 6 added. The whole output would then be O(n²).
   The companion web page would need updating to read it.
