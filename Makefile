@@ -8,6 +8,7 @@
 #                                                 ./OneSteinerTreeProblem-mem
 #   make asan       AddressSanitizer + UndefinedBehaviorSanitizer build (not static):
 #                                                 ./OneSteinerTreeProblem-asan
+#   make variants   all five binaries (release, debug, perf, checkpoints, asan)
 #   make clean      delete the binaries
 #
 # CGAL_DIR must point to the CGAL 4.11.2 build directory (the one containing lib/),
@@ -65,7 +66,7 @@ ASAN_LDFLAGS  := -L$(CGAL_DIR)/lib
 ASAN_LIBS     := -Wl,-Bstatic -lCGAL_Core -lCGAL -lmpfr -lgmp -lboost_thread -lboost_system \
                  -Wl,-Bdynamic -lpthread
 
-.PHONY: all release perf debug checkpoints asan clean check-cgal
+.PHONY: all release perf debug checkpoints asan variants clean check-cgal
 
 all: release
 
@@ -74,6 +75,8 @@ perf: OneSteinerTreeProblem-perf
 debug: OneSteinerTreeProblem_d
 checkpoints: OneSteinerTreeProblem-mem
 asan: OneSteinerTreeProblem-asan
+# Every binary: release, debug, perf, checkpoints and asan.
+variants: release debug perf checkpoints asan
 
 # Stop with a clear message if CGAL_DIR is not set (instead of a confusing link error).
 check-cgal:
