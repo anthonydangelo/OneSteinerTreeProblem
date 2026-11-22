@@ -14,6 +14,9 @@ import glob, json, os, sys
 
 OUT_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
 
+if len(sys.argv) != 3:
+    sys.exit('usage: python3 tests/check-face-indices.py <suite> <label>')
+
 suite, label = sys.argv[1:3]
 checked = 0
 bad = 0

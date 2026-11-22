@@ -106,11 +106,17 @@ def read_cases(path):
     return cases
 
 
-if len(sys.argv) >= 3 and sys.argv[1] == '--cases':
+USAGE = ('usage: python3 tests/check-output-modes.py <binary> [program arguments...]\n'
+         '   or: python3 tests/check-output-modes.py --cases <cases file> <binary>')
+if len(sys.argv) >= 2 and sys.argv[1] == '--cases':
+    if len(sys.argv) != 4:
+        sys.exit(USAGE)
     cases, binary = read_cases(sys.argv[2]), sys.argv[3]
-else:
+elif len(sys.argv) >= 2:
     binary = sys.argv[1]
     cases = [(' '.join(sys.argv[2:]), sys.argv[2:])]
+else:
+    sys.exit(USAGE)
 
 bad = 0
 for name, args in cases:

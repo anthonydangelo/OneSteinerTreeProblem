@@ -10,6 +10,9 @@ spec = importlib.util.spec_from_file_location('co', os.path.join(TESTS_DIR, 'com
 co = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(co)
 
+if len(sys.argv) != 4:
+    sys.exit('usage: python3 tests/compare-without-arrangement.py <suite> <label1> <label2>')
+
 suite, a, b = sys.argv[1:4]
 cases = [c[0] for c in co.read_cases(os.path.join(TESTS_DIR, 'cases-{}.txt'.format(suite)))]
 for name in cases:
