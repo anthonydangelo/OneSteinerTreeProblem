@@ -8,3 +8,4 @@ tests/out/
 OneSteinerTreeProblem-perf
 OneSteinerTreeProblem-mem
 OneSteinerTreeProblem-asan
+__pycache__/
