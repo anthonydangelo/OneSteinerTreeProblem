@@ -39,7 +39,7 @@ OUT_ROOT="$SCRIPT_DIR/out"
 TIME_BIN="${TIME_BIN:-/usr/bin/time}"    # GNU time; override for testing
 
 usage() {
-    sed -n '2,36p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,/^[^#]/{/^#/p}' "$0" | sed 's/^# \{0,1\}//'
     exit 2
 }
 
