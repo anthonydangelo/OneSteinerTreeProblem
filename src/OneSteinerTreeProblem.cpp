@@ -205,7 +205,7 @@ namespace
                 "--onlyPoints    (-p):          Only create new random points and return\n"
                 "--bestOnly      (-b):          Output only the best candidate tree: no arrangement, no other candidates\n"
                 "                               (much smaller output for large inputs; the computation is the same)\n" 
-                "--bestWithFaces (-f):          Like -b, plus the arrangement faces that produced the best candidate\n"
+                "--bestWithFaces (-f):          Like -b, plus the arrangement faces that could have produced the best candidate\n"                
                 "                               (faces whose site set contains its sites)\n"
                 "--bestWithOODC  (-o):          Like -b, plus the whole OODC arrangement\n"
                 "                               (if more than one of -b, -f, -o is given, the last one counts)\n"                               
@@ -313,7 +313,8 @@ namespace
                     } else 
                     {
                         config.numPoints = DEFAULT_NUM_INPUT_POINTS;
-                        cerr << "ERROR: Invalid number of points. Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;
+                        cerr << "WARNING: Invalid number of points (must be an integer from " << MIN_NUM_INPUT_POINTS
+                             << " to " << MAX_NUM_INPUT_POINTS << "). Using default of " << DEFAULT_NUM_INPUT_POINTS << endl;                        
                     }
                 }
                 break;
@@ -326,7 +327,7 @@ namespace
                 if (optarg && ! parseWholeInt(optarg, config.randSeed))
                 {
                     config.randSeed = RAND_SEED_DEFAULT;
-                    cerr << "ERROR: Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;
+                    cerr << "WARNING: Invalid value for random seed. Using default of " << RAND_SEED_DEFAULT << endl;                    
                 }
                 break;
 
@@ -341,7 +342,7 @@ namespace
                     } else
                     {
                         config.gridLength = GRID_LENGTH_DEFAULT;
-                        cerr << "ERROR: Grid length must be an integer of at least " << GRID_LENGTH_MIN
+                        cerr << "WARNING: Grid length must be an integer of at least " << GRID_LENGTH_MIN                        
                              << ". Using default of " << GRID_LENGTH_DEFAULT << endl;
                     }
                 }
