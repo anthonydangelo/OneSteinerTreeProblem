@@ -49,7 +49,7 @@ namespace One_St_Pt_GPA
         Is_finite()
             : t_(nullptr)
         {}
-        Is_finite(const T &t)
+        explicit Is_finite(const T & t)
             : t_(&t)
         { }
         template <typename VertexOrEdge>
