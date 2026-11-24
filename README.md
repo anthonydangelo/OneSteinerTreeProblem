@@ -471,11 +471,13 @@ example, on a full disk), and with 0 otherwise.
 
 **The lock.** The program was written to run behind a web server, so by default
 it takes an exclusive lock (`flock`) on `/tmp/one-st-tree-mutex.lock` before
-computing, and concurrent runs wait for each other, without a message. Use
-`--no-mutex` to run without it, for example when the calling script manages its
-own lock. On a machine shared by several users, the first user's run creates the
-lock file readable and writable only by that user, so other users' runs cannot
-open it and need `--no-mutex`.
+computing, and concurrent runs wait for each other, without a message.
+[OrderKVoronoiD](https://github.com/anthonydangelo/OrderKVoronoiD) takes the same
+lock, so runs of the two programs also wait for each other. Use `--no-mutex` to
+run without it, for example when the calling script manages its own lock. On a
+machine shared by several users, the first user's run creates the lock file
+readable and writable only by that user, so other users' runs cannot open it and
+need `--no-mutex`.
 
 ### Output format
 
@@ -765,7 +767,10 @@ example. CGAL is available at https://www.cgal.org.
 
 The original implementation (2018) is my own. The 2026 work on this repository
 was done with help from AI assistants: Brave Leo early on, then Claude
-(Anthropic). Claude proposed and drafted most of the 2026 changes to the C++
-code, which I reviewed and applied by hand; it also wrote the test and
-profiling scripts in `tests/` and `profiling/`, helped interpret the profiling
-results, and drafted parts of this README and of `docs/PERFORMANCE.md`.
+(Anthropic). Claude found most of the problems fixed in 2026 (through profiling
+and the test scripts), proposed and drafted the changes to the C++ code, wrote
+the test and profiling scripts in `tests/` and `profiling/`, 
+and drafted this README and `docs/PERFORMANCE.md`. 
+I decided what to change, applied every change by hand, and ran the builds,
+tests and profiling scripts on my machine; analysing their results was mostly
+Claude's work.
